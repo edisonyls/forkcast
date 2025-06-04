@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  address   String?
+  role      UserRole @default(CUSTOMER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  chef   Chef?
+  orders Order[]
+
+  @@map("users")
+}
+
+model Chef {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  name        String
+  bio         String
+  cuisine     String
+  rating      Float   @default(0)
+  totalRating Int     @default(0)
+  ratingCount Int     @default(0)
+  image       String?
+  isActive    Boolean @default(true)
+  isVerified  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  menuItems MenuItem[]
+
+  @@map("chefs")
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  menuItems MenuItem[]
+
+  @@map("categories")
+}
+
+model MenuItem {
+  id              String  @id @default(cuid())
+  name            String
+  description     String
+  price           Float
+  preparationTime Int // in minutes
+  rating          Float   @default(0)
+  totalRating     Float   @default(0)
+  ratingCount     Int     @default(0)
+  image           String?
+  isActive        Boolean @default(true)
+
+  chefId     String
+  categoryId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  chef                  Chef                   @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  category              Category               @relation(fields: [categoryId], references: [id])
+  customizationOptions  CustomizationOption[]
+  orderItems            OrderItem[]
+
+  @@map("menu_items")
+}
+
+model CustomizationOption {
+  id     String @id @default(cuid())
+  name   String
+  price  Float
+  isActive Boolean @default(true)
+
+  menuItemId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  menuItem           MenuItem             @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  orderItemOptions   OrderItemOption[]
+
+  @@map("customization_options")
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String
+  status        OrderStatus @default(PENDING)
+  totalAmount   Float
+  deliveryFee   Float       @default(0)
+  tax           Float       @default(0)
+  finalAmount   Float
+  deliveryAddress String?
+  specialInstructions String?
+  
+  orderDate     DateTime    @default(now())
+  estimatedDelivery DateTime?
+  completedAt   DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int
+  price    Float // price at time of order
+  totalPrice Float
+
+  orderId    String
+  menuItemId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  order    Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem              @relation(fields: [menuItemId], references: [id])
+  options  OrderItemOption[]
+
+  @@map("order_items")
+}
+
+model OrderItemOption {
+  id    String @id @default(cuid())
+  price Float // price at time of order
+
+  orderItemId           String
+  customizationOptionId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orderItem           OrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  customizationOption CustomizationOption @relation(fields: [customizationOptionId], references: [id])
+
+  @@map("order_item_options")
+}
+
+enum UserRole {
+  CUSTOMER
+  CHEF
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+} 
