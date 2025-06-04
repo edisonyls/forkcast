@@ -1,50 +1,41 @@
 import { z } from "zod";
-import { UserRole, OrderStatus } from "../types/common";
+import { OrderStatus } from "../types/common";
 
-// Auth schemas
-export const loginSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-export const registerSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain uppercase, lowercase, and number"
-    ),
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  phone: z.string().optional(),
-  address: z.string().optional(),
+// Pagination schema
+export const paginationSchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
 // Chef schemas
 export const chefProfileSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  bio: z.string().min(10, "Bio must be at least 10 characters"),
-  cuisine: z.string().min(2, "Cuisine must be specified"),
-  image: z.string().url("Invalid image URL").optional(),
+  name: z.string().min(1, "Name is required"),
+  bio: z.string().min(1, "Bio is required"),
+  cuisine: z.string().min(1, "Cuisine is required"),
+  image: z.string().url().optional(),
+});
+
+// Category schemas
+export const categorySchema = z.object({
+  name: z.string().min(1, "Category name is required"),
 });
 
 // Menu item schemas
 export const menuItemSchema = z.object({
-  name: z.string().min(2, "Item name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
   price: z.number().positive("Price must be positive"),
   preparationTime: z
     .number()
     .int()
     .positive("Preparation time must be positive"),
+  chefId: z.string().cuid("Invalid chef ID"),
   categoryId: z.string().cuid("Invalid category ID"),
-  image: z.string().url("Invalid image URL").optional(),
+  image: z.string().url().optional(),
 });
 
 export const customizationOptionSchema = z.object({
-  name: z.string().min(1, "Option name is required"),
+  name: z.string().min(1, "Name is required"),
   price: z.number().min(0, "Price cannot be negative"),
 });
 
@@ -56,21 +47,16 @@ export const orderItemSchema = z.object({
 });
 
 export const createOrderSchema = z.object({
+  customerName: z.string().min(1, "Customer name is required"),
   items: z
     .array(orderItemSchema)
     .min(1, "Order must contain at least one item"),
-  deliveryAddress: z.string().optional(),
   specialInstructions: z.string().optional(),
 });
 
 export const updateOrderStatusSchema = z.object({
   status: z.nativeEnum(OrderStatus),
-});
-
-// Pagination schema
-export const paginationSchema = z.object({
-  page: z.number().int().positive().default(1),
-  limit: z.number().int().positive().max(100).default(10),
+  estimatedDelivery: z.string().datetime().optional(),
 });
 
 // Search schema

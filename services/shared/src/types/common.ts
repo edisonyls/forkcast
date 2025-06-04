@@ -16,18 +16,6 @@ export interface PaginatedResponse<T = any> {
   };
 }
 
-export interface AuthPayload {
-  userId: string;
-  email: string;
-  role: UserRole;
-}
-
-export enum UserRole {
-  CUSTOMER = "CUSTOMER",
-  CHEF = "CHEF",
-  ADMIN = "ADMIN",
-}
-
 export enum OrderStatus {
   PENDING = "PENDING",
   CONFIRMED = "CONFIRMED",
@@ -36,12 +24,4 @@ export enum OrderStatus {
   OUT_FOR_DELIVERY = "OUT_FOR_DELIVERY",
   DELIVERED = "DELIVERED",
   CANCELLED = "CANCELLED",
-}
-
-export interface JwtPayload {
-  userId: string;
-  email: string;
-  role: UserRole;
-  iat?: number;
-  exp?: number;
 }

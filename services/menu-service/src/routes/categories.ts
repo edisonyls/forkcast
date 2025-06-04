@@ -3,9 +3,8 @@ import {
   prisma,
   sendSuccessResponse,
   sendErrorResponse,
-  authenticate,
-  authorize,
-  UserRole,
+  validateRequest,
+  categorySchema,
 } from "@forkcast/shared";
 
 const router = Router();
@@ -38,15 +37,10 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get category by ID with menu items
+// Get category by ID
 router.get("/:categoryId", async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const { page = "1", limit = "10" } = req.query;
-
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
-    const skip = (pageNum - 1) * limitNum;
 
     const category = await prisma.category.findUnique({
       where: { id: categoryId },
@@ -54,6 +48,30 @@ router.get("/:categoryId", async (req, res) => {
         id: true,
         name: true,
         createdAt: true,
+        menuItems: {
+          where: {
+            isActive: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            price: true,
+            preparationTime: true,
+            rating: true,
+            ratingCount: true,
+            image: true,
+            chef: {
+              select: {
+                id: true,
+                name: true,
+                cuisine: true,
+                rating: true,
+              },
+            },
+          },
+          orderBy: { rating: "desc" },
+        },
       },
     });
 
@@ -61,78 +79,21 @@ router.get("/:categoryId", async (req, res) => {
       return sendErrorResponse(res, "Category not found", 404);
     }
 
-    const [menuItems, total] = await Promise.all([
-      prisma.menuItem.findMany({
-        where: {
-          categoryId,
-          isActive: true,
-        },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          price: true,
-          preparationTime: true,
-          rating: true,
-          ratingCount: true,
-          image: true,
-          chef: {
-            select: {
-              id: true,
-              name: true,
-              cuisine: true,
-              rating: true,
-            },
-          },
-        },
-        skip,
-        take: limitNum,
-        orderBy: { rating: "desc" },
-      }),
-      prisma.menuItem.count({
-        where: {
-          categoryId,
-          isActive: true,
-        },
-      }),
-    ]);
-
-    const totalPages = Math.ceil(total / limitNum);
-
-    return sendSuccessResponse(res, {
-      category,
-      menuItems,
-      pagination: {
-        currentPage: pageNum,
-        totalPages,
-        totalCount: total,
-        hasNext: pageNum < totalPages,
-        hasPrev: pageNum > 1,
-      },
-    });
+    return sendSuccessResponse(res, { category });
   } catch (error) {
     console.error("Get category error:", error);
     return sendErrorResponse(res, "Failed to fetch category", 500);
   }
 });
 
-// Create category (admin only)
-router.post("/", authenticate, authorize(UserRole.ADMIN), async (req, res) => {
+// Create category
+router.post("/", validateRequest(categorySchema), async (req, res) => {
   try {
     const { name } = req.body;
 
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
-      return sendErrorResponse(res, "Category name is required", 400);
-    }
-
     // Check if category already exists
     const existingCategory = await prisma.category.findFirst({
-      where: {
-        name: {
-          equals: name.trim(),
-          mode: "insensitive",
-        },
-      },
+      where: { name: { equals: name, mode: "insensitive" } },
     });
 
     if (existingCategory) {
@@ -140,9 +101,7 @@ router.post("/", authenticate, authorize(UserRole.ADMIN), async (req, res) => {
     }
 
     const category = await prisma.category.create({
-      data: {
-        name: name.trim(),
-      },
+      data: { name },
       select: {
         id: true,
         name: true,
@@ -162,19 +121,14 @@ router.post("/", authenticate, authorize(UserRole.ADMIN), async (req, res) => {
   }
 });
 
-// Update category (admin only)
+// Update category
 router.put(
   "/:categoryId",
-  authenticate,
-  authorize(UserRole.ADMIN),
+  validateRequest(categorySchema),
   async (req, res) => {
     try {
       const { categoryId } = req.params;
       const { name } = req.body;
-
-      if (!name || typeof name !== "string" || name.trim().length === 0) {
-        return sendErrorResponse(res, "Category name is required", 400);
-      }
 
       // Check if category exists
       const existingCategory = await prisma.category.findUnique({
@@ -185,30 +139,21 @@ router.put(
         return sendErrorResponse(res, "Category not found", 404);
       }
 
-      // Check if another category with the same name exists
+      // Check if another category with this name exists
       const duplicateCategory = await prisma.category.findFirst({
         where: {
+          name: { equals: name, mode: "insensitive" },
           id: { not: categoryId },
-          name: {
-            equals: name.trim(),
-            mode: "insensitive",
-          },
         },
       });
 
       if (duplicateCategory) {
-        return sendErrorResponse(
-          res,
-          "Category with this name already exists",
-          409
-        );
+        return sendErrorResponse(res, "Category name already exists", 409);
       }
 
-      const updatedCategory = await prisma.category.update({
+      const category = await prisma.category.update({
         where: { id: categoryId },
-        data: {
-          name: name.trim(),
-        },
+        data: { name },
         select: {
           id: true,
           name: true,
@@ -219,7 +164,7 @@ router.put(
 
       return sendSuccessResponse(
         res,
-        { category: updatedCategory },
+        { category },
         "Category updated successfully"
       );
     } catch (error) {
@@ -229,54 +174,49 @@ router.put(
   }
 );
 
-// Delete category (admin only)
-router.delete(
-  "/:categoryId",
-  authenticate,
-  authorize(UserRole.ADMIN),
-  async (req, res) => {
-    try {
-      const { categoryId } = req.params;
+// Delete category
+router.delete("/:categoryId", async (req, res) => {
+  try {
+    const { categoryId } = req.params;
 
-      // Check if category exists
-      const existingCategory = await prisma.category.findUnique({
-        where: { id: categoryId },
-        include: {
-          _count: {
-            select: {
-              menuItems: {
-                where: {
-                  isActive: true,
-                },
+    // Check if category exists
+    const existingCategory = await prisma.category.findUnique({
+      where: { id: categoryId },
+      include: {
+        _count: {
+          select: {
+            menuItems: {
+              where: {
+                isActive: true,
               },
             },
           },
         },
-      });
+      },
+    });
 
-      if (!existingCategory) {
-        return sendErrorResponse(res, "Category not found", 404);
-      }
-
-      // Check if category has active menu items
-      if (existingCategory._count.menuItems > 0) {
-        return sendErrorResponse(
-          res,
-          "Cannot delete category with active menu items",
-          400
-        );
-      }
-
-      await prisma.category.delete({
-        where: { id: categoryId },
-      });
-
-      return sendSuccessResponse(res, null, "Category deleted successfully");
-    } catch (error) {
-      console.error("Delete category error:", error);
-      return sendErrorResponse(res, "Failed to delete category", 500);
+    if (!existingCategory) {
+      return sendErrorResponse(res, "Category not found", 404);
     }
+
+    // Check if category has active menu items
+    if (existingCategory._count.menuItems > 0) {
+      return sendErrorResponse(
+        res,
+        "Cannot delete category with active menu items",
+        400
+      );
+    }
+
+    await prisma.category.delete({
+      where: { id: categoryId },
+    });
+
+    return sendSuccessResponse(res, null, "Category deleted successfully");
+  } catch (error) {
+    console.error("Delete category error:", error);
+    return sendErrorResponse(res, "Failed to delete category", 500);
   }
-);
+});
 
 export default router;

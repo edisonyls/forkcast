@@ -1,465 +1,320 @@
-import { PrismaClient, UserRole, OrderStatus } from "@prisma/client";
-import * as bcrypt from "bcryptjs";
+import { PrismaClient } from "@prisma/client";
+import { OrderStatus } from "../src/types/common";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Starting database seeding...");
 
-  // Hash password for all users
-  const hashedPassword = await bcrypt.hash("password123", 10);
+  // Clean up existing data
+  await prisma.orderItemOption.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.customizationOption.deleteMany();
+  await prisma.menuItem.deleteMany();
+  await prisma.chef.deleteMany();
+  await prisma.category.deleteMany();
+
+  console.log("🗑️ Cleaned up existing data");
 
   // Create Categories
-  console.log("📁 Creating categories...");
   const categories = await Promise.all([
-    prisma.category.create({ data: { name: "Italian" } }),
-    prisma.category.create({ data: { name: "Mexican" } }),
-    prisma.category.create({ data: { name: "Indian" } }),
-    prisma.category.create({ data: { name: "Chinese" } }),
-    prisma.category.create({ data: { name: "American" } }),
-    prisma.category.create({ data: { name: "Mediterranean" } }),
-    prisma.category.create({ data: { name: "Thai" } }),
-    prisma.category.create({ data: { name: "Japanese" } }),
+    prisma.category.create({
+      data: { name: "Italian" },
+    }),
+    prisma.category.create({
+      data: { name: "Mexican" },
+    }),
+    prisma.category.create({
+      data: { name: "Indian" },
+    }),
+    prisma.category.create({
+      data: { name: "American" },
+    }),
+    prisma.category.create({
+      data: { name: "Chinese" },
+    }),
   ]);
 
-  // Create Users
-  console.log("👥 Creating users...");
-  const users = await Promise.all([
-    // Admin User
-    prisma.user.create({
-      data: {
-        email: "admin@forkcast.com",
-        password: hashedPassword,
-        firstName: "Admin",
-        lastName: "User",
-        phone: "+1234567890",
-        address: "123 Admin St, Admin City, AC 12345",
-        role: UserRole.ADMIN,
-      },
-    }),
-    // Chef Users
-    prisma.user.create({
-      data: {
-        email: "mario@forkcast.com",
-        password: hashedPassword,
-        firstName: "Mario",
-        lastName: "Rossi",
-        phone: "+1234567891",
-        address: "456 Chef St, Italian Quarter, IQ 12346",
-        role: UserRole.CHEF,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "carlos@forkcast.com",
-        password: hashedPassword,
-        firstName: "Carlos",
-        lastName: "Rodriguez",
-        phone: "+1234567892",
-        address: "789 Spice Ave, Mexican District, MD 12347",
-        role: UserRole.CHEF,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "priya@forkcast.com",
-        password: hashedPassword,
-        firstName: "Priya",
-        lastName: "Sharma",
-        phone: "+1234567893",
-        address: "321 Curry Lane, Indian Village, IV 12348",
-        role: UserRole.CHEF,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "david@forkcast.com",
-        password: hashedPassword,
-        firstName: "David",
-        lastName: "Johnson",
-        phone: "+1234567894",
-        address: "654 Burger Blvd, American Town, AT 12349",
-        role: UserRole.CHEF,
-      },
-    }),
-    // Customer Users
-    prisma.user.create({
-      data: {
-        email: "john@customer.com",
-        password: hashedPassword,
-        firstName: "John",
-        lastName: "Doe",
-        phone: "+1234567895",
-        address: "987 Customer St, Customer City, CC 12350",
-        role: UserRole.CUSTOMER,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "jane@customer.com",
-        password: hashedPassword,
-        firstName: "Jane",
-        lastName: "Smith",
-        phone: "+1234567896",
-        address: "147 Foodie Ave, Foodie Town, FT 12351",
-        role: UserRole.CUSTOMER,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: "alice@customer.com",
-        password: hashedPassword,
-        firstName: "Alice",
-        lastName: "Wilson",
-        phone: "+1234567897",
-        address: "258 Hungry St, Delivery District, DD 12352",
-        role: UserRole.CUSTOMER,
-      },
-    }),
-  ]);
+  console.log(`✅ Created ${categories.length} categories`);
 
   // Create Chefs
-  console.log("👨‍🍳 Creating chef profiles...");
   const chefs = await Promise.all([
     prisma.chef.create({
       data: {
-        userId: users[1].id, // Mario
-        name: "Mario's Italian Kitchen",
-        bio: "Authentic Italian cuisine with recipes passed down through generations. Specializing in handmade pasta and traditional wood-fired pizzas.",
+        name: "Mario Rossi",
+        bio: "Authentic Italian chef with 15 years of experience in traditional Tuscan cuisine",
         cuisine: "Italian",
         rating: 4.8,
         totalRating: 240,
         ratingCount: 50,
         image:
-          "https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=400",
+          "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=300",
         isVerified: true,
       },
     }),
     prisma.chef.create({
       data: {
-        userId: users[2].id, // Carlos
-        name: "Carlos's Mexican Cantina",
-        bio: "Fresh and vibrant Mexican flavors using traditional cooking methods. Famous for our homemade salsas and slow-cooked carnitas.",
+        name: "Carlos Rodriguez",
+        bio: "Mexican cuisine specialist bringing authentic flavors from Oaxaca",
         cuisine: "Mexican",
         rating: 4.6,
         totalRating: 184,
         ratingCount: 40,
         image:
-          "https://images.unsplash.com/photo-1566554273541-37a9ca77b91f?w=400",
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300",
         isVerified: true,
       },
     }),
     prisma.chef.create({
       data: {
-        userId: users[3].id, // Priya
-        name: "Priya's Spice Palace",
-        bio: "Aromatic Indian dishes with carefully balanced spices. From mild curries to fiery vindaloos, experience the diversity of Indian cuisine.",
+        name: "Priya Sharma",
+        bio: "Indian chef specializing in North Indian and Mughlai cuisine",
         cuisine: "Indian",
         rating: 4.9,
         totalRating: 294,
         ratingCount: 60,
         image:
-          "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400",
+          "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300",
         isVerified: true,
       },
     }),
     prisma.chef.create({
       data: {
-        userId: users[4].id, // David
-        name: "David's All-American Diner",
-        bio: "Classic American comfort food with a modern twist. Juicy burgers, crispy fries, and hearty milkshakes made with premium ingredients.",
+        name: "David Johnson",
+        bio: "American comfort food expert with a modern twist on classic dishes",
         cuisine: "American",
-        rating: 4.5,
-        totalRating: 135,
+        rating: 4.4,
+        totalRating: 132,
         ratingCount: 30,
         image:
-          "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400",
+          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300",
         isVerified: true,
       },
     }),
   ]);
 
-  // Create Menu Items with Customization Options
-  console.log("🍽️ Creating menu items...");
+  console.log(`✅ Created ${chefs.length} chef profiles`);
 
-  // Mario's Italian Menu
+  // Create Menu Items for each chef
   const italianItems = await Promise.all([
     prisma.menuItem.create({
       data: {
         name: "Margherita Pizza",
         description:
-          "Classic wood-fired pizza with fresh mozzarella, basil, and tomato sauce",
+          "Classic pizza with fresh mozzarella, basil, and tomato sauce",
         price: 18.99,
-        preparationTime: 15,
-        rating: 4.7,
-        totalRating: 188,
-        ratingCount: 40,
-        image:
-          "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400",
+        preparationTime: 25,
         chefId: chefs[0].id,
-        categoryId: categories[0].id, // Italian
-        customizationOptions: {
-          create: [
-            { name: "Extra Cheese", price: 2.5 },
-            { name: "Pepperoni", price: 3.0 },
-            { name: "Mushrooms", price: 2.0 },
-            { name: "Olives", price: 1.5 },
-          ],
-        },
+        categoryId: categories[0].id,
+        rating: 4.8,
+        totalRating: 96,
+        ratingCount: 20,
+        image:
+          "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400",
       },
     }),
     prisma.menuItem.create({
       data: {
         name: "Fettuccine Alfredo",
-        description:
-          "Creamy homemade pasta with parmesan cheese and fresh herbs",
+        description: "Rich and creamy pasta with parmesan cheese and butter",
         price: 22.99,
         preparationTime: 20,
-        rating: 4.8,
-        totalRating: 144,
-        ratingCount: 30,
-        image:
-          "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=400",
         chefId: chefs[0].id,
         categoryId: categories[0].id,
-        customizationOptions: {
-          create: [
-            { name: "Grilled Chicken", price: 5.0 },
-            { name: "Shrimp", price: 7.0 },
-            { name: "Extra Parmesan", price: 2.0 },
-          ],
-        },
+        rating: 4.6,
+        totalRating: 69,
+        ratingCount: 15,
+        image:
+          "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400",
       },
     }),
   ]);
 
-  // Carlos's Mexican Menu
   const mexicanItems = await Promise.all([
     prisma.menuItem.create({
       data: {
         name: "Beef Tacos",
         description:
-          "Three soft tacos with seasoned ground beef, lettuce, cheese, and salsa",
+          "Three soft tacos with seasoned beef, lettuce, tomato, and cheese",
         price: 14.99,
-        preparationTime: 10,
-        rating: 4.6,
-        totalRating: 138,
-        ratingCount: 30,
-        image:
-          "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400",
+        preparationTime: 15,
         chefId: chefs[1].id,
-        categoryId: categories[1].id, // Mexican
-        customizationOptions: {
-          create: [
-            { name: "Extra Meat", price: 3.0 },
-            { name: "Guacamole", price: 2.5 },
-            { name: "Sour Cream", price: 1.0 },
-            { name: "Hot Sauce", price: 0.5 },
-          ],
-        },
+        categoryId: categories[1].id,
+        rating: 4.5,
+        totalRating: 90,
+        ratingCount: 20,
+        image:
+          "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=400",
       },
     }),
     prisma.menuItem.create({
       data: {
         name: "Chicken Burrito Bowl",
-        description:
-          "Grilled chicken with rice, beans, corn, peppers, and cilantro-lime dressing",
+        description: "Grilled chicken with rice, beans, salsa, and guacamole",
         price: 16.99,
-        preparationTime: 12,
-        rating: 4.7,
-        totalRating: 141,
-        ratingCount: 30,
-        image:
-          "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400",
+        preparationTime: 18,
         chefId: chefs[1].id,
         categoryId: categories[1].id,
-        customizationOptions: {
-          create: [
-            { name: "Extra Chicken", price: 4.0 },
-            { name: "Avocado", price: 2.0 },
-            { name: "Cheese", price: 1.5 },
-          ],
-        },
+        rating: 4.7,
+        totalRating: 75.2,
+        ratingCount: 16,
+        image:
+          "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400",
       },
     }),
   ]);
 
-  // Priya's Indian Menu
   const indianItems = await Promise.all([
     prisma.menuItem.create({
       data: {
         name: "Butter Chicken",
-        description:
-          "Tender chicken in a rich and creamy tomato-based curry sauce",
+        description: "Tender chicken in a rich, creamy tomato-based curry",
         price: 19.99,
-        preparationTime: 25,
-        rating: 4.9,
-        totalRating: 196,
-        ratingCount: 40,
-        image:
-          "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400",
+        preparationTime: 30,
         chefId: chefs[2].id,
-        categoryId: categories[2].id, // Indian
-        customizationOptions: {
-          create: [
-            { name: "Mild Spice", price: 0 },
-            { name: "Medium Spice", price: 0 },
-            { name: "Hot Spice", price: 0 },
-            { name: "Extra Hot", price: 0 },
-            { name: "Basmati Rice", price: 3.0 },
-            { name: "Naan Bread", price: 2.5 },
-          ],
-        },
+        categoryId: categories[2].id,
+        rating: 4.9,
+        totalRating: 147,
+        ratingCount: 30,
+        image:
+          "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=400",
       },
     }),
     prisma.menuItem.create({
       data: {
-        name: "Vegetable Biryani",
+        name: "Biryani",
         description:
-          "Aromatic basmati rice with mixed vegetables and traditional spices",
-        price: 17.99,
-        preparationTime: 30,
-        rating: 4.8,
-        totalRating: 144,
-        ratingCount: 30,
-        image:
-          "https://images.unsplash.com/photo-1563379091339-03246963d4b3?w=400",
+          "Fragrant basmati rice with spiced chicken and aromatic herbs",
+        price: 24.99,
+        preparationTime: 45,
         chefId: chefs[2].id,
         categoryId: categories[2].id,
-        customizationOptions: {
-          create: [
-            { name: "Extra Vegetables", price: 2.0 },
-            { name: "Raita (Yogurt Sauce)", price: 1.5 },
-            { name: "Papad", price: 1.0 },
-          ],
-        },
+        rating: 4.8,
+        totalRating: 120,
+        ratingCount: 25,
+        image:
+          "https://images.unsplash.com/photo-1563379091339-03246963d51a?w=400",
       },
     }),
   ]);
 
-  // David's American Menu
   const americanItems = await Promise.all([
     prisma.menuItem.create({
       data: {
-        name: "Classic Cheeseburger",
+        name: "Classic Burger",
         description:
-          "Juicy beef patty with cheddar cheese, lettuce, tomato, and our special sauce",
-        price: 15.99,
-        preparationTime: 15,
-        rating: 4.5,
-        totalRating: 135,
-        ratingCount: 30,
+          "Juicy beef patty with lettuce, tomato, onion, and special sauce",
+        price: 16.99,
+        preparationTime: 20,
+        chefId: chefs[3].id,
+        categoryId: categories[3].id,
+        rating: 4.3,
+        totalRating: 64.5,
+        ratingCount: 15,
         image:
           "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
-        chefId: chefs[3].id,
-        categoryId: categories[4].id, // American
-        customizationOptions: {
-          create: [
-            { name: "Extra Patty", price: 4.0 },
-            { name: "Bacon", price: 2.5 },
-            { name: "Avocado", price: 2.0 },
-            { name: "Onion Rings", price: 1.5 },
-          ],
-        },
-      },
-    }),
-    prisma.menuItem.create({
-      data: {
-        name: "BBQ Pulled Pork Sandwich",
-        description:
-          "Slow-cooked pulled pork with tangy BBQ sauce and coleslaw",
-        price: 17.99,
-        preparationTime: 20,
-        rating: 4.6,
-        totalRating: 138,
-        ratingCount: 30,
-        image:
-          "https://images.unsplash.com/photo-1553979459-d2229ba7433a?w=400",
-        chefId: chefs[3].id,
-        categoryId: categories[4].id,
-        customizationOptions: {
-          create: [
-            { name: "Extra Pork", price: 3.5 },
-            { name: "Spicy BBQ Sauce", price: 0 },
-            { name: "Pickles", price: 0.5 },
-          ],
-        },
       },
     }),
   ]);
 
-  // Create Sample Orders
-  console.log("📦 Creating sample orders...");
+  console.log(
+    `✅ Created ${
+      italianItems.length +
+      mexicanItems.length +
+      indianItems.length +
+      americanItems.length
+    } menu items`
+  );
+
+  // Create some customization options
+  await Promise.all([
+    prisma.customizationOption.create({
+      data: {
+        name: "Extra Cheese",
+        price: 2.99,
+        menuItemId: italianItems[0].id,
+      },
+    }),
+    prisma.customizationOption.create({
+      data: {
+        name: "Gluten-Free Crust",
+        price: 3.99,
+        menuItemId: italianItems[0].id,
+      },
+    }),
+    prisma.customizationOption.create({
+      data: {
+        name: "Extra Guacamole",
+        price: 2.5,
+        menuItemId: mexicanItems[1].id,
+      },
+    }),
+    prisma.customizationOption.create({
+      data: {
+        name: "Mild Spice",
+        price: 0,
+        menuItemId: indianItems[0].id,
+      },
+    }),
+    prisma.customizationOption.create({
+      data: {
+        name: "Extra Spicy",
+        price: 0,
+        menuItemId: indianItems[0].id,
+      },
+    }),
+  ]);
+
+  console.log("✅ Created customization options");
+
+  // Create sample orders
   const orders = await Promise.all([
-    // Order 1 - John's order
     prisma.order.create({
       data: {
-        userId: users[5].id, // John
+        customerName: "John Doe",
         status: OrderStatus.DELIVERED,
-        totalAmount: 37.98,
-        deliveryFee: 4.99,
-        tax: 3.04,
-        finalAmount: 46.01,
-        deliveryAddress: "987 Customer St, Customer City, CC 12350",
         specialInstructions: "Ring doorbell twice",
-        estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes from now
-        completedAt: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
+        estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000),
+        completedAt: new Date(Date.now() - 60 * 60 * 1000),
         orderItems: {
           create: [
             {
-              quantity: 1,
+              quantity: 2,
               price: 18.99,
-              totalPrice: 18.99,
-              menuItemId: italianItems[0].id, // Margherita Pizza
-            },
-            {
-              quantity: 1,
-              price: 18.99,
-              totalPrice: 18.99,
-              menuItemId: italianItems[0].id, // Another Margherita Pizza
+              totalPrice: 37.98,
+              menuItemId: italianItems[0].id,
             },
           ],
         },
       },
     }),
-    // Order 2 - Jane's order
     prisma.order.create({
       data: {
-        userId: users[6].id, // Jane
+        customerName: "Jane Smith",
         status: OrderStatus.PREPARING,
-        totalAmount: 31.98,
-        deliveryFee: 4.99,
-        tax: 2.56,
-        finalAmount: 39.53,
-        deliveryAddress: "147 Foodie Ave, Foodie Town, FT 12351",
         orderItems: {
           create: [
             {
               quantity: 1,
               price: 14.99,
               totalPrice: 14.99,
-              menuItemId: mexicanItems[0].id, // Beef Tacos
+              menuItemId: mexicanItems[0].id,
             },
             {
               quantity: 1,
               price: 16.99,
               totalPrice: 16.99,
-              menuItemId: mexicanItems[1].id, // Chicken Burrito Bowl
+              menuItemId: mexicanItems[1].id,
             },
           ],
         },
       },
     }),
-    // Order 3 - Alice's order
     prisma.order.create({
       data: {
-        userId: users[7].id, // Alice
+        customerName: "Alice Johnson",
         status: OrderStatus.PENDING,
-        totalAmount: 19.99,
-        deliveryFee: 4.99,
-        tax: 1.6,
-        finalAmount: 26.58,
-        deliveryAddress: "258 Hungry St, Delivery District, DD 12352",
         specialInstructions: "Medium spice level please",
         orderItems: {
           create: [
@@ -467,7 +322,7 @@ async function main() {
               quantity: 1,
               price: 19.99,
               totalPrice: 19.99,
-              menuItemId: indianItems[0].id, // Butter Chicken
+              menuItemId: indianItems[0].id,
             },
           ],
         },
@@ -478,9 +333,6 @@ async function main() {
   console.log("✅ Database seeding completed successfully!");
   console.log("\n📊 Summary:");
   console.log(`- ${categories.length} categories created`);
-  console.log(
-    `- ${users.length} users created (1 admin, 4 chefs, 3 customers)`
-  );
   console.log(`- ${chefs.length} chef profiles created`);
   console.log(
     `- ${
@@ -491,21 +343,11 @@ async function main() {
     } menu items created`
   );
   console.log(`- ${orders.length} sample orders created`);
-
-  console.log("\n🔐 Test Login Credentials:");
-  console.log("Admin: admin@forkcast.com / password123");
-  console.log("Chef (Mario): mario@forkcast.com / password123");
-  console.log("Chef (Carlos): carlos@forkcast.com / password123");
-  console.log("Chef (Priya): priya@forkcast.com / password123");
-  console.log("Chef (David): david@forkcast.com / password123");
-  console.log("Customer (John): john@customer.com / password123");
-  console.log("Customer (Jane): jane@customer.com / password123");
-  console.log("Customer (Alice): alice@customer.com / password123");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Error during seeding:", e);
+    console.error("❌ Seeding failed:", e);
     process.exit(1);
   })
   .finally(async () => {

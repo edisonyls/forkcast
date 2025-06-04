@@ -44,39 +44,16 @@ services:
     environment:
       - PORT=3000
       - NODE_ENV=development
-      - USER_SERVICE_URL=http://user-service:3001
       - MENU_SERVICE_URL=http://menu-service:3002
       - ORDER_SERVICE_URL=http://order-service:3003
       - SEARCH_SERVICE_URL=http://search-service:3004
       - NOTIFICATION_SERVICE_URL=http://notification-service:3005
       - FRONTEND_URL=http://localhost:3000
     depends_on:
-      - user-service
       - menu-service
       - order-service
       - search-service
       - notification-service
-
-  # User Service
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
-    container_name: forkcast-user-service
-    ports:
-      - "3001:3001"
-    environment:
-      - PORT=3001
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/forkcast
-      - JWT_SECRET=your-super-secret-jwt-key-here
-      - JWT_EXPIRES_IN=7d
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 
   # Menu Service
   menu-service:
