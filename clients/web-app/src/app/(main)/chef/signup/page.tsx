@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import ImageUpload from "@/components/ImageUpload";
 
 export default function ChefSignUp() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function ChefSignUp() {
     name: "",
     bio: "",
     secret: "",
+    image: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
@@ -100,6 +102,7 @@ export default function ChefSignUp() {
             name: formData.name,
             bio: formData.bio,
             secret: formData.secret,
+            image: formData.image,
           }),
         }
       );
@@ -141,6 +144,28 @@ export default function ChefSignUp() {
         [name]: "",
       });
     }
+  };
+
+  const handleImageChange = (imageUrl: string | null) => {
+    setFormData({
+      ...formData,
+      image: imageUrl || "",
+    });
+
+    // Clear image error if any
+    if (errors.image) {
+      setErrors({
+        ...errors,
+        image: "",
+      });
+    }
+  };
+
+  const handleImageError = (error: string) => {
+    setErrors({
+      ...errors,
+      image: error,
+    });
   };
 
   return (
@@ -232,6 +257,23 @@ export default function ChefSignUp() {
               />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Profile Picture
+              </label>
+              <ImageUpload
+                currentImage={formData.image}
+                onImageChange={handleImageChange}
+                onImageError={handleImageError}
+                disabled={loading}
+                size="large"
+                isRegistration={true}
+              />
+              {errors.image && (
+                <p className="mt-1 text-sm text-red-600">{errors.image}</p>
               )}
             </div>
 

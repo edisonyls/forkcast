@@ -1,0 +1,519 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import ImageUpload from "@/components/ImageUpload";
+import Toast from "@/components/Toast";
+
+interface Chef {
+  id: string;
+  email: string;
+  username: string;
+  name: string;
+  bio: string;
+  secret: string;
+  rating: number;
+  ratingCount: number;
+  image?: string;
+  createdAt: string;
+}
+
+interface ToastData {
+  message: string;
+  type: "success" | "info" | "error";
+}
+
+export default function ChefSettings() {
+  const router = useRouter();
+  const [chef, setChef] = useState<Chef | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    bio: "",
+    secret: "",
+    image: "",
+  });
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    fetchChefProfile();
+  }, [router]);
+
+  const fetchChefProfile = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chef/profile/me`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const chefData = data.data.chef;
+        setChef(chefData);
+        setFormData({
+          name: chefData.name,
+          bio: chefData.bio,
+          secret: chefData.secret,
+          image: chefData.image || "",
+        });
+      } else if (response.status === 401) {
+        router.push("/chef/signin");
+      } else {
+        setError("Failed to load profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error fetching chef profile:", error);
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImagePreview = (imageUrl: string | null) => {
+    setPreviewImage(imageUrl);
+    setImageError(null);
+  };
+
+  const handleImageError = (error: string) => {
+    setImageError(error);
+    setPreviewImage(null);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const generateNewSecret = () => {
+    const newSecret =
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15);
+    setFormData((prev) => ({ ...prev, secret: newSecret }));
+  };
+
+  const copySecret = async () => {
+    try {
+      await navigator.clipboard.writeText(formData.secret);
+      setToast({ message: "Secret copied to clipboard!", type: "success" });
+    } catch (error) {
+      setToast({ message: "Failed to copy secret", type: "error" });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Name is required";
+    }
+
+    if (!formData.bio.trim()) {
+      errors.bio = "Bio is required";
+    }
+
+    if (!formData.secret.trim()) {
+      errors.secret = "Menu access secret is required";
+    } else if (formData.secret.length < 8) {
+      errors.secret = "Secret must be at least 8 characters long";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setUpdatingProfile(true);
+    setError(null);
+
+    try {
+      // Update profile data
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chef/profile/me`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: formData.name,
+            bio: formData.bio,
+            secret: formData.secret,
+            image: previewImage || chef?.image, // Use preview image if available
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setChef(data.data.chef);
+        setPreviewImage(null); // Clear preview after successful save
+        setToast({ message: "Profile updated successfully!", type: "success" });
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setError("An error occurred while updating your profile");
+    } finally {
+      setUpdatingProfile(false);
+    }
+  };
+
+  const hasChanges = () => {
+    if (!chef) return false;
+    return (
+      formData.name !== chef.name ||
+      formData.bio !== chef.bio ||
+      formData.secret !== chef.secret ||
+      previewImage !== null
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error && !chef) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={fetchChefProfile}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!chef) return null;
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+              <p className="text-gray-600 mt-2">
+                Manage your profile and preferences
+              </p>
+            </div>
+            <Link
+              href="/chef/dashboard"
+              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+
+        {/* Profile Section */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Profile Information
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Update your profile details and profile picture
+            </p>
+          </div>
+
+          <div className="p-6">
+            {error && (
+              <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left Column - Form */}
+                <div className="space-y-6">
+                  {/* Email (Read-only) */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={chef.email}
+                      disabled
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Email cannot be changed
+                    </p>
+                  </div>
+
+                  {/* Username (Read-only) */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      value={chef.username}
+                      disabled
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Username cannot be changed
+                    </p>
+                  </div>
+
+                  {/* Name */}
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                        formErrors.name ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Enter your full name"
+                    />
+                    {formErrors.name && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {formErrors.name}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Bio */}
+                  <div>
+                    <label
+                      htmlFor="bio"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Bio *
+                    </label>
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      rows={4}
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                        formErrors.bio ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Tell customers about yourself and your cooking style..."
+                    />
+                    {formErrors.bio && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {formErrors.bio}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Menu Access Secret */}
+                  <div>
+                    <label
+                      htmlFor="secret"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Menu Access Secret *
+                    </label>
+                    <div className="mt-1 flex">
+                      <input
+                        type="text"
+                        id="secret"
+                        name="secret"
+                        value={formData.secret}
+                        onChange={handleInputChange}
+                        className={`flex-1 px-3 py-2 border rounded-l-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm ${
+                          formErrors.secret
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                        placeholder="Enter menu access secret"
+                      />
+                      <button
+                        type="button"
+                        onClick={copySecret}
+                        className="px-3 py-2 border border-l-0 border-gray-300 bg-gray-100 hover:bg-gray-200 text-sm text-gray-700"
+                      >
+                        Copy
+                      </button>
+                      <button
+                        type="button"
+                        onClick={generateNewSecret}
+                        className="px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-blue-100 hover:bg-blue-200 text-sm text-blue-700"
+                      >
+                        Generate
+                      </button>
+                    </div>
+                    {formErrors.secret && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {formErrors.secret}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      Share this secret with guests to access your menu. Must be
+                      at least 8 characters.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Column - Profile Picture */}
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-4">
+                      Profile Picture
+                    </label>
+
+                    {/* Current Image Display */}
+                    <div className="text-center mb-6">
+                      <div className="inline-block">
+                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
+                          {chef.image ? (
+                            <Image
+                              src={chef.image}
+                              alt={chef.name}
+                              width={128}
+                              height={128}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                              <svg
+                                className="w-12 h-12 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Image Upload */}
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                      <ImageUpload
+                        currentImage={chef.image}
+                        onImageChange={handleImagePreview}
+                        onImageError={handleImageError}
+                        disabled={updatingProfile}
+                        size="large"
+                        allowDelete={false}
+                      />
+                      {imageError && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {imageError}
+                        </p>
+                      )}
+                      <p className="mt-2 text-xs text-gray-500">
+                        Upload a new image to see a preview. Changes will be
+                        saved when you click "Save Changes".
+                      </p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">
+                        Profile Stats
+                      </h4>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <div className="flex justify-between">
+                          <span>Rating:</span>
+                          <span>
+                            {chef.rating.toFixed(1)} ⭐ ({chef.ratingCount}{" "}
+                            reviews)
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Member since:</span>
+                          <span>
+                            {new Date(chef.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    {hasChanges() && (
+                      <p className="text-sm text-orange-600">
+                        You have unsaved changes
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={updatingProfile || !hasChanges()}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {updatingProfile ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

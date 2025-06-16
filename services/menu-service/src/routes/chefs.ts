@@ -153,7 +153,7 @@ router.get("/profile/me", authenticateChef, async (req, res) => {
 router.put("/profile/me", authenticateChef, async (req, res) => {
   try {
     const chefId = req.chef!.chefId;
-    const { name, bio, image } = req.body;
+    const { name, bio, image, secret } = req.body;
 
     // Check if chef exists
     const existingChef = await prisma.chef.findUnique({
@@ -164,11 +164,23 @@ router.put("/profile/me", authenticateChef, async (req, res) => {
       return sendErrorResponse(res, "Chef not found", 404);
     }
 
+    // Validate secret if provided
+    if (secret !== undefined) {
+      if (!secret || secret.trim().length < 8) {
+        return sendErrorResponse(
+          res,
+          "Secret must be at least 8 characters long",
+          400
+        );
+      }
+    }
+
     // Only update the fields that are provided
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (bio !== undefined) updateData.bio = bio;
     if (image !== undefined) updateData.image = image;
+    if (secret !== undefined) updateData.secret = secret.trim();
 
     const updatedChef = await prisma.chef.update({
       where: { id: chefId },
@@ -202,7 +214,7 @@ router.put("/profile/me", authenticateChef, async (req, res) => {
 // Chef Sign Up
 router.post("/signup", async (req, res) => {
   try {
-    const { email, password, username, name, bio, secret } = req.body;
+    const { email, password, username, name, bio, secret, image } = req.body;
 
     // Validation
     if (!email || !password || !username || !name || !bio || !secret) {
@@ -248,15 +260,22 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create chef
+    const chefData: any = {
+      email,
+      password: hashedPassword,
+      username,
+      name,
+      bio,
+      secret,
+    };
+
+    // Only include image if it's provided
+    if (image && image.trim()) {
+      chefData.image = image.trim();
+    }
+
     const chef = await prisma.chef.create({
-      data: {
-        email,
-        password: hashedPassword,
-        username,
-        name,
-        bio,
-        secret,
-      },
+      data: chefData,
       select: {
         id: true,
         email: true,

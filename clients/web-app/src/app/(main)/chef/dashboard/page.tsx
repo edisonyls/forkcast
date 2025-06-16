@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import Toast from "@/components/Toast";
 
 interface Chef {
   id: string;
@@ -23,6 +25,10 @@ export default function ChefDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "info" | "error";
+  } | null>(null);
 
   useEffect(() => {
     fetchChefProfile();
@@ -86,31 +92,6 @@ export default function ChefDashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/chef/signout`,
-        {
-          method: "POST",
-          credentials: "include", // Include cookies in the request
-        }
-      );
-
-      if (response.ok) {
-        // Redirect to home page after successful signout
-        router.push("/");
-      } else {
-        console.error("Failed to sign out");
-        // Still redirect even if signout fails
-        router.push("/");
-      }
-    } catch (error) {
-      console.error("Error signing out:", error);
-      // Still redirect even if signout fails
-      router.push("/");
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -141,6 +122,15 @@ export default function ChefDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Pending Orders Alert */}
         {pendingOrdersCount > 0 && (
@@ -181,36 +171,86 @@ export default function ChefDashboard() {
 
         {/* Header */}
         <div className="bg-white shadow rounded-lg p-6 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome, {chef.name}!
-            </h1>
-            <p className="text-gray-600 mt-2">@{chef.username}</p>
-            <p className="text-sm text-gray-500 mt-1">{chef.email}</p>
+          <div className="flex items-start space-x-6">
+            <div className="flex-shrink-0">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-gray-200">
+                {chef.image ? (
+                  <Image
+                    src={chef.image}
+                    alt={chef.name}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <svg
+                      className="w-8 h-8 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-900">
+                Welcome, {chef.name}!
+              </h1>
+              <p className="text-gray-600 mt-2">@{chef.username}</p>
+              <p className="text-sm text-gray-500 mt-1">{chef.email}</p>
+              <div className="mt-3">
+                <p className="text-sm text-gray-600">{chef.bio}</p>
+              </div>
+            </div>
           </div>
 
           <div className="mt-6 border-t pt-6">
-            <h2 className="text-lg font-medium text-gray-900">Chef Details</h2>
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Bio</h3>
-                <p className="mt-1 text-sm text-gray-900">{chef.bio}</p>
+                <h3 className="text-sm font-medium text-gray-500">Rating</h3>
+                <p className="mt-1 text-sm text-gray-900">
+                  {chef.rating.toFixed(1)} ⭐ ({chef.ratingCount} reviews)
+                </p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">
                   Menu Access Secret
                 </h3>
-                <p className="mt-1 text-sm text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">
-                  {chef.secret}
-                </p>
+                <div className="mt-1 flex items-center space-x-2">
+                  <p className="text-sm text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">
+                    {chef.secret}
+                  </p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(chef.secret);
+                        setToast({
+                          message: "Secret copied to clipboard!",
+                          type: "success",
+                        });
+                      } catch (error) {
+                        setToast({
+                          message: "Failed to copy secret",
+                          type: "error",
+                        });
+                      }
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-xs"
+                  >
+                    Copy
+                  </button>
+                </div>
                 <p className="mt-1 text-xs text-gray-500">
                   Share this secret with guests to access your menu
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Rating</h3>
-                <p className="mt-1 text-sm text-gray-900">
-                  {chef.rating.toFixed(1)} ⭐ ({chef.ratingCount} reviews)
                 </p>
               </div>
               <div>
@@ -267,7 +307,10 @@ export default function ChefDashboard() {
             </div>
           </Link>
 
-          <div className="bg-white p-6 rounded-lg shadow">
+          <Link
+            href="/chef/settings"
+            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
@@ -279,10 +322,9 @@ export default function ChefDashboard() {
                 <p className="text-sm text-gray-500">
                   Update your profile and preferences
                 </p>
-                <p className="text-xs text-gray-400 mt-1">Coming soon</p>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

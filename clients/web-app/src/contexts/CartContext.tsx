@@ -96,9 +96,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           accessedAt: new Date(parsedChef.accessedAt),
         };
 
-        // Only restore if accessed within the last hour (to prevent stale access)
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-        if (chefWithDate.accessedAt > oneHourAgo) {
+        // Only restore if accessed within the last 4 hours (to prevent stale access)
+        const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
+        if (chefWithDate.accessedAt > fourHoursAgo) {
           setLastVisitedChefState(chefWithDate);
         } else {
           localStorage.removeItem("forkcast-last-chef");

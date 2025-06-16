@@ -69,6 +69,7 @@ const services = {
   order: process.env.ORDER_SERVICE_URL || "http://localhost:3003",
   search: process.env.SEARCH_SERVICE_URL || "http://localhost:3004",
   notification: process.env.NOTIFICATION_SERVICE_URL || "http://localhost:3005",
+  upload: process.env.UPLOAD_SERVICE_URL || "http://localhost:3006",
 };
 
 // Proxy middleware for each service
@@ -250,6 +251,48 @@ app.use(
     changeOrigin: true,
     pathRewrite: {
       "^/api/notifications": "/api/notifications",
+    },
+  })
+);
+
+// Upload service proxy (for file uploads)
+app.use(
+  "/api/upload",
+  createProxyMiddleware({
+    target: services.upload,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/upload": "/api/upload",
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      // Forward cookies and credentials for authentication
+      if (req.headers.cookie) {
+        proxyReq.setHeader("cookie", req.headers.cookie);
+      }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Remove any conflicting CORS headers from the target service
+      delete proxyRes.headers["access-control-allow-origin"];
+      delete proxyRes.headers["access-control-allow-credentials"];
+      delete proxyRes.headers["access-control-allow-methods"];
+      delete proxyRes.headers["access-control-allow-headers"];
+
+      // Handle cookies
+      if (proxyRes.headers["set-cookie"]) {
+        res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
+      }
+    },
+  })
+);
+
+// Static file serving proxy for uploaded images
+app.use(
+  "/uploads",
+  createProxyMiddleware({
+    target: services.upload,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/uploads": "/uploads",
     },
   })
 );

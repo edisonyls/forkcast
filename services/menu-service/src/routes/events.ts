@@ -95,6 +95,58 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get events for authenticated chef (protected endpoint)
+router.get("/me", authenticateChef, async (req, res) => {
+  try {
+    const chefId = req.chef!.chefId;
+
+    const events = await prisma.event.findMany({
+      where: {
+        chefId,
+      },
+      include: {
+        chef: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+          },
+        },
+        eventOrders: {
+          include: {
+            eventOrderItems: {
+              include: {
+                menuItem: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+        _count: {
+          select: {
+            eventOrders: true,
+          },
+        },
+      },
+      orderBy: { eventDate: "desc" },
+    });
+
+    return sendSuccessResponse(
+      res,
+      { events },
+      "Chef events retrieved successfully"
+    );
+  } catch (error) {
+    console.error("Get chef events error:", error);
+    return sendErrorResponse(res, "Failed to retrieve chef events", 500);
+  }
+});
+
 // Get event by ID (public endpoint with secret verification)
 router.get("/:eventId", async (req, res) => {
   try {

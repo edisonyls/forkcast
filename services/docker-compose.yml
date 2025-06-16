@@ -48,12 +48,14 @@ services:
       - ORDER_SERVICE_URL=http://order-service:3003
       - SEARCH_SERVICE_URL=http://search-service:3004
       - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+      - UPLOAD_SERVICE_URL=http://upload-service:3006
       - FRONTEND_URL=http://localhost:3000
     depends_on:
       - menu-service
       - order-service
       - search-service
       - notification-service
+      - upload-service
 
   # Menu Service
   menu-service:
@@ -135,9 +137,25 @@ services:
       redis:
         condition: service_healthy
 
+  # Upload Service
+  upload-service:
+    build:
+      context: ./upload-service
+      dockerfile: Dockerfile
+    container_name: forkcast-upload-service
+    ports:
+      - "3006:3006"
+    environment:
+      - PORT=3006
+      - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:3000
+    volumes:
+      - upload_data:/app/uploads
+
 volumes:
   postgres_data:
   redis_data:
+  upload_data:
 
 networks:
   default:

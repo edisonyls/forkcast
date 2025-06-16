@@ -7,7 +7,7 @@ import CustomizationModal from "./CustomisationModal";
 interface Chef {
   id: string | number;
   name: string;
-  image: string;
+  image?: string;
   rating: number;
 }
 
@@ -145,7 +145,7 @@ export default function ChefMenu({
           {/* Chef Info */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <Image
-              src={chef.image}
+              src={chef.image || "/user.png"}
               alt={chef.name}
               width={200}
               height={200}

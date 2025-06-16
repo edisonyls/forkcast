@@ -60,6 +60,17 @@ export default function ChefPage() {
           return; // Don't proceed further until user decides
         }
 
+        // If cart is from same chef, update the cart chef to ensure consistency
+        if (cartChef && cartChef.id.toString() === chefId.toString()) {
+          // Update cart chef name if it might have changed
+          if (cartChef.name !== chef.name) {
+            clearCartAndSetChef({
+              id: chef.id,
+              name: chef.name,
+            });
+          }
+        }
+
         // Check if user already has access to this chef
         if (hasExistingAccess()) {
           const secret = getStoredSecret(chefId);
@@ -403,7 +414,7 @@ export default function ChefPage() {
           chef={{
             id: chef.id,
             name: chef.name,
-            image: chef.image || "/chef-placeholder.jpg",
+            image: chef.image || "/user.png",
             rating: chef.rating,
           }}
           categories={availableCategories.map((cat) => ({

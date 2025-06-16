@@ -4,8 +4,33 @@ import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 
 export default function HeaderHome() {
-  const { getTotalItems } = useCart();
+  const { getTotalItems, cartChef, lastVisitedChef } = useCart();
   const totalItems = getTotalItems();
+
+  // Determine the best browse destination
+  const getBrowseLink = () => {
+    // If there's a cart with items, prioritize going back to that chef
+    if (cartChef) {
+      return `/chefs/${cartChef.id}`;
+    }
+    // Otherwise, use last visited chef if available
+    if (lastVisitedChef?.hasAccess) {
+      return `/chefs/${lastVisitedChef.id}`;
+    }
+    return "/chefs";
+  };
+
+  const getBrowseText = () => {
+    // If there's a cart with items, prioritize that chef
+    if (cartChef) {
+      return `${cartChef.name}'s Menu`;
+    }
+    // Otherwise, use last visited chef if available
+    if (lastVisitedChef?.hasAccess) {
+      return `${lastVisitedChef.name}'s Menu`;
+    }
+    return "Browse Chefs";
+  };
 
   return (
     <header className="bg-white shadow-sm">
@@ -38,10 +63,10 @@ export default function HeaderHome() {
             )}
           </Link>
           <Link
-            href="/chefs"
+            href={getBrowseLink()}
             className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors"
           >
-            Browse Chefs
+            {getBrowseText()}
           </Link>
         </nav>
       </div>

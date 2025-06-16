@@ -23,6 +23,7 @@ export default function CartPage() {
     clearCart,
     getTotalItems,
     lastVisitedChef,
+    getStoredSecret,
   } = useCart();
   const [showClearConfirmation, setShowClearConfirmation] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -40,12 +41,17 @@ export default function CartPage() {
   const fetchEvents = async (chefId: string | number) => {
     try {
       setLoadingEvents(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/events?chefId=${chefId}`,
-        {
-          credentials: "include",
-        }
-      );
+
+      // Get the stored secret for the cart chef
+      const secret = getStoredSecret(chefId);
+
+      const url = secret
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/events?chefId=${chefId}&secret=${secret}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/events?chefId=${chefId}`;
+
+      const response = await fetch(url, {
+        credentials: "include",
+      });
 
       if (response.ok) {
         const data = await response.json();
