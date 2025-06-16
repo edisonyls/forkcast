@@ -20,7 +20,7 @@ app.use(
       "http://localhost:3001", // Next.js dev server
     ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
@@ -51,7 +51,10 @@ app.options("*", (req, res) => {
     req.headers.origin || "http://localhost:3001"
   );
   res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
   res.header(
     "Access-Control-Allow-Headers",
     "Content-Type, Authorization, Cookie"
@@ -167,6 +170,35 @@ app.use(
     changeOrigin: true,
     pathRewrite: {
       "^/api/categories": "/api/menu/categories",
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      // Forward cookies and credentials
+      if (req.headers.cookie) {
+        proxyReq.setHeader("cookie", req.headers.cookie);
+      }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Remove any conflicting CORS headers from the target service
+      delete proxyRes.headers["access-control-allow-origin"];
+      delete proxyRes.headers["access-control-allow-credentials"];
+      delete proxyRes.headers["access-control-allow-methods"];
+      delete proxyRes.headers["access-control-allow-headers"];
+
+      // Handle cookies
+      if (proxyRes.headers["set-cookie"]) {
+        res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
+      }
+    },
+  })
+);
+
+app.use(
+  "/api/events",
+  createProxyMiddleware({
+    target: services.menu,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/events": "/api/events",
     },
     onProxyReq: (proxyReq, req, res) => {
       // Forward cookies and credentials

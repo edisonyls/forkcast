@@ -36,6 +36,7 @@ export default function CustomizationModal({
   const [selectedOptions, setSelectedOptions] = useState<CustomizationOption[]>(
     []
   );
+  const [customOptions, setCustomOptions] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -51,6 +52,21 @@ export default function CustomizationModal({
     try {
       setIsAdding(true);
 
+      // Combine selected options with custom options
+      const allCustomizations = [
+        ...selectedOptions.map((opt) => ({
+          id: opt.id,
+          name: opt.name,
+        })),
+        // Add custom options as separate entries
+        ...(customOptions.trim()
+          ? customOptions.split(",").map((option, index) => ({
+              id: `custom-${Date.now()}-${index}`,
+              name: option.trim(),
+            }))
+          : []),
+      ];
+
       // Add item to cart with selected customizations
       addToCart({
         menuItemId: item.id,
@@ -62,14 +78,12 @@ export default function CustomizationModal({
         chefId: item.chefId || "",
         chefName: item.chefName || "Unknown Chef",
         quantity,
-        customizations: selectedOptions.map((opt) => ({
-          id: opt.id,
-          name: opt.name,
-        })),
+        customizations: allCustomizations,
       });
 
       // Reset modal state
       setSelectedOptions([]);
+      setCustomOptions("");
       setQuantity(1);
 
       // Close modal
@@ -142,6 +156,22 @@ export default function CustomizationModal({
             ))}
           </div>
         )}
+
+        {/* Custom Options Section */}
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">Additional Custom Options</h3>
+          <p className="text-sm text-gray-600 mb-2">
+            Add your own customization preferences (separate multiple options
+            with commas)
+          </p>
+          <textarea
+            value={customOptions}
+            onChange={(e) => setCustomOptions(e.target.value)}
+            placeholder="e.g., extra spicy, no onions, gluten-free bread"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+            rows={3}
+          />
+        </div>
 
         <div className="flex items-center justify-between mb-6">
           <span className="font-semibold">Quantity:</span>

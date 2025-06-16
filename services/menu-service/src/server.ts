@@ -7,6 +7,7 @@ import { connectDatabase } from "@forkcast/shared";
 import chefRoutes from "./routes/chefs";
 import menuRoutes from "./routes/menu";
 import categoryRoutes from "./routes/categories";
+import eventRoutes from "./routes/events";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.get("/health", (req, res) => {
 app.use("/api/chefs", chefRoutes);
 app.use("/api/menu", menuRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/events", eventRoutes);
 
 // Error handling middleware
 app.use(

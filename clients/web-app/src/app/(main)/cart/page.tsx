@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import Image from "next/image";
 import Link from "next/link";
 import ConfirmationModal from "@/components/ConfirmationModal";
+import OrderPlacementModal from "@/components/OrderPlacementModal";
+
+interface Event {
+  id: string;
+  title: string;
+  eventDate: string;
+  status: "OPEN" | "CLOSED" | "CANCELLED";
+}
 
 export default function CartPage() {
   const {
@@ -17,10 +25,99 @@ export default function CartPage() {
     lastVisitedChef,
   } = useCart();
   const [showClearConfirmation, setShowClearConfirmation] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<string>("");
+  const [loadingEvents, setLoadingEvents] = useState(false);
+
+  // Fetch events when cart chef changes
+  useEffect(() => {
+    if (cartChef) {
+      fetchEvents(cartChef.id);
+    }
+  }, [cartChef]);
+
+  const fetchEvents = async (chefId: string | number) => {
+    try {
+      setLoadingEvents(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/events?chefId=${chefId}`,
+        {
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const availableEvents = (data.data.events || []).filter(
+          (event: Event) => event.status === "OPEN"
+        );
+        setEvents(availableEvents);
+
+        // Auto-select first event if only one available
+        if (availableEvents.length === 1) {
+          setSelectedEvent(availableEvents[0].id);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
 
   const handleClearCart = () => {
     clearCart();
     setShowClearConfirmation(false);
+  };
+
+  const handlePlaceOrder = async (orderData: { customerName: string }) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/events/${selectedEvent}/orders`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            customerName: orderData.customerName,
+            items: items.map((item) => {
+              let specialNotes = "";
+
+              // Include customizations in special notes
+              if (item.customizations && item.customizations.length > 0) {
+                specialNotes = `Customizations: ${item.customizations
+                  .map((c) => c.name)
+                  .join(", ")}`;
+              }
+
+              return {
+                menuItemId: item.menuItemId,
+                quantity: item.quantity,
+                specialNotes: specialNotes || undefined,
+              };
+            }),
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const eventInfo = events.find((e) => e.id === selectedEvent);
+        alert(
+          `Order placed successfully for: ${eventInfo?.title}!\n\nYou can see your order status on the menu items.`
+        );
+        // Clear the cart after successful order
+        clearCart();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      throw error;
+    }
   };
 
   // Determine the continue shopping destination
@@ -274,6 +371,66 @@ export default function CartPage() {
           ))}
         </div>
 
+        {/* Event Selection or No Events Message */}
+        {cartChef && (
+          <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+            {events.length > 0 ? (
+              <>
+                <h3 className="text-lg font-bold text-gray-800 mb-4">
+                  Select an Event
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Choose which event you'd like to place this order for:
+                </p>
+
+                {loadingEvents ? (
+                  <div className="text-center py-4">
+                    <div className="text-gray-500">Loading events...</div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {events.map((event) => (
+                      <label
+                        key={event.id}
+                        className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                      >
+                        <input
+                          type="radio"
+                          name="selectedEvent"
+                          value={event.id}
+                          checked={selectedEvent === event.id}
+                          onChange={(e) => setSelectedEvent(e.target.value)}
+                          className="text-orange-600 focus:ring-orange-500"
+                        />
+                        <div className="ml-3">
+                          <div className="font-medium text-gray-800">
+                            {event.title}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Event Date:{" "}
+                            {new Date(event.eventDate).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-bold text-gray-800 mb-4">
+                  No Events Available
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {cartChef.name} hasn't created any events yet. Orders can only
+                  be placed for events. Please check back later or contact the
+                  chef about upcoming events.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
         {/* Cart Actions */}
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
           <Link
@@ -299,13 +456,34 @@ export default function CartPage() {
           <div className="flex gap-4">
             <button
               onClick={() => {
-                // This would typically send the order to a backend
-                alert("Order functionality coming soon!");
+                if (events.length === 0) {
+                  alert(
+                    "No events available from this chef. Orders can only be placed for events."
+                  );
+                  return;
+                }
+                if (!selectedEvent) {
+                  alert("Please select an event for your order.");
+                  return;
+                }
+                setShowOrderModal(true);
               }}
-              className="bg-orange-600 text-white px-8 py-3 rounded-md hover:bg-orange-700 transition-colors font-semibold"
+              disabled={events.length === 0 || !selectedEvent}
+              className="bg-orange-600 text-white px-8 py-3 rounded-md hover:bg-orange-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Place Order ({getTotalItems()}{" "}
-              {getTotalItems() === 1 ? "item" : "items"})
+              {events.length === 0 ? (
+                <>No Events Available</>
+              ) : (
+                <>
+                  Place Order ({getTotalItems()}{" "}
+                  {getTotalItems() === 1 ? "item" : "items"})
+                  {selectedEvent && events.length > 0 && (
+                    <span className="block text-xs opacity-90">
+                      for {events.find((e) => e.id === selectedEvent)?.title}
+                    </span>
+                  )}
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -323,6 +501,16 @@ export default function CartPage() {
         confirmText="Clear Cart"
         cancelText="Keep Items"
         isDestructive={true}
+      />
+
+      {/* Order Placement Modal */}
+      <OrderPlacementModal
+        isOpen={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+        onConfirm={handlePlaceOrder}
+        events={events}
+        selectedEvent={selectedEvent}
+        totalItems={getTotalItems()}
       />
     </>
   );

@@ -83,6 +83,53 @@ export const orderUpdateSchema = z.object({
   ]),
 });
 
+// Event schemas
+export const eventSchema = z.object({
+  title: z.string().min(1, "Title is required").optional(),
+  description: z.string().optional(),
+  eventDate: z.string().refine((date) => {
+    const eventDate = new Date(date);
+    const now = new Date();
+    return eventDate > now;
+  }, "Event date must be in the future"),
+  maxOrders: z.number().int().positive().optional(),
+});
+
+export const eventUpdateSchema = z.object({
+  title: z.string().min(1, "Title is required").optional(),
+  description: z.string().optional(),
+  eventDate: z
+    .string()
+    .refine((date) => {
+      const eventDate = new Date(date);
+      const now = new Date();
+      return eventDate > now;
+    }, "Event date must be in the future")
+    .optional(),
+  maxOrders: z.number().int().positive().optional(),
+  status: z.enum(["OPEN", "CLOSED", "CANCELLED"]).optional(),
+});
+
+export const eventOrderSchema = z.object({
+  customerName: z.string().min(1, "Customer name is required"),
+  customerEmail: z.string().email().optional(),
+  customerPhone: z.string().optional(),
+  specialRequests: z.string().optional(),
+  items: z
+    .array(
+      z.object({
+        menuItemId: z.string().cuid("Invalid menu item ID"),
+        quantity: z.number().int().positive("Quantity must be positive"),
+        specialNotes: z.string().optional(),
+      })
+    )
+    .min(1, "At least one item is required"),
+});
+
+export const eventOrderUpdateSchema = z.object({
+  status: z.enum(["PENDING", "CONFIRMED", "CANCELLED"]),
+});
+
 // Search schema
 export const searchSchema = z.object({
   query: z.string().min(1, "Search query is required"),

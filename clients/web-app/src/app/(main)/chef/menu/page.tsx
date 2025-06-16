@@ -107,7 +107,7 @@ export default function MenuManagement() {
         const chefData = data.data.chef;
         setChef(chefData);
         fetchCategories(chefData.id);
-        fetchMenuItems(chefData.id);
+        fetchMenuItems(chefData.id, chefData.secret);
       } else if (response.status === 401) {
         // Unauthorized - redirect to signin
         router.push("/chef/signin");
@@ -121,7 +121,7 @@ export default function MenuManagement() {
     }
   };
 
-  // Set first category as selected when categories load
+  // Auto-select first category when categories load
   useEffect(() => {
     if (categories.length > 0 && !selectedCategoryId) {
       setSelectedCategoryId(categories[0].id);
@@ -163,10 +163,12 @@ export default function MenuManagement() {
     }
   };
 
-  const fetchMenuItems = async (chefId: string) => {
+  const fetchMenuItems = async (chefId: string, secret?: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/menu/items?chefId=${chefId}&secret=${chef?.secret}`,
+        `${
+          process.env.NEXT_PUBLIC_API_URL
+        }/api/menu/items?chefId=${chefId}&secret=${secret || chef?.secret}`,
         {
           credentials: "include",
         }
@@ -289,14 +291,34 @@ export default function MenuManagement() {
                   }),
                 }
               );
+
+              if (!optionResponse.ok) {
+                const errorData = await optionResponse.json();
+                console.error(
+                  "Failed to create customization option:",
+                  errorData
+                );
+                setError(
+                  `Failed to create customization option "${option.name}": ${
+                    errorData.error || "Unknown error"
+                  }`
+                );
+              } else {
+                console.log(
+                  `Successfully created customization option: ${option.name}`
+                );
+              }
             } catch (error) {
               console.error("Failed to create customization option:", error);
+              setError(
+                `Failed to create customization option "${option.name}"`
+              );
             }
           }
         }
 
         // Refresh menu items to get the complete data including customization options
-        await fetchMenuItems(chef.id);
+        await fetchMenuItems(chef.id, chef.secret);
 
         setMenuItemForm({
           id: "",
@@ -514,7 +536,7 @@ export default function MenuManagement() {
         }
 
         // Refresh menu items to get the complete data including updated customization options
-        await fetchMenuItems(chef.id);
+        await fetchMenuItems(chef.id, chef.secret);
 
         setMenuItemForm({
           id: "",

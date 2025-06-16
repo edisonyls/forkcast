@@ -25,6 +25,7 @@ model Chef {
   // Relations
   menuItems MenuItem[]
   categories Category[]
+  events Event[]
 
   @@map("chefs")
 }
@@ -63,6 +64,7 @@ model MenuItem {
   category              Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   customizationOptions  CustomizationOption[]
   orderItems            OrderItem[]
+  eventOrderItems       EventOrderItem[]
 
   @@map("menu_items")
 }
@@ -96,6 +98,64 @@ model Order {
   orderItems OrderItem[]
 
   @@map("orders")
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  eventDate   DateTime
+  status      EventStatus @default(OPEN)
+  maxOrders   Int?        // Optional limit on number of orders
+  
+  chefId      String
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  chef        Chef        @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  eventOrders EventOrder[]
+  
+  @@map("events")
+}
+
+model EventOrder {
+  id               String    @id @default(cuid())
+  customerName     String
+  customerEmail    String?
+  customerPhone    String?
+  specialRequests  String?
+  status           EventOrderStatus @default(PENDING)
+  
+  eventId          String
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  // Relations
+  event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventOrderItems  EventOrderItem[]
+  
+  @@map("event_orders")
+}
+
+model EventOrderItem {
+  id              String    @id @default(cuid())
+  quantity        Int
+  specialNotes    String?
+  
+  eventOrderId    String
+  menuItemId      String
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  eventOrder      EventOrder  @relation(fields: [eventOrderId], references: [id], onDelete: Cascade)
+  menuItem        MenuItem    @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  
+  @@map("event_order_items")
 }
 
 model OrderItem {
@@ -139,5 +199,17 @@ enum OrderStatus {
   READY
   OUT_FOR_DELIVERY
   DELIVERED
+  CANCELLED
+}
+
+enum EventStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum EventOrderStatus {
+  PENDING
+  CONFIRMED
   CANCELLED
 } 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ChefMenu from "@/components/ChefMenu";
+
 import ChefSecretModal from "@/components/ChefSecretModal";
 import ChefSwitchModal from "@/components/ChefSwitchModal";
 import { apiService } from "@/lib/api";
@@ -25,6 +26,8 @@ export default function ChefPage() {
   const [chef, setChef] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSecretModal, setShowSecretModal] = useState(false);
@@ -32,6 +35,8 @@ export default function ChefPage() {
   const [secretVerifying, setSecretVerifying] = useState(false);
   const [secretError, setSecretError] = useState<string | null>(null);
   const [isMenuAccessible, setIsMenuAccessible] = useState(false);
+
+  const [storedSecret, setStoredSecret] = useState<string>("");
 
   // Check if user already has access to this chef
   const hasExistingAccess = () => {
@@ -57,11 +62,12 @@ export default function ChefPage() {
 
         // Check if user already has access to this chef
         if (hasExistingAccess()) {
-          const storedSecret = getStoredSecret(chefId);
-          if (storedSecret) {
+          const secret = getStoredSecret(chefId);
+          if (secret) {
             // User has existing access and stored secret, load menu directly
             try {
-              await loadMenuDataWithStoredSecret(storedSecret);
+              await loadMenuDataWithStoredSecret(secret);
+              setStoredSecret(secret);
               setIsMenuAccessible(true);
             } catch (err) {
               // If loading fails, fall back to showing secret modal
@@ -114,11 +120,12 @@ export default function ChefPage() {
     try {
       // Check if user already has access to this chef
       if (hasExistingAccess()) {
-        const storedSecret = getStoredSecret(chefId);
-        if (storedSecret) {
+        const secret = getStoredSecret(chefId);
+        if (secret) {
           // User has existing access and stored secret, load menu directly
           try {
-            await loadMenuDataWithStoredSecret(storedSecret);
+            await loadMenuDataWithStoredSecret(secret);
+            setStoredSecret(secret);
             setIsMenuAccessible(true);
           } catch (err) {
             // If loading fails, fall back to showing secret modal
@@ -150,9 +157,30 @@ export default function ChefPage() {
       // Use the stored secret to get menu data
       const menuData = await apiService.getChefMenuItems(chefId, secret);
       setMenuItems(menuData.menuItems);
+
+      // Fetch events with orders (public endpoint)
+      await loadEventOrders(secret);
     } catch (err) {
       console.error("Failed to fetch menu data with stored secret:", err);
       throw new Error("Failed to load menu data. Please try again.");
+    }
+  };
+
+  const loadEventOrders = async (secret: string) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/events?chefId=${chefId}&secret=${secret}`,
+        {
+          credentials: "include",
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data.data.events || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch event orders:", err);
+      // Don't throw error here as events are optional
     }
   };
 
@@ -165,6 +193,9 @@ export default function ChefPage() {
       // Use the secret-protected endpoint
       const menuData = await apiService.getChefMenuItems(chefId, secret);
       setMenuItems(menuData.menuItems);
+
+      // Fetch events with orders (public endpoint)
+      await loadEventOrders(secret);
     } catch (err) {
       console.error("Failed to fetch menu data:", err);
       throw new Error("Failed to load menu data. Please try again.");
@@ -196,6 +227,7 @@ export default function ChefPage() {
         secret
       );
 
+      setStoredSecret(secret);
       setIsMenuAccessible(true);
       setShowSecretModal(false);
     } catch (err: any) {
@@ -355,6 +387,17 @@ export default function ChefPage() {
         </button>
       </div>
 
+      {/* Chef Info Header */}
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{chef.name}</h1>
+        <p className="text-gray-600">{chef.bio}</p>
+        <div className="flex justify-center items-center mt-2">
+          <span className="text-yellow-500">★</span>
+          <span className="ml-1">{chef.rating}</span>
+        </div>
+      </div>
+
+      {/* Menu */}
       <div className="flex flex-col md:flex-row gap-8">
         <ChefMenu
           chef={{
@@ -381,6 +424,7 @@ export default function ChefPage() {
               name: opt.name,
             })),
           }))}
+          events={events}
         />
       </div>
     </div>
