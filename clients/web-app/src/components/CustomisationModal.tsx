@@ -2,19 +2,23 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useCart } from "@/contexts/CartContext";
 
 interface CustomizationOption {
   id: string | number;
   name: string;
-  price: number;
 }
 
 interface MenuItem {
+  id: string | number;
   name: string;
   image: string;
   description: string;
-  price: number;
+  rating: number;
+  preparationTime: number;
   customizableOptions: CustomizationOption[];
+  chefId?: string | number;
+  chefName?: string;
 }
 
 interface CustomizationModalProps {
@@ -28,81 +32,145 @@ export default function CustomizationModal({
   onClose,
   item,
 }: CustomizationModalProps) {
-  const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(
+  const { addToCart } = useCart();
+  const [selectedOptions, setSelectedOptions] = useState<CustomizationOption[]>(
     []
   );
+  const [quantity, setQuantity] = useState(1);
+  const [isAdding, setIsAdding] = useState(false);
 
   const toggleOption = (option: CustomizationOption) => {
     setSelectedOptions((prev) =>
-      prev.includes(option.id)
-        ? prev.filter((id) => id !== option.id)
-        : [...prev, option.id]
+      prev.find((opt) => opt.id === option.id)
+        ? prev.filter((opt) => opt.id !== option.id)
+        : [...prev, option]
     );
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      setIsAdding(true);
+
+      // Add item to cart with selected customizations
+      addToCart({
+        menuItemId: item.id,
+        name: item.name,
+        image: item.image,
+        description: item.description,
+        rating: item.rating,
+        preparationTime: item.preparationTime,
+        chefId: item.chefId || "",
+        chefName: item.chefName || "Unknown Chef",
+        quantity,
+        customizations: selectedOptions.map((opt) => ({
+          id: opt.id,
+          name: opt.name,
+        })),
+      });
+
+      // Reset modal state
+      setSelectedOptions([]);
+      setQuantity(1);
+
+      // Close modal
+      onClose();
+
+      // Optional: Show success feedback
+      // You could add a toast notification here
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <h2 className="text-xl font-bold">Customize {item.name}</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-start mb-4">
+          <h2 className="text-xl font-bold">{item.name}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="relative h-48 w-full mb-4">
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-cover rounded"
+          />
+        </div>
+
+        <p className="text-gray-600 mb-4">{item.description}</p>
+
+        {/* Chef info */}
+        {item.chefName && (
+          <div className="mb-4 p-3 bg-orange-50 rounded-md">
+            <p className="text-sm text-orange-700">
+              By <span className="font-semibold">{item.chefName}</span>
+            </p>
+          </div>
+        )}
+
+        {item.customizableOptions && item.customizableOptions.length > 0 && (
+          <div className="mb-4">
+            <h3 className="font-semibold mb-2">Customization Options</h3>
+            {item.customizableOptions.map((option) => (
+              <label
+                key={option.id}
+                className="flex items-center justify-between py-2 border-b cursor-pointer hover:bg-gray-50"
+              >
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="mr-2 text-orange-600 focus:ring-orange-500"
+                    checked={selectedOptions.some(
+                      (opt) => opt.id === option.id
+                    )}
+                    onChange={() => toggleOption(option)}
+                  />
+                  <span>{option.name}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mb-6">
+          <span className="font-semibold">Quantity:</span>
+          <div className="flex items-center">
             <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="bg-gray-200 px-3 py-1 rounded-l hover:bg-gray-300 transition-colors"
             >
-              ✕
+              -
+            </button>
+            <span className="bg-gray-100 px-4 py-1 border-t border-b border-gray-200">
+              {quantity}
+            </span>
+            <button
+              onClick={() => setQuantity(quantity + 1)}
+              className="bg-gray-200 px-3 py-1 rounded-r hover:bg-gray-300 transition-colors"
+            >
+              +
             </button>
           </div>
-
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="md:w-1/3">
-              <div className="relative h-40 w-full">
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  fill
-                  className="object-cover rounded-lg"
-                />
-              </div>
-              <p className="mt-2 text-gray-600">{item.description}</p>
-            </div>
-
-            <div className="md:w-2/3">
-              <h3 className="font-bold mb-3">Customization Options</h3>
-              <div className="space-y-3">
-                {item.customizableOptions.map((option: CustomizationOption) => (
-                  <div
-                    key={option.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <label className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedOptions.includes(option.id)}
-                        onChange={() => toggleOption(option)}
-                        className="h-4 w-4 text-orange-600 rounded"
-                      />
-                      <span>{option.name}</span>
-                    </label>
-                    {option.price > 0 && (
-                      <span className="text-sm text-gray-600">
-                        +${option.price.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 pt-4 border-t">
-                <button className="w-full bg-orange-600 text-white py-3 rounded-md hover:bg-orange-700 transition-colors">
-                  Add to Order - ${item.price.toFixed(2)}
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
+
+        <button
+          onClick={handleAddToCart}
+          disabled={isAdding}
+          className="w-full bg-orange-600 text-white py-3 rounded-md hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+        >
+          {isAdding ? "Adding to Cart..." : "Add to Cart"}
+        </button>
       </div>
     </div>
   );

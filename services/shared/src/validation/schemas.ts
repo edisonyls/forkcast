@@ -11,20 +11,29 @@ export const paginationSchema = z.object({
 export const chefProfileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   bio: z.string().min(1, "Bio is required"),
-  cuisine: z.string().min(1, "Cuisine is required"),
   image: z.string().url().optional(),
+  secret: z.string().min(1, "Secret is required"),
+});
+
+export const chefUpdateSchema = chefProfileSchema.partial();
+
+// Chef secret verification schema
+export const chefSecretSchema = z.object({
+  secret: z.string().min(1, "Secret is required"),
 });
 
 // Category schemas
 export const categorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  name: z.string().min(1, "Name is required"),
+  chefId: z.string().cuid("Invalid chef ID"),
 });
+
+export const categoryUpdateSchema = categorySchema.partial();
 
 // Menu item schemas
 export const menuItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
-  price: z.number().positive("Price must be positive"),
   preparationTime: z
     .number()
     .int()
@@ -34,36 +43,51 @@ export const menuItemSchema = z.object({
   image: z.string().url().optional(),
 });
 
+export const menuItemUpdateSchema = menuItemSchema.partial();
+
+// Customization option schemas
 export const customizationOptionSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  price: z.number().min(0, "Price cannot be negative"),
 });
+
+export const customizationOptionCreateSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  menuItemId: z.string().cuid("Invalid menu item ID"),
+});
+
+export const customizationOptionUpdateSchema =
+  customizationOptionSchema.partial();
 
 // Order schemas
-export const orderItemSchema = z.object({
-  menuItemId: z.string().cuid("Invalid menu item ID"),
-  quantity: z.number().int().positive("Quantity must be positive"),
-  customizationOptions: z.array(z.string().cuid()).optional(),
-});
-
-export const createOrderSchema = z.object({
+export const orderSchema = z.object({
   customerName: z.string().min(1, "Customer name is required"),
-  items: z
-    .array(orderItemSchema)
-    .min(1, "Order must contain at least one item"),
+  items: z.array(
+    z.object({
+      menuItemId: z.string().cuid("Invalid menu item ID"),
+      quantity: z.number().int().positive("Quantity must be positive"),
+      customizationOptions: z.array(z.string().cuid()).optional(),
+    })
+  ),
   specialInstructions: z.string().optional(),
 });
 
-export const updateOrderStatusSchema = z.object({
-  status: z.nativeEnum(OrderStatus),
-  estimatedDelivery: z.string().datetime().optional(),
+export const orderUpdateSchema = z.object({
+  status: z.enum([
+    "PENDING",
+    "CONFIRMED",
+    "PREPARING",
+    "READY",
+    "OUT_FOR_DELIVERY",
+    "DELIVERED",
+    "CANCELLED",
+  ]),
 });
 
 // Search schema
 export const searchSchema = z.object({
   query: z.string().min(1, "Search query is required"),
-  cuisine: z.string().optional(),
-  minRating: z.number().min(0).max(5).optional(),
-  maxPrice: z.number().positive().optional(),
-  ...paginationSchema.shape,
+  category: z.string().optional(),
+  chef: z.string().optional(),
+  minRating: z.coerce.number().min(0).max(5).optional(),
+  maxPreparationTime: z.coerce.number().positive().optional(),
 });

@@ -5,7 +5,6 @@ interface Chef {
   id: string | number;
   name: string;
   image: string;
-  cuisine: string;
   rating: number;
   bio: string;
 }
@@ -17,28 +16,43 @@ interface ChefCardProps {
 export default function ChefCard({ chef }: ChefCardProps) {
   return (
     <Link href={`/chefs/${chef.id}`}>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-        <div className="relative h-48 w-full">
-          <Image
-            src={chef.image}
-            alt={chef.name}
-            fill
-            className="object-cover"
-          />
-        </div>
-        <div className="p-4">
-          <div className="flex justify-between items-start mb-2">
-            <h2 className="text-xl font-semibold">{chef.name}</h2>
-            <div className="flex items-center bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm">
-              <span>★</span>
-              <span className="ml-1">{chef.rating}</span>
-            </div>
+      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-orange-200 overflow-hidden group">
+        <div className="p-6 text-center">
+          {/* Round Chef Image */}
+          <div className="relative mx-auto mb-4 w-24 h-24">
+            <Image
+              src={chef.image}
+              alt={chef.name}
+              width={96}
+              height={96}
+              className="w-24 h-24 rounded-full object-cover ring-4 ring-gray-100 group-hover:ring-orange-200 group-hover:scale-105 transition-all duration-300"
+            />
           </div>
-          <span className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded mb-2">
-            {chef.cuisine}
-          </span>
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">{chef.bio}</p>
+
+          {/* Chef Name */}
+          <h2 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-orange-600 transition-colors duration-300">
+            {chef.name}
+          </h2>
+
+          {/* Rating Badge */}
+          <div className="inline-flex items-center bg-gradient-to-r from-orange-100 to-orange-50 text-orange-700 px-3 py-1.5 rounded-full text-sm font-semibold mb-3 border border-orange-200">
+            <svg
+              className="w-4 h-4 mr-1 fill-current text-orange-500"
+              viewBox="0 0 20 20"
+            >
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            <span>{chef.rating}</span>
+          </div>
+
+          {/* Chef Bio */}
+          <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 px-2">
+            {chef.bio}
+          </p>
         </div>
+
+        {/* Hover Effect Indicator */}
+        <div className="h-1 bg-gradient-to-r from-orange-400 to-orange-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
       </div>
     </Link>
   );

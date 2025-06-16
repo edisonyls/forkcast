@@ -1,130 +1,57 @@
-import { Router } from "express";
+import express from "express";
+import bcrypt from "bcryptjs";
 import {
   prisma,
   sendSuccessResponse,
   sendErrorResponse,
-  validateRequest,
+  generateToken,
+  authenticateChef,
+  optionalAuth,
   chefProfileSchema,
+  chefSecretSchema,
 } from "@forkcast/shared";
 
-const router = Router();
+const router = express.Router();
 
-// Get all chefs with pagination and filters
+// Get all chefs (public endpoint)
 router.get("/", async (req, res) => {
   try {
-    const {
-      page = "1",
-      limit = "10",
-      cuisine,
-      search,
-      verified,
-      minRating = "0",
-    } = req.query;
-
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
-    const skip = (pageNum - 1) * limitNum;
-
-    const where: any = {
-      isActive: true,
-    };
-
-    if (cuisine) {
-      where.cuisine = { contains: cuisine as string, mode: "insensitive" };
-    }
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search as string, mode: "insensitive" } },
-        { bio: { contains: search as string, mode: "insensitive" } },
-      ];
-    }
-
-    if (verified === "true") {
-      where.isVerified = true;
-    }
-
-    if (minRating) {
-      where.rating = { gte: parseFloat(minRating as string) };
-    }
-
-    const [chefs, total] = await Promise.all([
-      prisma.chef.findMany({
-        where,
-        select: {
-          id: true,
-          name: true,
-          bio: true,
-          cuisine: true,
-          rating: true,
-          ratingCount: true,
-          image: true,
-          isVerified: true,
-          createdAt: true,
-        },
-        skip,
-        take: limitNum,
-        orderBy: { rating: "desc" },
-      }),
-      prisma.chef.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(total / limitNum);
-
-    return sendSuccessResponse(res, {
-      chefs,
-      pagination: {
-        currentPage: pageNum,
-        totalPages,
-        totalCount: total,
-        hasNext: pageNum < totalPages,
-        hasPrev: pageNum > 1,
+    const chefs = await prisma.chef.findMany({
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        bio: true,
+        rating: true,
+        ratingCount: true,
+        image: true,
+        createdAt: true,
       },
     });
+
+    return sendSuccessResponse(res, { chefs }, "Chefs retrieved successfully");
   } catch (error) {
     console.error("Get chefs error:", error);
-    return sendErrorResponse(res, "Failed to fetch chefs", 500);
+    return sendErrorResponse(res, "Failed to retrieve chefs", 500);
   }
 });
 
-// Get chef by ID
+// Get chef by ID (public endpoint)
 router.get("/:chefId", async (req, res) => {
   try {
     const { chefId } = req.params;
 
     const chef = await prisma.chef.findUnique({
-      where: { id: chefId, isActive: true },
+      where: { id: chefId },
       select: {
         id: true,
+        username: true,
         name: true,
         bio: true,
-        cuisine: true,
         rating: true,
         ratingCount: true,
         image: true,
-        isVerified: true,
         createdAt: true,
-        menuItems: {
-          where: { isActive: true },
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            price: true,
-            preparationTime: true,
-            rating: true,
-            ratingCount: true,
-            image: true,
-            category: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-          take: 10,
-          orderBy: { rating: "desc" },
-        },
       },
     });
 
@@ -132,55 +59,101 @@ router.get("/:chefId", async (req, res) => {
       return sendErrorResponse(res, "Chef not found", 404);
     }
 
-    return sendSuccessResponse(res, { chef });
+    return sendSuccessResponse(res, { chef }, "Chef retrieved successfully");
   } catch (error) {
     console.error("Get chef error:", error);
-    return sendErrorResponse(res, "Failed to fetch chef", 500);
+    return sendErrorResponse(res, "Failed to retrieve chef", 500);
   }
 });
 
-// Create chef profile
-router.post("/", validateRequest(chefProfileSchema), async (req, res) => {
+// Verify chef secret (public endpoint for menu access)
+router.post("/:chefId/verify-secret", async (req, res) => {
   try {
-    const { name, bio, cuisine, image } = req.body;
+    const { chefId } = req.params;
+    const { secret } = req.body;
 
-    const chef = await prisma.chef.create({
-      data: {
-        name,
-        bio,
-        cuisine,
-        image,
-      },
+    if (!secret) {
+      return sendErrorResponse(res, "Secret is required", 400);
+    }
+
+    const chef = await prisma.chef.findUnique({
+      where: { id: chefId },
       select: {
         id: true,
+        username: true,
         name: true,
         bio: true,
-        cuisine: true,
         rating: true,
         ratingCount: true,
         image: true,
-        isVerified: true,
+        secret: true,
         createdAt: true,
       },
     });
 
+    if (!chef) {
+      return sendErrorResponse(res, "Chef not found", 404);
+    }
+
+    if (chef.secret !== secret) {
+      return sendErrorResponse(res, "Invalid secret", 403);
+    }
+
+    // Return chef data without the secret
+    const { secret: _, ...chefData } = chef;
     return sendSuccessResponse(
       res,
-      { chef },
-      "Chef profile created successfully",
-      201
+      { chef: chefData },
+      "Secret verified successfully"
     );
   } catch (error) {
-    console.error("Create chef error:", error);
-    return sendErrorResponse(res, "Failed to create chef profile", 500);
+    console.error("Verify secret error:", error);
+    return sendErrorResponse(res, "Failed to verify secret", 500);
   }
 });
 
-// Update chef profile
-router.put("/:chefId", validateRequest(chefProfileSchema), async (req, res) => {
+// Get chef profile (protected endpoint)
+router.get("/profile/me", authenticateChef, async (req, res) => {
   try {
-    const { chefId } = req.params;
-    const { name, bio, cuisine, image } = req.body;
+    const chefId = req.chef!.chefId;
+
+    const chef = await prisma.chef.findUnique({
+      where: { id: chefId },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        bio: true,
+        secret: true,
+        rating: true,
+        ratingCount: true,
+        image: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!chef) {
+      return sendErrorResponse(res, "Chef not found", 404);
+    }
+
+    return sendSuccessResponse(
+      res,
+      { chef },
+      "Chef profile retrieved successfully"
+    );
+  } catch (error) {
+    console.error("Get chef profile error:", error);
+    return sendErrorResponse(res, "Failed to retrieve chef profile", 500);
+  }
+});
+
+// Update chef profile (protected endpoint)
+router.put("/profile/me", authenticateChef, async (req, res) => {
+  try {
+    const chefId = req.chef!.chefId;
+    const { name, bio, image } = req.body;
 
     // Check if chef exists
     const existingChef = await prisma.chef.findUnique({
@@ -191,23 +164,25 @@ router.put("/:chefId", validateRequest(chefProfileSchema), async (req, res) => {
       return sendErrorResponse(res, "Chef not found", 404);
     }
 
+    // Only update the fields that are provided
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (bio !== undefined) updateData.bio = bio;
+    if (image !== undefined) updateData.image = image;
+
     const updatedChef = await prisma.chef.update({
       where: { id: chefId },
-      data: {
-        name,
-        bio,
-        cuisine,
-        image,
-      },
+      data: updateData,
       select: {
         id: true,
+        email: true,
+        username: true,
         name: true,
         bio: true,
-        cuisine: true,
+        secret: true,
         rating: true,
         ratingCount: true,
         image: true,
-        isVerified: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -224,43 +199,178 @@ router.put("/:chefId", validateRequest(chefProfileSchema), async (req, res) => {
   }
 });
 
-// Delete chef profile
-router.delete("/:chefId", async (req, res) => {
+// Chef Sign Up
+router.post("/signup", async (req, res) => {
   try {
-    const { chefId } = req.params;
+    const { email, password, username, name, bio, secret } = req.body;
 
-    // Check if chef exists
+    // Validation
+    if (!email || !password || !username || !name || !bio || !secret) {
+      return sendErrorResponse(res, "All fields are required", 400);
+    }
+
+    // Email validation
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      return sendErrorResponse(res, "Please enter a valid email", 400);
+    }
+
+    // Password validation
+    if (password.length < 8 || password.length > 16) {
+      return sendErrorResponse(
+        res,
+        "Password must be between 8-16 characters",
+        400
+      );
+    }
+
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    if (!hasLetter || !hasNumber) {
+      return sendErrorResponse(
+        res,
+        "Password must contain both letters and numbers",
+        400
+      );
+    }
+
+    // Check if email already exists
     const existingChef = await prisma.chef.findUnique({
-      where: { id: chefId },
-      include: {
-        menuItems: {
-          where: { isActive: true },
-        },
+      where: { email },
+    });
+
+    if (existingChef) {
+      return sendErrorResponse(res, "Email already exists", 400);
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Create chef
+    const chef = await prisma.chef.create({
+      data: {
+        email,
+        password: hashedPassword,
+        username,
+        name,
+        bio,
+        secret,
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+        bio: true,
+        secret: true,
+        rating: true,
+        ratingCount: true,
+        image: true,
+        createdAt: true,
       },
     });
 
-    if (!existingChef) {
-      return sendErrorResponse(res, "Chef not found", 404);
-    }
+    // Generate JWT token
+    const token = generateToken({
+      chefId: chef.id,
+      email: chef.email,
+    });
 
-    // Check if chef has active menu items
-    if (existingChef.menuItems.length > 0) {
-      // Soft delete by setting isActive to false
-      await prisma.chef.update({
-        where: { id: chefId },
-        data: { isActive: false },
-      });
-    } else {
-      // Hard delete if no menu items
-      await prisma.chef.delete({
-        where: { id: chefId },
-      });
-    }
+    // Set secure HTTP-only cookie
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
-    return sendSuccessResponse(res, null, "Chef profile deleted successfully");
+    return sendSuccessResponse(
+      res,
+      { chef },
+      "Chef account created successfully",
+      201
+    );
   } catch (error) {
-    console.error("Delete chef error:", error);
-    return sendErrorResponse(res, "Failed to delete chef profile", 500);
+    console.error("Chef signup error:", error);
+    return sendErrorResponse(res, "Failed to create chef account", 500);
+  }
+});
+
+// Chef Sign In
+router.post("/signin", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validation
+    if (!email || !password) {
+      return sendErrorResponse(res, "Email and password are required", 400);
+    }
+
+    // Find chef by email
+    const chef = await prisma.chef.findUnique({
+      where: { email },
+    });
+
+    if (!chef) {
+      return sendErrorResponse(res, "Invalid email or password", 401);
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, chef.password);
+    if (!isPasswordValid) {
+      return sendErrorResponse(res, "Invalid email or password", 401);
+    }
+
+    // Generate JWT token
+    const token = generateToken({
+      chefId: chef.id,
+      email: chef.email,
+    });
+
+    // Set secure HTTP-only cookie
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Return chef data (excluding password)
+    const chefData = {
+      id: chef.id,
+      email: chef.email,
+      username: chef.username,
+      name: chef.name,
+      bio: chef.bio,
+      secret: chef.secret,
+      rating: chef.rating,
+      ratingCount: chef.ratingCount,
+      image: chef.image,
+      createdAt: chef.createdAt,
+    };
+
+    return sendSuccessResponse(res, { chef: chefData }, "Sign in successful");
+  } catch (error) {
+    console.error("Chef signin error:", error);
+    return sendErrorResponse(res, "Failed to sign in", 500);
+  }
+});
+
+// Chef Sign Out
+router.post("/signout", (req, res) => {
+  try {
+    // Clear the authentication cookie
+    res.clearCookie("authToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return sendSuccessResponse(res, {}, "Signed out successfully");
+  } catch (error) {
+    console.error("Chef signout error:", error);
+    return sendErrorResponse(res, "Failed to sign out", 500);
   }
 });
 

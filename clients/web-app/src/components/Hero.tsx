@@ -19,7 +19,7 @@ export default function Hero() {
             Browse Chefs
           </Link>
           <Link
-            href="/register"
+            href="/chef/signin"
             className="border-2 border-orange-600 text-orange-600 px-8 py-3 rounded-lg text-lg font-medium hover:bg-orange-50"
           >
             Become a Chef

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/headers/Header";
-import Footer from "@/components/Footer";
+import { CartProvider } from "@/contexts/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Forkcast - Discover Local Chefs",
-  description: "Connect with local chefs and enjoy homemade meals",
+  description: "Connect with talented local chefs and discover amazing cuisine",
 };
 
 export default function RootLayout({
@@ -28,11 +28,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen flex flex-col">
+        <CartProvider>
           <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </div>
+          <main className="min-h-screen bg-gray-50">{children}</main>
+        </CartProvider>
       </body>
     </html>
   );

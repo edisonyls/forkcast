@@ -1,145 +1,210 @@
-import { Router } from "express";
+import express from "express";
 import {
   prisma,
   sendSuccessResponse,
   sendErrorResponse,
   validateRequest,
   menuItemSchema,
+  categorySchema,
   customizationOptionSchema,
+  authenticateChef,
+  optionalAuth,
 } from "@forkcast/shared";
 
-const router = Router();
+const router = express.Router();
 
-// Get all menu items with pagination and filters
-router.get("/", async (req, res) => {
+// Get categories for a chef (public endpoint)
+router.get("/categories", async (req, res) => {
   try {
-    const {
-      page = "1",
-      limit = "10",
-      category,
-      chef,
-      minPrice,
-      maxPrice,
-      search,
-    } = req.query;
+    const { chefId } = req.query;
 
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
-    const skip = (pageNum - 1) * limitNum;
-
-    const where: any = {
-      isActive: true,
-    };
-
-    if (category) {
-      where.category = {
-        name: { contains: category as string, mode: "insensitive" },
-      };
+    if (!chefId) {
+      return sendErrorResponse(res, "Chef ID is required", 400);
     }
 
-    if (chef) {
-      where.chefId = chef as string;
-    }
-
-    if (minPrice || maxPrice) {
-      where.price = {};
-      if (minPrice) where.price.gte = parseFloat(minPrice as string);
-      if (maxPrice) where.price.lte = parseFloat(maxPrice as string);
-    }
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search as string, mode: "insensitive" } },
-        { description: { contains: search as string, mode: "insensitive" } },
-      ];
-    }
-
-    const [menuItems, total] = await Promise.all([
-      prisma.menuItem.findMany({
-        where,
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          price: true,
-          preparationTime: true,
-          rating: true,
-          ratingCount: true,
-          image: true,
-          chef: {
-            select: {
-              id: true,
-              name: true,
-              cuisine: true,
-              rating: true,
-            },
-          },
-          category: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          customizationOptions: {
-            where: { isActive: true },
-            select: {
-              id: true,
-              name: true,
-              price: true,
-            },
-          },
-        },
-        skip,
-        take: limitNum,
-        orderBy: { rating: "desc" },
-      }),
-      prisma.menuItem.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(total / limitNum);
-
-    return sendSuccessResponse(res, {
-      menuItems,
-      pagination: {
-        currentPage: pageNum,
-        totalPages,
-        totalCount: total,
-        hasNext: pageNum < totalPages,
-        hasPrev: pageNum > 1,
-      },
+    const categories = await prisma.category.findMany({
+      where: { chefId: chefId as string },
+      orderBy: { createdAt: "asc" },
     });
+
+    return sendSuccessResponse(
+      res,
+      { categories },
+      "Categories retrieved successfully"
+    );
   } catch (error) {
-    console.error("Get menu items error:", error);
-    return sendErrorResponse(res, "Failed to fetch menu items", 500);
+    console.error("Get categories error:", error);
+    return sendErrorResponse(res, "Failed to retrieve categories", 500);
   }
 });
 
-// Get menu item by ID
-router.get("/:itemId", async (req, res) => {
-  try {
-    const { itemId } = req.params;
+// Create category (protected endpoint)
+router.post(
+  "/categories",
+  authenticateChef,
+  validateRequest(categorySchema),
+  async (req, res) => {
+    try {
+      const chefId = req.chef!.chefId;
+      const { name } = req.body;
 
-    const menuItem = await prisma.menuItem.findUnique({
-      where: { id: itemId, isActive: true },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        preparationTime: true,
-        rating: true,
-        ratingCount: true,
-        image: true,
-        createdAt: true,
-        chef: {
-          select: {
-            id: true,
-            name: true,
-            cuisine: true,
-            rating: true,
-            image: true,
-          },
+      // Check if category already exists for this chef
+      const existingCategory = await prisma.category.findFirst({
+        where: {
+          name,
+          chefId,
         },
+      });
+
+      if (existingCategory) {
+        return sendErrorResponse(res, "Category already exists", 400);
+      }
+
+      const category = await prisma.category.create({
+        data: {
+          name,
+          chefId,
+        },
+      });
+
+      return sendSuccessResponse(
+        res,
+        { category },
+        "Category created successfully",
+        201
+      );
+    } catch (error) {
+      console.error("Create category error:", error);
+      return sendErrorResponse(res, "Failed to create category", 500);
+    }
+  }
+);
+
+// Update category (protected endpoint)
+router.put(
+  "/categories/:categoryId",
+  authenticateChef,
+  validateRequest(categorySchema),
+  async (req, res) => {
+    try {
+      const chefId = req.chef!.chefId;
+      const { categoryId } = req.params;
+      const { name } = req.body;
+
+      // Check if category exists and belongs to the chef
+      const existingCategory = await prisma.category.findFirst({
+        where: {
+          id: categoryId,
+          chefId,
+        },
+      });
+
+      if (!existingCategory) {
+        return sendErrorResponse(res, "Category not found", 404);
+      }
+
+      // Check if another category with the same name exists for this chef
+      const duplicateCategory = await prisma.category.findFirst({
+        where: {
+          name,
+          chefId,
+          id: { not: categoryId },
+        },
+      });
+
+      if (duplicateCategory) {
+        return sendErrorResponse(res, "Category name already exists", 400);
+      }
+
+      const updatedCategory = await prisma.category.update({
+        where: { id: categoryId },
+        data: { name },
+      });
+
+      return sendSuccessResponse(
+        res,
+        { category: updatedCategory },
+        "Category updated successfully"
+      );
+    } catch (error) {
+      console.error("Update category error:", error);
+      return sendErrorResponse(res, "Failed to update category", 500);
+    }
+  }
+);
+
+// Delete category (protected endpoint)
+router.delete("/categories/:categoryId", authenticateChef, async (req, res) => {
+  try {
+    const chefId = req.chef!.chefId;
+    const { categoryId } = req.params;
+
+    // Check if category exists and belongs to the chef
+    const existingCategory = await prisma.category.findFirst({
+      where: {
+        id: categoryId,
+        chefId,
+      },
+      include: {
+        menuItems: true,
+      },
+    });
+
+    if (!existingCategory) {
+      return sendErrorResponse(res, "Category not found", 404);
+    }
+
+    // Check if category has menu items
+    if (existingCategory.menuItems.length > 0) {
+      return sendErrorResponse(
+        res,
+        "Cannot delete category with menu items",
+        400
+      );
+    }
+
+    await prisma.category.delete({
+      where: { id: categoryId },
+    });
+
+    return sendSuccessResponse(res, {}, "Category deleted successfully");
+  } catch (error) {
+    console.error("Delete category error:", error);
+    return sendErrorResponse(res, "Failed to delete category", 500);
+  }
+});
+
+// Get menu items for a chef (public endpoint with secret verification)
+router.get("/items", async (req, res) => {
+  try {
+    const { chefId, secret, categoryId } = req.query;
+
+    if (!chefId) {
+      return sendErrorResponse(res, "Chef ID is required", 400);
+    }
+
+    // Verify chef exists and secret is correct
+    const chef = await prisma.chef.findUnique({
+      where: { id: chefId as string },
+      select: { secret: true },
+    });
+
+    if (!chef) {
+      return sendErrorResponse(res, "Chef not found", 404);
+    }
+
+    if (chef.secret !== secret) {
+      return sendErrorResponse(res, "Invalid secret", 403);
+    }
+
+    const where: any = { chefId: chefId as string };
+    if (categoryId) {
+      where.categoryId = categoryId as string;
+    }
+
+    const menuItems = await prisma.menuItem.findMany({
+      where,
+      include: {
         category: {
           select: {
             id: true,
@@ -147,220 +212,312 @@ router.get("/:itemId", async (req, res) => {
           },
         },
         customizationOptions: {
-          where: { isActive: true },
-          select: {
-            id: true,
-            name: true,
-            price: true,
-          },
-        },
-      },
-    });
-
-    if (!menuItem) {
-      return sendErrorResponse(res, "Menu item not found", 404);
-    }
-
-    return sendSuccessResponse(res, { menuItem });
-  } catch (error) {
-    console.error("Get menu item error:", error);
-    return sendErrorResponse(res, "Failed to fetch menu item", 500);
-  }
-});
-
-// Create menu item
-router.post("/", validateRequest(menuItemSchema), async (req, res) => {
-  try {
-    const {
-      name,
-      description,
-      price,
-      preparationTime,
-      categoryId,
-      chefId,
-      image,
-    } = req.body;
-
-    // Verify chef exists
-    const chef = await prisma.chef.findUnique({
-      where: { id: chefId },
-    });
-
-    if (!chef) {
-      return sendErrorResponse(res, "Chef not found", 404);
-    }
-
-    // Verify category exists
-    const category = await prisma.category.findUnique({
-      where: { id: categoryId },
-    });
-
-    if (!category) {
-      return sendErrorResponse(res, "Category not found", 404);
-    }
-
-    const menuItem = await prisma.menuItem.create({
-      data: {
-        name,
-        description,
-        price,
-        preparationTime,
-        chefId,
-        categoryId,
-        image,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        preparationTime: true,
-        rating: true,
-        image: true,
-        chef: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        category: {
           select: {
             id: true,
             name: true,
           },
         },
       },
+      orderBy: { createdAt: "desc" },
     });
 
     return sendSuccessResponse(
       res,
-      { menuItem },
-      "Menu item created successfully",
-      201
+      { menuItems },
+      "Menu items retrieved successfully"
     );
   } catch (error) {
-    console.error("Create menu item error:", error);
-    return sendErrorResponse(res, "Failed to create menu item", 500);
+    console.error("Get menu items error:", error);
+    return sendErrorResponse(res, "Failed to retrieve menu items", 500);
   }
 });
 
-// Update menu item
-router.put("/:itemId", validateRequest(menuItemSchema), async (req, res) => {
-  try {
-    const { itemId } = req.params;
-    const {
-      name,
-      description,
-      price,
-      preparationTime,
-      categoryId,
-      chefId,
-      image,
-    } = req.body;
+// Create menu item (protected endpoint)
+router.post(
+  "/items",
+  authenticateChef,
+  validateRequest(menuItemSchema),
+  async (req, res) => {
+    try {
+      const chefId = req.chef!.chefId;
+      const { name, description, preparationTime, categoryId, image } =
+        req.body;
 
-    // Check if menu item exists
-    const existingItem = await prisma.menuItem.findUnique({
-      where: { id: itemId },
-    });
-
-    if (!existingItem) {
-      return sendErrorResponse(res, "Menu item not found", 404);
-    }
-
-    // Verify chef exists if provided
-    if (chefId) {
-      const chef = await prisma.chef.findUnique({
-        where: { id: chefId },
-      });
-
-      if (!chef) {
-        return sendErrorResponse(res, "Chef not found", 404);
-      }
-    }
-
-    // Verify category exists if provided
-    if (categoryId) {
-      const category = await prisma.category.findUnique({
-        where: { id: categoryId },
+      // Verify category belongs to the chef
+      const category = await prisma.category.findFirst({
+        where: {
+          id: categoryId,
+          chefId,
+        },
       });
 
       if (!category) {
         return sendErrorResponse(res, "Category not found", 404);
       }
+
+      const menuItem = await prisma.menuItem.create({
+        data: {
+          name,
+          description,
+          preparationTime: parseInt(preparationTime),
+          categoryId,
+          chefId,
+          image,
+        },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          customizationOptions: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return sendSuccessResponse(
+        res,
+        { menuItem },
+        "Menu item created successfully",
+        201
+      );
+    } catch (error) {
+      console.error("Create menu item error:", error);
+      return sendErrorResponse(res, "Failed to create menu item", 500);
     }
-
-    const updatedMenuItem = await prisma.menuItem.update({
-      where: { id: itemId },
-      data: {
-        name,
-        description,
-        price,
-        preparationTime,
-        categoryId,
-        chefId,
-        image,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        preparationTime: true,
-        rating: true,
-        image: true,
-        chef: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        category: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return sendSuccessResponse(
-      res,
-      { menuItem: updatedMenuItem },
-      "Menu item updated successfully"
-    );
-  } catch (error) {
-    console.error("Update menu item error:", error);
-    return sendErrorResponse(res, "Failed to update menu item", 500);
   }
-});
+);
 
-// Delete menu item
-router.delete("/:itemId", async (req, res) => {
+// Update menu item (protected endpoint)
+router.put(
+  "/items/:itemId",
+  authenticateChef,
+  validateRequest(menuItemSchema),
+  async (req, res) => {
+    try {
+      const chefId = req.chef!.chefId;
+      const { itemId } = req.params;
+      const { name, description, preparationTime, categoryId, image } =
+        req.body;
+
+      // Check if menu item exists and belongs to the chef
+      const existingItem = await prisma.menuItem.findFirst({
+        where: {
+          id: itemId,
+          chefId,
+        },
+      });
+
+      if (!existingItem) {
+        return sendErrorResponse(res, "Menu item not found", 404);
+      }
+
+      // Verify category belongs to the chef
+      const category = await prisma.category.findFirst({
+        where: {
+          id: categoryId,
+          chefId,
+        },
+      });
+
+      if (!category) {
+        return sendErrorResponse(res, "Category not found", 404);
+      }
+
+      const updatedMenuItem = await prisma.menuItem.update({
+        where: { id: itemId },
+        data: {
+          name,
+          description,
+          preparationTime: parseInt(preparationTime),
+          categoryId,
+          image,
+        },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          customizationOptions: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return sendSuccessResponse(
+        res,
+        { menuItem: updatedMenuItem },
+        "Menu item updated successfully"
+      );
+    } catch (error) {
+      console.error("Update menu item error:", error);
+      return sendErrorResponse(res, "Failed to update menu item", 500);
+    }
+  }
+);
+
+// Delete menu item (protected endpoint)
+router.delete("/items/:itemId", authenticateChef, async (req, res) => {
   try {
+    const chefId = req.chef!.chefId;
     const { itemId } = req.params;
 
-    // Check if menu item exists
-    const existingItem = await prisma.menuItem.findUnique({
-      where: { id: itemId },
+    // Check if menu item exists and belongs to the chef
+    const existingItem = await prisma.menuItem.findFirst({
+      where: {
+        id: itemId,
+        chefId,
+      },
     });
 
     if (!existingItem) {
       return sendErrorResponse(res, "Menu item not found", 404);
     }
 
-    // Soft delete by setting isActive to false
-    await prisma.menuItem.update({
+    await prisma.menuItem.delete({
       where: { id: itemId },
-      data: { isActive: false },
     });
 
-    return sendSuccessResponse(res, null, "Menu item deleted successfully");
+    return sendSuccessResponse(res, {}, "Menu item deleted successfully");
   } catch (error) {
     console.error("Delete menu item error:", error);
     return sendErrorResponse(res, "Failed to delete menu item", 500);
   }
 });
+
+// Get customization options for a menu item (public endpoint)
+router.get("/:itemId/customizations", async (req, res) => {
+  try {
+    const { itemId } = req.params;
+
+    const customizationOptions = await prisma.customizationOption.findMany({
+      where: { menuItemId: itemId },
+      orderBy: { createdAt: "asc" },
+    });
+
+    return sendSuccessResponse(
+      res,
+      { customizationOptions },
+      "Customization options retrieved successfully"
+    );
+  } catch (error) {
+    console.error("Get customization options error:", error);
+    return sendErrorResponse(
+      res,
+      "Failed to retrieve customization options",
+      500
+    );
+  }
+});
+
+// Create customization option (protected endpoint)
+router.post(
+  "/:itemId/customizations",
+  authenticateChef,
+  validateRequest(customizationOptionSchema),
+  async (req, res) => {
+    try {
+      const chefId = req.chef!.chefId;
+      const { itemId } = req.params;
+      const { name } = req.body;
+
+      // Verify menu item exists and belongs to the chef
+      const menuItem = await prisma.menuItem.findFirst({
+        where: {
+          id: itemId,
+          chefId,
+        },
+      });
+
+      if (!menuItem) {
+        return sendErrorResponse(res, "Menu item not found", 404);
+      }
+
+      const customizationOption = await prisma.customizationOption.create({
+        data: {
+          name,
+          menuItemId: itemId,
+        },
+      });
+
+      return sendSuccessResponse(
+        res,
+        { customizationOption },
+        "Customization option created successfully",
+        201
+      );
+    } catch (error) {
+      console.error("Create customization option error:", error);
+      return sendErrorResponse(
+        res,
+        "Failed to create customization option",
+        500
+      );
+    }
+  }
+);
+
+// Delete customization option (protected endpoint)
+router.delete(
+  "/:itemId/customizations/:optionId",
+  authenticateChef,
+  async (req, res) => {
+    try {
+      const chefId = req.chef!.chefId;
+      const { itemId, optionId } = req.params;
+
+      // Verify menu item exists and belongs to the chef
+      const menuItem = await prisma.menuItem.findFirst({
+        where: {
+          id: itemId,
+          chefId,
+        },
+      });
+
+      if (!menuItem) {
+        return sendErrorResponse(res, "Menu item not found", 404);
+      }
+
+      // Check if customization option exists
+      const existingOption = await prisma.customizationOption.findFirst({
+        where: {
+          id: optionId,
+          menuItemId: itemId,
+        },
+      });
+
+      if (!existingOption) {
+        return sendErrorResponse(res, "Customization option not found", 404);
+      }
+
+      await prisma.customizationOption.delete({
+        where: { id: optionId },
+      });
+
+      return sendSuccessResponse(
+        res,
+        {},
+        "Customization option deleted successfully"
+      );
+    } catch (error) {
+      console.error("Delete customization option error:", error);
+      return sendErrorResponse(
+        res,
+        "Failed to delete customization option",
+        500
+      );
+    }
+  }
+);
 
 export default router;

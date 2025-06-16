@@ -1,57 +1,109 @@
-import ChefCard from "@/components/ChefCard";
-import Search from "@/components/Search";
+"use client";
 
-// Mock data for chefs
-const mockChefs = [
-  {
-    id: 1,
-    name: "Chef Maria",
-    cuisine: "Italian",
-    bio: "Authentic Italian chef with 15 years of experience.",
-    rating: 4.8,
-    image: "/chef1.jpg",
-  },
-  {
-    id: 2,
-    name: "Chef Raj",
-    cuisine: "Indian",
-    bio: "Specializing in North Indian curries and tandoori dishes with family recipes.",
-    rating: 4.9,
-    image: "/chef2.jpg",
-    dishesAvailable: 8,
-  },
-  {
-    id: 3,
-    name: "Chef Pierre",
-    cuisine: "French",
-    bio: "Classic French cuisine with a modern twist, trained in Paris.",
-    rating: 4.7,
-    image: "/chef3.jpg",
-    dishesAvailable: 10,
-  },
-  {
-    id: 4,
-    name: "Chef Mei",
-    cuisine: "Chinese",
-    bio: "Sichuan cuisine expert bringing authentic spicy flavors to your table.",
-    rating: 4.6,
-    image: "/chef4.jpg",
-    dishesAvailable: 15,
-  },
-];
+import { useState, useEffect } from "react";
+import ChefCard from "@/components/ChefCard";
+import { apiService, type Chef } from "@/lib/api";
 
 export default function ChefsPage() {
+  const [chefs, setChefs] = useState<Chef[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadChefs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const { chefs } = await apiService.getChefs();
+        setChefs(chefs || []);
+      } catch (err) {
+        console.error("Failed to fetch chefs:", err);
+        setError(
+          "Failed to load chefs. Please check your connection and try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChefs();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+          Our Chefs
+        </h1>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading chefs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+          Our Chefs
+        </h1>
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            Unable to Load Chefs
+          </h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!chefs || chefs.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+          Our Chefs
+        </h1>
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            No Chefs Available
+          </h2>
+          <p className="text-gray-600 mb-6">
+            No chefs have been added to the platform yet. Please check back
+            later.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition-colors"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        Discover Local Chefs
+      <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+        Our Chefs
       </h1>
-      <div className="mb-8">
-        <Search />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {mockChefs.map((chef) => (
-          <ChefCard key={chef.id} chef={chef} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {chefs.map((chef) => (
+          <ChefCard
+            key={chef.id}
+            chef={{
+              ...chef,
+              image: chef.image || "/chef-placeholder.jpg",
+            }}
+          />
         ))}
       </div>
     </div>

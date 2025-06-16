@@ -15,8 +15,13 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:3001",
+      "http://localhost:3001", // Next.js dev server
+    ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
 
@@ -37,6 +42,21 @@ app.use(morgan("combined"));
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+// Handle preflight OPTIONS requests
+app.options("*", (req, res) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    req.headers.origin || "http://localhost:3001"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, Cookie"
+  );
+  res.sendStatus(200);
 });
 
 // Microservice proxy configurations
@@ -72,6 +92,35 @@ app.use(
 );
 
 app.use(
+  "/api/chef",
+  createProxyMiddleware({
+    target: services.menu,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/chef": "/api/chefs",
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      // Forward cookies and credentials
+      if (req.headers.cookie) {
+        proxyReq.setHeader("cookie", req.headers.cookie);
+      }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Remove any conflicting CORS headers from the target service
+      delete proxyRes.headers["access-control-allow-origin"];
+      delete proxyRes.headers["access-control-allow-credentials"];
+      delete proxyRes.headers["access-control-allow-methods"];
+      delete proxyRes.headers["access-control-allow-headers"];
+
+      // Handle cookies
+      if (proxyRes.headers["set-cookie"]) {
+        res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
+      }
+    },
+  })
+);
+
+app.use(
   "/api/chefs",
   createProxyMiddleware({
     target: services.menu,
@@ -90,6 +139,24 @@ app.use(
     pathRewrite: {
       "^/api/menu": "/api/menu",
     },
+    onProxyReq: (proxyReq, req, res) => {
+      // Forward cookies and credentials
+      if (req.headers.cookie) {
+        proxyReq.setHeader("cookie", req.headers.cookie);
+      }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Remove any conflicting CORS headers from the target service
+      delete proxyRes.headers["access-control-allow-origin"];
+      delete proxyRes.headers["access-control-allow-credentials"];
+      delete proxyRes.headers["access-control-allow-methods"];
+      delete proxyRes.headers["access-control-allow-headers"];
+
+      // Handle cookies
+      if (proxyRes.headers["set-cookie"]) {
+        res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
+      }
+    },
   })
 );
 
@@ -99,7 +166,25 @@ app.use(
     target: services.menu,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/categories": "/api/categories",
+      "^/api/categories": "/api/menu/categories",
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      // Forward cookies and credentials
+      if (req.headers.cookie) {
+        proxyReq.setHeader("cookie", req.headers.cookie);
+      }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Remove any conflicting CORS headers from the target service
+      delete proxyRes.headers["access-control-allow-origin"];
+      delete proxyRes.headers["access-control-allow-credentials"];
+      delete proxyRes.headers["access-control-allow-methods"];
+      delete proxyRes.headers["access-control-allow-headers"];
+
+      // Handle cookies
+      if (proxyRes.headers["set-cookie"]) {
+        res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
+      }
     },
   })
 );

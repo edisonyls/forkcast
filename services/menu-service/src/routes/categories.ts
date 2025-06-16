@@ -9,23 +9,29 @@ import {
 
 const router = Router();
 
-// Get all categories
+// Get all categories (optionally filtered by chef)
 router.get("/", async (req, res) => {
   try {
+    const { chefId } = req.query;
+
+    const where: any = {};
+    if (chefId) {
+      where.chefId = chefId as string;
+    }
+
     const categories = await prisma.category.findMany({
+      where,
       select: {
         id: true,
         name: true,
-        createdAt: true,
-        _count: {
+        chefId: true,
+        chef: {
           select: {
-            menuItems: {
-              where: {
-                isActive: true,
-              },
-            },
+            id: true,
+            name: true,
           },
         },
+        createdAt: true,
       },
       orderBy: { name: "asc" },
     });
@@ -49,14 +55,10 @@ router.get("/:categoryId", async (req, res) => {
         name: true,
         createdAt: true,
         menuItems: {
-          where: {
-            isActive: true,
-          },
           select: {
             id: true,
             name: true,
             description: true,
-            price: true,
             preparationTime: true,
             rating: true,
             ratingCount: true,
@@ -65,7 +67,6 @@ router.get("/:categoryId", async (req, res) => {
               select: {
                 id: true,
                 name: true,
-                cuisine: true,
                 rating: true,
               },
             },
@@ -86,25 +87,52 @@ router.get("/:categoryId", async (req, res) => {
   }
 });
 
-// Create category
+// Create category (chef-specific)
 router.post("/", validateRequest(categorySchema), async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, chefId } = req.body;
 
-    // Check if category already exists
+    if (!chefId) {
+      return sendErrorResponse(res, "Chef ID is required", 400);
+    }
+
+    // Verify chef exists
+    const chef = await prisma.chef.findUnique({
+      where: { id: chefId },
+    });
+
+    if (!chef) {
+      return sendErrorResponse(res, "Chef not found", 404);
+    }
+
+    // Check if category already exists for this chef
     const existingCategory = await prisma.category.findFirst({
-      where: { name: { equals: name, mode: "insensitive" } },
+      where: {
+        name: { equals: name, mode: "insensitive" },
+        chefId: chefId,
+      },
     });
 
     if (existingCategory) {
-      return sendErrorResponse(res, "Category already exists", 409);
+      return sendErrorResponse(
+        res,
+        "Category already exists for this chef",
+        409
+      );
     }
 
     const category = await prisma.category.create({
-      data: { name },
+      data: { name, chefId },
       select: {
         id: true,
         name: true,
+        chefId: true,
+        chef: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         createdAt: true,
       },
     });
@@ -183,15 +211,7 @@ router.delete("/:categoryId", async (req, res) => {
     const existingCategory = await prisma.category.findUnique({
       where: { id: categoryId },
       include: {
-        _count: {
-          select: {
-            menuItems: {
-              where: {
-                isActive: true,
-              },
-            },
-          },
-        },
+        menuItems: true,
       },
     });
 
@@ -199,11 +219,11 @@ router.delete("/:categoryId", async (req, res) => {
       return sendErrorResponse(res, "Category not found", 404);
     }
 
-    // Check if category has active menu items
-    if (existingCategory._count.menuItems > 0) {
+    // Check if category has menu items
+    if (existingCategory.menuItems.length > 0) {
       return sendErrorResponse(
         res,
-        "Cannot delete category with active menu items",
+        "Cannot delete category with existing menu items",
         400
       );
     }

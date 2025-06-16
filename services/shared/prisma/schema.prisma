@@ -9,49 +9,48 @@ datasource db {
 
 model Chef {
   id          String  @id @default(cuid())
+  email       String  @unique
+  password    String  
+  username    String
   name        String
   bio         String
-  cuisine     String
   rating      Float   @default(0)
-  totalRating Int     @default(0)
   ratingCount Int     @default(0)
   image       String?
-  isActive    Boolean @default(true)
-  isVerified  Boolean @default(false)
+  secret      String  // Secret string for accessing chef's menu (required)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
   menuItems MenuItem[]
+  categories Category[]
 
   @@map("chefs")
 }
 
 model Category {
   id   String @id @default(cuid())
-  name String @unique
+  name String
+  chefId String
+  chef Chef @relation(fields: [chefId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
   menuItems MenuItem[]
-
-  @@map("categories")
+  @@unique([name, chefId])
 }
 
 model MenuItem {
   id              String  @id @default(cuid())
   name            String
   description     String
-  price           Float
   preparationTime Int // in minutes
   rating          Float   @default(0)
-  totalRating     Float   @default(0)
   ratingCount     Int     @default(0)
   image           String?
-  isActive        Boolean @default(true)
 
   chefId     String
   categoryId String
@@ -61,7 +60,7 @@ model MenuItem {
 
   // Relations
   chef                  Chef                   @relation(fields: [chefId], references: [id], onDelete: Cascade)
-  category              Category               @relation(fields: [categoryId], references: [id])
+  category              Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   customizationOptions  CustomizationOption[]
   orderItems            OrderItem[]
 
@@ -71,8 +70,6 @@ model MenuItem {
 model CustomizationOption {
   id     String @id @default(cuid())
   name   String
-  price  Float
-  isActive Boolean @default(true)
 
   menuItemId String
 
@@ -91,9 +88,6 @@ model Order {
   customerName  String
   status        OrderStatus @default(PENDING)
   specialInstructions String?
-  orderDate     DateTime    @default(now())
-  estimatedDelivery DateTime?
-  completedAt   DateTime?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -107,8 +101,6 @@ model Order {
 model OrderItem {
   id       String @id @default(cuid())
   quantity Int
-  price    Float // price at time of order
-  totalPrice Float
 
   orderId    String
   menuItemId String
@@ -118,7 +110,7 @@ model OrderItem {
 
   // Relations
   order    Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  menuItem MenuItem              @relation(fields: [menuItemId], references: [id])
+  menuItem MenuItem              @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
   options  OrderItemOption[]
 
   @@map("order_items")
@@ -126,7 +118,6 @@ model OrderItem {
 
 model OrderItemOption {
   id    String @id @default(cuid())
-  price Float // price at time of order
 
   orderItemId           String
   customizationOptionId String
@@ -136,7 +127,7 @@ model OrderItemOption {
 
   // Relations
   orderItem           OrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  customizationOption CustomizationOption @relation(fields: [customizationOptionId], references: [id])
+  customizationOption CustomizationOption @relation(fields: [customizationOptionId], references: [id], onDelete: Cascade)
 
   @@map("order_item_options")
 }
