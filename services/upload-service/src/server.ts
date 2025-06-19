@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import uploadRoutes from "./routes/upload";
 
@@ -26,6 +27,13 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
+
+// Cookie parser middleware (required for authentication)
+app.use(cookieParser());
+
+// Body parsing for JSON requests
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
 
 // Logging
 app.use(morgan("combined"));

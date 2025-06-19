@@ -269,6 +269,17 @@ app.use(
       if (req.headers.cookie) {
         proxyReq.setHeader("cookie", req.headers.cookie);
       }
+
+      // For JSON requests, ensure content-type and content-length are properly set
+      if (
+        req.headers["content-type"] &&
+        req.headers["content-type"].includes("application/json")
+      ) {
+        proxyReq.setHeader("content-type", req.headers["content-type"]);
+        if (req.headers["content-length"]) {
+          proxyReq.setHeader("content-length", req.headers["content-length"]);
+        }
+      }
     },
     onProxyRes: (proxyRes, req, res) => {
       // Remove any conflicting CORS headers from the target service

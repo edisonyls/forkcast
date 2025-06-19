@@ -8,186 +8,150 @@ datasource db {
 }
 
 model Chef {
-  id          String  @id @default(cuid())
-  email       String  @unique
-  password    String  
-  username    String
+  id          String     @id @default(cuid())
   name        String
   bio         String
-  rating      Float   @default(0)
-  ratingCount Int     @default(0)
+  rating      Float      @default(0)
+  ratingCount Int        @default(0)
   image       String?
-  secret      String  // Secret string for accessing chef's menu (required)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  menuItems MenuItem[]
-  categories Category[]
-  events Event[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  secret      String
+  email       String     @unique
+  password    String
+  username    String
+  categories  Category[]
+  events      Event[]
+  menuItems   MenuItem[]
 
   @@map("chefs")
 }
 
 model Category {
-  id   String @id @default(cuid())
-  name String
-  chefId String
-  chef Chef @relation(fields: [chefId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
+  id        String     @id @default(cuid())
+  name      String
+  chefId    String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  chef      Chef       @relation(fields: [chefId], references: [id], onDelete: Cascade)
   menuItems MenuItem[]
+
   @@unique([name, chefId])
 }
 
 model MenuItem {
-  id              String  @id @default(cuid())
-  name            String
-  description     String
-  preparationTime Int // in minutes
-  rating          Float   @default(0)
-  ratingCount     Int     @default(0)
-  image           String?
-
-  chefId     String
-  categoryId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  chef                  Chef                   @relation(fields: [chefId], references: [id], onDelete: Cascade)
-  category              Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  customizationOptions  CustomizationOption[]
-  orderItems            OrderItem[]
-  eventOrderItems       EventOrderItem[]
+  id                   String                @id @default(cuid())
+  name                 String
+  description          String
+  preparationTime      Int
+  rating               Float                 @default(0)
+  ratingCount          Int                   @default(0)
+  image                String?
+  chefId               String
+  categoryId           String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  customizationOptions CustomizationOption[]
+  eventOrderItems      EventOrderItem[]
+  category             Category              @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  chef                 Chef                  @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  orderItems           OrderItem[]
 
   @@map("menu_items")
 }
 
 model CustomizationOption {
-  id     String @id @default(cuid())
-  name   String
-
-  menuItemId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  menuItem           MenuItem             @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  orderItemOptions   OrderItemOption[]
+  id               String            @id @default(cuid())
+  name             String
+  menuItemId       String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  menuItem         MenuItem          @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  orderItemOptions OrderItemOption[]
 
   @@map("customization_options")
 }
 
 model Order {
-  id            String      @id @default(cuid())
-  customerName  String
-  status        OrderStatus @default(PENDING)
+  id                  String      @id @default(cuid())
+  status              OrderStatus @default(PENDING)
   specialInstructions String?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  orderItems OrderItem[]
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  customerName        String
+  orderItems          OrderItem[]
 
   @@map("orders")
 }
 
 model Event {
-  id          String      @id @default(cuid())
+  id          String       @id @default(cuid())
   title       String
   description String?
   eventDate   DateTime
-  status      EventStatus @default(OPEN)
-  maxOrders   Int?        // Optional limit on number of orders
-  
+  status      EventStatus  @default(OPEN)
+  maxOrders   Int?
   chefId      String
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  // Relations
-  chef        Chef        @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   eventOrders EventOrder[]
-  
+  chef        Chef         @relation(fields: [chefId], references: [id], onDelete: Cascade)
+
   @@map("events")
 }
 
 model EventOrder {
-  id               String    @id @default(cuid())
-  customerName     String
-  customerEmail    String?
-  customerPhone    String?
-  specialRequests  String?
-  status           EventOrderStatus @default(PENDING)
-  
-  eventId          String
-  
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  
-  // Relations
-  event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventOrderItems  EventOrderItem[]
-  
+  id              String           @id @default(cuid())
+  customerName    String
+  customerEmail   String?
+  customerPhone   String?
+  specialRequests String?
+  status          EventOrderStatus @default(PENDING)
+  eventId         String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  eventOrderItems EventOrderItem[]
+  event           Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
   @@map("event_orders")
 }
 
 model EventOrderItem {
-  id              String    @id @default(cuid())
-  quantity        Int
-  specialNotes    String?
-  
-  eventOrderId    String
-  menuItemId      String
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  // Relations
-  eventOrder      EventOrder  @relation(fields: [eventOrderId], references: [id], onDelete: Cascade)
-  menuItem        MenuItem    @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  
+  id           String     @id @default(cuid())
+  quantity     Int
+  specialNotes String?
+  eventOrderId String
+  menuItemId   String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  eventOrder   EventOrder @relation(fields: [eventOrderId], references: [id], onDelete: Cascade)
+  menuItem     MenuItem   @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
   @@map("event_order_items")
 }
 
 model OrderItem {
-  id       String @id @default(cuid())
-  quantity Int
-
+  id         String            @id @default(cuid())
+  quantity   Int
   orderId    String
   menuItemId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  order    Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  menuItem MenuItem              @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  options  OrderItemOption[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  options    OrderItemOption[]
+  menuItem   MenuItem          @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  order      Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("order_items")
 }
 
 model OrderItemOption {
-  id    String @id @default(cuid())
-
+  id                    String              @id @default(cuid())
   orderItemId           String
   customizationOptionId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  orderItem           OrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  customizationOption CustomizationOption @relation(fields: [customizationOptionId], references: [id], onDelete: Cascade)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  customizationOption   CustomizationOption @relation(fields: [customizationOptionId], references: [id], onDelete: Cascade)
+  orderItem             OrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
 
   @@map("order_item_options")
 }
@@ -212,4 +176,4 @@ enum EventOrderStatus {
   PENDING
   CONFIRMED
   CANCELLED
-} 
+}

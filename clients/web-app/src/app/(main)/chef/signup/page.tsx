@@ -17,6 +17,7 @@ export default function ChefSignUp() {
     secret: "",
     image: "",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
@@ -108,6 +109,35 @@ export default function ChefSignUp() {
       );
 
       if (response.ok) {
+        // If registration successful and has image file, upload it
+        if (imageFile) {
+          try {
+            const imageFormData = new FormData();
+            imageFormData.append("image", imageFile);
+
+            const uploadResponse = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/upload/chef-profile`,
+              {
+                method: "POST",
+                credentials: "include",
+                body: imageFormData,
+              }
+            );
+
+            if (uploadResponse.ok) {
+              const uploadData = await uploadResponse.json();
+            } else {
+              console.warn(
+                "Failed to upload profile image:",
+                await uploadResponse.text()
+              );
+            }
+          } catch (imageError) {
+            console.warn("Failed to upload profile image:", imageError);
+            // Don't block the registration flow for image upload errors
+          }
+        }
+
         router.push("/chef/dashboard");
       } else {
         const errorData = await response.json();
@@ -146,11 +176,31 @@ export default function ChefSignUp() {
     }
   };
 
-  const handleImageChange = (imageUrl: string | null) => {
-    setFormData({
-      ...formData,
-      image: imageUrl || "",
-    });
+  const handleImageChange = (
+    imageData: { file: File; previewUrl: string } | string | null
+  ) => {
+    if (imageData && typeof imageData === "object" && "file" in imageData) {
+      // New file selected - store file for later upload and preview URL for display
+      setImageFile(imageData.file);
+      setFormData({
+        ...formData,
+        image: imageData.previewUrl,
+      });
+    } else if (typeof imageData === "string") {
+      // Existing image URL (for compatibility)
+      setImageFile(null);
+      setFormData({
+        ...formData,
+        image: imageData,
+      });
+    } else {
+      // Null/cleared
+      setImageFile(null);
+      setFormData({
+        ...formData,
+        image: "",
+      });
+    }
 
     // Clear image error if any
     if (errors.image) {
@@ -270,7 +320,7 @@ export default function ChefSignUp() {
                 onImageError={handleImageError}
                 disabled={loading}
                 size="large"
-                isRegistration={true}
+                uploadMode="deferred"
               />
               {errors.image && (
                 <p className="mt-1 text-sm text-red-600">{errors.image}</p>

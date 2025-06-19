@@ -33,6 +33,7 @@ export default function ChefSettings() {
   const [imageError, setImageError] = useState<string | null>(null);
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -79,8 +80,22 @@ export default function ChefSettings() {
     }
   };
 
-  const handleImagePreview = (imageUrl: string | null) => {
-    setPreviewImage(imageUrl);
+  const handleImagePreview = (
+    imageData: { file: File; previewUrl: string } | string | null
+  ) => {
+    if (imageData && typeof imageData === "object" && "file" in imageData) {
+      // New file selected - store file for later upload and preview URL for display
+      setImageFile(imageData.file);
+      setPreviewImage(imageData.previewUrl);
+    } else if (typeof imageData === "string") {
+      // Existing image URL (for compatibility)
+      setImageFile(null);
+      setPreviewImage(imageData);
+    } else {
+      // Null/cleared
+      setImageFile(null);
+      setPreviewImage(null);
+    }
     setImageError(null);
   };
 
@@ -149,6 +164,37 @@ export default function ChefSettings() {
     setError(null);
 
     try {
+      let finalImageUrl = chef?.image;
+
+      // If there's a new image file, upload it first
+      if (imageFile) {
+        try {
+          const imageFormData = new FormData();
+          imageFormData.append("image", imageFile);
+
+          const uploadResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/upload/chef-profile`,
+            {
+              method: "POST",
+              credentials: "include",
+              body: imageFormData,
+            }
+          );
+
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            finalImageUrl = uploadData.data.imageUrl;
+          } else {
+            throw new Error("Failed to upload image");
+          }
+        } catch (imageError) {
+          console.error("Image upload error:", imageError);
+          setError("Failed to upload image. Please try again.");
+          setUpdatingProfile(false);
+          return;
+        }
+      }
+
       // Update profile data
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/chef/profile/me`,
@@ -162,7 +208,7 @@ export default function ChefSettings() {
             name: formData.name,
             bio: formData.bio,
             secret: formData.secret,
-            image: previewImage || chef?.image, // Use preview image if available
+            image: finalImageUrl,
           }),
         }
       );
@@ -171,7 +217,13 @@ export default function ChefSettings() {
         const data = await response.json();
         setChef(data.data.chef);
         setPreviewImage(null); // Clear preview after successful save
+        setImageFile(null); // Clear image file after successful save
         setToast({ message: "Profile updated successfully!", type: "success" });
+
+        // Force refresh profile data to get latest image URL with cache-busting
+        setTimeout(() => {
+          fetchChefProfile();
+        }, 500);
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Failed to update profile");
@@ -190,7 +242,7 @@ export default function ChefSettings() {
       formData.name !== chef.name ||
       formData.bio !== chef.bio ||
       formData.secret !== chef.secret ||
-      previewImage !== null
+      imageFile !== null
     );
   };
 
@@ -418,7 +470,14 @@ export default function ChefSettings() {
                         <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
                           {chef.image ? (
                             <Image
-                              src={chef.image}
+                              src={
+                                chef.image.startsWith("http")
+                                  ? chef.image
+                                  : `${
+                                      process.env.NEXT_PUBLIC_API_URL ||
+                                      "http://localhost:3000"
+                                    }${chef.image}`
+                              }
                               alt={chef.name}
                               width={128}
                               height={128}
@@ -448,12 +507,13 @@ export default function ChefSettings() {
                     {/* Image Upload */}
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       <ImageUpload
-                        currentImage={chef.image}
+                        currentImage={previewImage || chef.image}
                         onImageChange={handleImagePreview}
                         onImageError={handleImageError}
                         disabled={updatingProfile}
                         size="large"
                         allowDelete={false}
+                        uploadMode="deferred"
                       />
                       {imageError && (
                         <p className="mt-2 text-sm text-red-600">

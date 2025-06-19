@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
 interface ImageUploadProps {
   currentImage?: string;
-  onImageChange: (imageUrl: string | null) => void;
+  onImageChange: (
+    imageData: { file: File; previewUrl: string } | string | null
+  ) => void;
   onImageError?: (error: string) => void;
   disabled?: boolean;
   size?: "small" | "medium" | "large";
   allowDelete?: boolean;
-  isRegistration?: boolean; // New prop to indicate if this is for registration
+  uploadMode?: "immediate" | "deferred"; // New prop to control when to upload
 }
 
 export default function ImageUpload({
@@ -20,11 +22,16 @@ export default function ImageUpload({
   disabled = false,
   size = "medium",
   allowDelete = false,
-  isRegistration = false,
+  uploadMode = "immediate",
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(currentImage || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync internal state with external currentImage prop
+  useEffect(() => {
+    setPreviewUrl(currentImage || null);
+  }, [currentImage]);
 
   const sizeClasses = {
     small: "w-16 h-16",
@@ -51,12 +58,18 @@ export default function ImageUpload({
     // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPreviewUrl(e.target?.result as string);
+      const previewUrl = e.target?.result as string;
+      setPreviewUrl(previewUrl);
+
+      // For deferred mode, pass file and preview to parent
+      // For immediate mode, upload immediately
+      if (uploadMode === "deferred") {
+        onImageChange({ file, previewUrl });
+      } else {
+        uploadImage(file);
+      }
     };
     reader.readAsDataURL(file);
-
-    // Upload file
-    uploadImage(file);
   };
 
   const uploadImage = async (file: File) => {
@@ -66,14 +79,12 @@ export default function ImageUpload({
       const formData = new FormData();
       formData.append("image", file);
 
-      // Use different endpoints based on context
-      const endpoint = isRegistration
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/upload/registration`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/upload/chef-profile`;
+      // Use chef-profile endpoint for immediate uploads
+      const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/api/upload/chef-profile`;
 
       const response = await fetch(endpoint, {
         method: "POST",
-        credentials: isRegistration ? "omit" : "include", // No credentials for registration
+        credentials: "include",
         body: formData,
       });
 
@@ -121,7 +132,13 @@ export default function ImageUpload({
         >
           {previewUrl ? (
             <Image
-              src={previewUrl}
+              src={
+                previewUrl.startsWith("http") || previewUrl.startsWith("data:")
+                  ? previewUrl
+                  : `${
+                      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+                    }${previewUrl}`
+              }
               alt="Profile preview"
               fill
               sizes="(max-width: 768px) 128px, 128px"

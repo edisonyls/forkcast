@@ -21,7 +21,15 @@ export default function ChefCard({ chef }: ChefCardProps) {
           {/* Round Chef Image */}
           <div className="relative mx-auto mb-4 w-24 h-24">
             <Image
-              src={chef.image || "/user.png"}
+              src={
+                chef.image &&
+                !chef.image.startsWith("http") &&
+                !chef.image.startsWith("/user.png")
+                  ? `${
+                      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+                    }${chef.image}`
+                  : chef.image || "/user.png"
+              }
               alt={chef.name}
               width={96}
               height={96}

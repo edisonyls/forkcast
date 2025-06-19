@@ -176,7 +176,14 @@ export default function ChefDashboard() {
               <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-gray-200">
                 {chef.image ? (
                   <Image
-                    src={chef.image}
+                    src={
+                      chef.image.startsWith("http")
+                        ? chef.image
+                        : `${
+                            process.env.NEXT_PUBLIC_API_URL ||
+                            "http://localhost:3000"
+                          }${chef.image}`
+                    }
                     alt={chef.name}
                     width={80}
                     height={80}
