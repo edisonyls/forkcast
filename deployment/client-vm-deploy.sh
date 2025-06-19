@@ -38,9 +38,22 @@ fi
 echo "🔧 Using production configuration..."
 if [ -f "next.config.prod.ts" ]; then
     cp next.config.prod.ts next.config.ts
-    echo "✅ Production configuration applied"
+    echo "✅ Production Next.js configuration applied"
 else
     echo "❌ Production configuration file not found"
+    exit 1
+fi
+
+# Create production environment file
+echo "🔧 Setting up environment variables..."
+if [ -f "env.production.example" ]; then
+    cp env.production.example .env.local
+    # Replace SERVICES_VM_IP with the actual IP
+    sed -i.bak "s/SERVICES_VM_IP/$SERVICES_VM_IP/g" .env.local
+    rm .env.local.bak 2>/dev/null || true
+    echo "✅ Production environment configured"
+else
+    echo "❌ Environment example file not found"
     exit 1
 fi
 

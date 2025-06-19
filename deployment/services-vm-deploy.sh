@@ -28,12 +28,19 @@ if [ ! -f "production.env" ]; then
     exit 1
 fi
 
-# Load environment variables
-export $(cat production.env | grep -v '^#' | xargs)
+# Load environment variables and export them
+set -a
+source production.env
+set +a
 
 # Validate required environment variables
 if [ -z "$FRONTEND_URL" ] || [[ "$FRONTEND_URL" == *"CLIENT_VM_IP"* ]]; then
     echo "❌ Please update CLIENT_VM_IP in production.env with the actual Client VM IP address"
+    exit 1
+fi
+
+if [ -z "$JWT_SECRET" ] || [[ "$JWT_SECRET" == *"change-this"* ]]; then
+    echo "❌ Please update JWT_SECRET in production.env with a secure random string"
     exit 1
 fi
 

@@ -34,12 +34,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Configure the app to run on port 3001 to avoid conflicts
-  async serverRuntimeConfig() {
-    return {
-      port: 3001,
-    };
-  },
 };
 
 export default nextConfig;

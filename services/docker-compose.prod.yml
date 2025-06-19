@@ -45,13 +45,13 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - NODE_ENV=production
-      - MENU_SERVICE_URL=http://menu-service:3002
-      - ORDER_SERVICE_URL=http://order-service:3003
-      - SEARCH_SERVICE_URL=http://search-service:3004
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
-      - UPLOAD_SERVICE_URL=http://upload-service:3006
-      - FRONTEND_URL=${FRONTEND_URL:-http://CLIENT_VM_IP:3001}
+      - NODE_ENV=${NODE_ENV}
+      - MENU_SERVICE_URL=${MENU_SERVICE_URL}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
+      - SEARCH_SERVICE_URL=${SEARCH_SERVICE_URL}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - UPLOAD_SERVICE_URL=${UPLOAD_SERVICE_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       - menu-service
       - order-service
@@ -70,9 +70,12 @@ services:
       - "3002:3002"
     environment:
       - PORT=3002
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/forkcast
-      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,9 +93,12 @@ services:
       - "3003:3003"
     environment:
       - PORT=3003
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/forkcast
-      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -110,9 +116,12 @@ services:
       - "3004:3004"
     environment:
       - PORT=3004
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/forkcast
-      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -130,11 +139,14 @@ services:
       - "3005:3005"
     environment:
       - PORT=3005
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/forkcast
-      - REDIS_URL=redis://redis:6379
-      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
-      - SMTP_PORT=${SMTP_PORT:-587}
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
     depends_on:
@@ -154,8 +166,11 @@ services:
       - "3006:3006"
     environment:
       - PORT=3006
-      - NODE_ENV=production
-      - FRONTEND_URL=${FRONTEND_URL:-http://CLIENT_VM_IP:3001}
+      - NODE_ENV=${NODE_ENV}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     volumes:
       - upload_data:/app/uploads
     restart: unless-stopped
