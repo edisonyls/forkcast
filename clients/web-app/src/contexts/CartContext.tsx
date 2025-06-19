@@ -36,6 +36,7 @@ interface CartContextType {
   items: CartItem[];
   cartChef: CartChef | null; // Which chef the current cart belongs to
   lastVisitedChef: LastVisitedChef | null;
+  isLoading: boolean; // Whether the context is still loading from localStorage
   addToCart: (item: Omit<CartItem, "id" | "addedAt">) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
@@ -58,6 +59,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartChef, setCartChef] = useState<CartChef | null>(null);
   const [lastVisitedChef, setLastVisitedChefState] =
     useState<LastVisitedChef | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load cart, cart chef, and last visited chef from localStorage on mount
   useEffect(() => {
@@ -112,6 +114,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         );
       }
     }
+
+    // Mark loading as complete
+    setIsLoading(false);
   }, []);
 
   // Save cart to localStorage whenever it changes
@@ -142,10 +147,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearExpiredSecrets = () => {
     // Clear all stored secrets when session expires
-    const keys = Object.keys(sessionStorage);
+    const keys = Object.keys(localStorage);
     keys.forEach((key) => {
       if (key.startsWith("forkcast-secret-")) {
-        sessionStorage.removeItem(key);
+        localStorage.removeItem(key);
       }
     });
   };
@@ -225,22 +230,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       accessedAt: new Date(),
     });
 
-    // Store the secret in sessionStorage if provided
+    // Store the secret in localStorage if provided
     if (secret && chef.hasAccess) {
-      sessionStorage.setItem(`forkcast-secret-${chef.id}`, secret);
+      localStorage.setItem(`forkcast-secret-${chef.id}`, secret);
     }
   };
 
   const clearLastVisitedChef = () => {
     if (lastVisitedChef) {
       // Clear the stored secret when clearing last visited chef
-      sessionStorage.removeItem(`forkcast-secret-${lastVisitedChef.id}`);
+      localStorage.removeItem(`forkcast-secret-${lastVisitedChef.id}`);
     }
     setLastVisitedChefState(null);
   };
 
   const getStoredSecret = (chefId: string | number): string | null => {
-    return sessionStorage.getItem(`forkcast-secret-${chefId}`);
+    // First check localStorage (new location)
+    let secret = localStorage.getItem(`forkcast-secret-${chefId}`);
+
+    // If not found, check sessionStorage (old location) for backward compatibility
+    if (!secret) {
+      secret = sessionStorage.getItem(`forkcast-secret-${chefId}`);
+
+      // If found in sessionStorage, migrate it to localStorage
+      if (secret) {
+        localStorage.setItem(`forkcast-secret-${chefId}`, secret);
+        sessionStorage.removeItem(`forkcast-secret-${chefId}`);
+      }
+    }
+
+    return secret;
   };
 
   return (
@@ -249,6 +268,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items,
         cartChef,
         lastVisitedChef,
+        isLoading,
         addToCart,
         removeFromCart,
         updateQuantity,

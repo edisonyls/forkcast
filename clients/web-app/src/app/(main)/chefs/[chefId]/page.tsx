@@ -21,6 +21,7 @@ export default function ChefPage() {
     cartChef,
     getTotalItems,
     clearCartAndSetChef,
+    isLoading: contextLoading,
   } = useCart();
 
   const [chef, setChef] = useState<any>(null);
@@ -48,6 +49,11 @@ export default function ChefPage() {
 
   // Load chef basic info
   useEffect(() => {
+    // Don't proceed if the cart context is still loading
+    if (contextLoading) {
+      return;
+    }
+
     const loadChef = async () => {
       try {
         setLoading(true);
@@ -74,6 +80,7 @@ export default function ChefPage() {
         // Check if user already has access to this chef
         if (hasExistingAccess()) {
           const secret = getStoredSecret(chefId);
+
           if (secret) {
             // User has existing access and stored secret, load menu directly
             try {
@@ -107,7 +114,7 @@ export default function ChefPage() {
     };
 
     loadChef();
-  }, [chefId]);
+  }, [chefId, contextLoading]);
 
   const handleChefSwitchConfirm = async () => {
     if (chef) {

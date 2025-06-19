@@ -146,11 +146,20 @@ export default function ChefMenu({
           {/* Chef Info */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <Image
-              src={chef.image || "/user.png"}
+              src={
+                chef.image &&
+                !chef.image.startsWith("http") &&
+                !chef.image.startsWith("/user.png")
+                  ? `${
+                      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+                    }${chef.image}`
+                  : chef.image || "/user.png"
+              }
               alt={chef.name}
               width={200}
               height={200}
               className="rounded-full mx-auto mb-4"
+              priority
             />
             <h2 className="text-xl font-bold text-center">{chef.name}</h2>
             <div className="flex justify-center items-center">
