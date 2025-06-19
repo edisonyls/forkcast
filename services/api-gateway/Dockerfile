@@ -3,17 +3,26 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy workspace package files
 COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY api-gateway/package*.json ./api-gateway/
 
-# Install dependencies
-RUN npm install --only=production
+# Install workspace dependencies
+RUN npm install
 
-# Copy source code
-COPY . .
+# Copy shared package source and build it
+COPY shared/ ./shared/
+RUN cd shared && npm run build
 
-# Build the application
-RUN npm run build
+# Copy api gateway source
+COPY api-gateway/ ./api-gateway/
+
+# Build the api gateway
+RUN cd api-gateway && npm run build
+
+# Set working directory to api gateway
+WORKDIR /app/api-gateway
 
 # Expose port
 EXPOSE 3000

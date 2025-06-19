@@ -38,8 +38,8 @@ services:
   # API Gateway
   api-gateway:
     build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api-gateway/Dockerfile
     container_name: forkcast-api-gateway
     ports:
       - "3000:3000"
@@ -63,8 +63,8 @@ services:
   # Menu Service
   menu-service:
     build:
-      context: ./menu-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: menu-service/Dockerfile
     container_name: forkcast-menu-service
     ports:
       - "3002:3002"
@@ -86,8 +86,8 @@ services:
   # Order Service
   order-service:
     build:
-      context: ./order-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: order-service/Dockerfile
     container_name: forkcast-order-service
     ports:
       - "3003:3003"
@@ -109,8 +109,8 @@ services:
   # Search Service
   search-service:
     build:
-      context: ./search-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: search-service/Dockerfile
     container_name: forkcast-search-service
     ports:
       - "3004:3004"
@@ -132,8 +132,8 @@ services:
   # Notification Service
   notification-service:
     build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: notification-service/Dockerfile
     container_name: forkcast-notification-service
     ports:
       - "3005:3005"
@@ -159,8 +159,8 @@ services:
   # Upload Service
   upload-service:
     build:
-      context: ./upload-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: upload-service/Dockerfile
     container_name: forkcast-upload-service
     ports:
       - "3006:3006"

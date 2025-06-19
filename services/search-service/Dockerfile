@@ -3,17 +3,26 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy workspace package files
 COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY search-service/package*.json ./search-service/
 
-# Install dependencies
-RUN npm install --only=production
+# Install workspace dependencies
+RUN npm install
 
-# Copy source code
-COPY . .
+# Copy shared package source and build it
+COPY shared/ ./shared/
+RUN cd shared && npm run build
 
-# Build the application
-RUN npm run build
+# Copy search service source
+COPY search-service/ ./search-service/
+
+# Build the search service
+RUN cd search-service && npm run build
+
+# Set working directory to search service
+WORKDIR /app/search-service
 
 # Expose port
 EXPOSE 3004

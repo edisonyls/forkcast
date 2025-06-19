@@ -3,17 +3,26 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy workspace package files
 COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY order-service/package*.json ./order-service/
 
-# Install dependencies
-RUN npm install --only=production
+# Install workspace dependencies
+RUN npm install
 
-# Copy source code
-COPY . .
+# Copy shared package source and build it
+COPY shared/ ./shared/
+RUN cd shared && npm run build
 
-# Build the application
-RUN npm run build
+# Copy order service source
+COPY order-service/ ./order-service/
+
+# Build the order service
+RUN cd order-service && npm run build
+
+# Set working directory to order service
+WORKDIR /app/order-service
 
 # Expose port
 EXPOSE 3003

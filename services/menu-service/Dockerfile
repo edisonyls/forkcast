@@ -3,17 +3,26 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy workspace package files
 COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY menu-service/package*.json ./menu-service/
 
-# Install dependencies
-RUN npm install --only=production
+# Install workspace dependencies
+RUN npm install
 
-# Copy source code
-COPY . .
+# Copy shared package source and build it
+COPY shared/ ./shared/
+RUN cd shared && npm run build
 
-# Build the application
-RUN npm run build
+# Copy menu service source
+COPY menu-service/ ./menu-service/
+
+# Build the menu service
+RUN cd menu-service && npm run build
+
+# Set working directory to menu service
+WORKDIR /app/menu-service
 
 # Expose port
 EXPOSE 3002

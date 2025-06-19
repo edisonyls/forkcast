@@ -3,17 +3,26 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy workspace package files
 COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY notification-service/package*.json ./notification-service/
 
-# Install dependencies
-RUN npm install --only=production
+# Install workspace dependencies
+RUN npm install
 
-# Copy source code
-COPY . .
+# Copy shared package source and build it
+COPY shared/ ./shared/
+RUN cd shared && npm run build
 
-# Build the application
-RUN npm run build
+# Copy notification service source
+COPY notification-service/ ./notification-service/
+
+# Build the notification service
+RUN cd notification-service && npm run build
+
+# Set working directory to notification service
+WORKDIR /app/notification-service
 
 # Expose port
 EXPOSE 3005
