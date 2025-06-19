@@ -26,6 +26,17 @@ const createChefProfileDirectory = (chefId: string): string => {
   return chefProfileDir;
 };
 
+const createMenuItemDirectory = (
+  chefId: string,
+  menuItemId: string
+): string => {
+  const menuItemDir = path.join(uploadsDir, chefId, "food", menuItemId);
+  if (!fs.existsSync(menuItemDir)) {
+    fs.mkdirSync(menuItemDir, { recursive: true });
+  }
+  return menuItemDir;
+};
+
 // Configure multer for memory storage (we'll process and save manually)
 const storage = multer.memoryStorage();
 
@@ -104,6 +115,97 @@ router.post(
         }
       }
       return sendErrorResponse(res, "Failed to upload image", 500);
+    }
+  }
+);
+
+// Upload menu item images (protected endpoint)
+router.post(
+  "/menu-item/:menuItemId",
+  authenticateChef,
+  upload.array("images", 10), // Allow up to 10 images
+  async (req, res) => {
+    try {
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return sendErrorResponse(res, "No image files provided", 400);
+      }
+
+      const chefId = req.chef!.chefId;
+      const { menuItemId } = req.params;
+
+      if (!menuItemId) {
+        return sendErrorResponse(res, "Menu item ID is required", 400);
+      }
+
+      // Create menu item directory
+      const menuItemDir = createMenuItemDirectory(chefId, menuItemId);
+
+      // Clear existing images first
+      const existingFiles = fs
+        .readdirSync(menuItemDir)
+        .filter(
+          (file) =>
+            file.endsWith(".jpg") ||
+            file.endsWith(".jpeg") ||
+            file.endsWith(".png")
+        );
+      existingFiles.forEach((file) => {
+        fs.unlinkSync(path.join(menuItemDir, file));
+      });
+
+      const uploadedImages: string[] = [];
+
+      // Process each uploaded image
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileName = `image${i + 1}.jpg`; // image1.jpg, image2.jpg, etc.
+        const filePath = path.join(menuItemDir, fileName);
+
+        // Process image with Sharp: resize, optimize, and convert to JPG
+        await sharp(file.buffer)
+          .resize(800, 600, {
+            fit: "cover",
+            position: "center",
+          })
+          .jpeg({
+            quality: 85,
+            progressive: true,
+          })
+          .toFile(filePath);
+
+        // Generate the URL with cache busting
+        const imageUrl = `/uploads/${chefId}/food/${menuItemId}/${fileName}?t=${Date.now()}`;
+        uploadedImages.push(imageUrl);
+      }
+
+      return sendSuccessResponse(
+        res,
+        {
+          imageUrls: uploadedImages,
+          count: uploadedImages.length,
+        },
+        "Menu item images uploaded successfully"
+      );
+    } catch (error) {
+      console.error("Menu item image upload error:", error);
+      if (error instanceof multer.MulterError) {
+        if (error.code === "LIMIT_FILE_SIZE") {
+          return sendErrorResponse(
+            res,
+            "File size too large. Maximum 5MB per image allowed.",
+            400
+          );
+        }
+        if (error.code === "LIMIT_FILE_COUNT") {
+          return sendErrorResponse(
+            res,
+            "Too many files. Maximum 10 images allowed.",
+            400
+          );
+        }
+      }
+      return sendErrorResponse(res, "Failed to upload menu item images", 500);
     }
   }
 );

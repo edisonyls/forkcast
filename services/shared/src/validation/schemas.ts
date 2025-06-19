@@ -40,7 +40,7 @@ export const menuItemSchema = z.object({
     .positive("Preparation time must be positive"),
   chefId: z.string().cuid("Invalid chef ID"),
   categoryId: z.string().cuid("Invalid category ID"),
-  image: z.string().url().optional(),
+  images: z.array(z.string().url()).optional().default([]),
 });
 
 export const menuItemUpdateSchema = menuItemSchema.partial();

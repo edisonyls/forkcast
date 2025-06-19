@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
@@ -11,22 +10,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3006;
 
-// Security middleware
+// Security middleware (no CORS needed - handled by API Gateway)
 app.use(helmet());
-
-// CORS configuration
-app.use(
-  cors({
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:3001",
-      "http://localhost:3001",
-      "http://localhost:3000", // API Gateway
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-  })
-);
 
 // Cookie parser middleware (required for authentication)
 app.use(cookieParser());

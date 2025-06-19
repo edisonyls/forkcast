@@ -305,6 +305,44 @@ app.use(
     pathRewrite: {
       "^/uploads": "/uploads",
     },
+    onProxyReq: (proxyReq, req, res) => {
+      // Handle OPTIONS preflight requests
+      if (req.method === "OPTIONS") {
+        res.header(
+          "Access-Control-Allow-Origin",
+          req.headers.origin || "http://localhost:3001"
+        );
+        res.header("Access-Control-Allow-Credentials", "true");
+        res.header(
+          "Access-Control-Allow-Methods",
+          "GET, POST, PUT, DELETE, OPTIONS"
+        );
+        res.header(
+          "Access-Control-Allow-Headers",
+          "Content-Type, Authorization, Cookie"
+        );
+        return res.sendStatus(200);
+      }
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Remove any conflicting CORS headers from the target service
+      delete proxyRes.headers["access-control-allow-origin"];
+      delete proxyRes.headers["access-control-allow-credentials"];
+      delete proxyRes.headers["access-control-allow-methods"];
+      delete proxyRes.headers["access-control-allow-headers"];
+
+      // Set proper CORS headers for image requests
+      res.setHeader(
+        "Access-Control-Allow-Origin",
+        req.headers.origin || "http://localhost:3001"
+      );
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+
+      // Set proper cache headers for images
+      if (req.url && req.url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        res.setHeader("Cache-Control", "public, max-age=31536000"); // 1 year
+      }
+    },
   })
 );
 

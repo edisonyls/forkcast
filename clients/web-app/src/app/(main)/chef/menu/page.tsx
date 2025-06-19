@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import MultipleImageUpload from "@/components/MultipleImageUpload";
+
+interface ImageData {
+  file: File;
+  previewUrl: string;
+  id: string;
+}
 
 interface Chef {
   id: string;
@@ -32,7 +39,7 @@ interface MenuItem {
   preparationTime: number;
   rating: number;
   ratingCount: number;
-  image?: string;
+  images: string[];
   categoryId: string;
   category: {
     id: string;
@@ -73,9 +80,10 @@ export default function MenuManagement() {
     description: "",
     preparationTime: 30,
     categoryId: "",
-    image: "",
+    images: [] as string[],
     customizationOptions: [] as { name: string }[],
   });
+  const [menuItemImages, setMenuItemImages] = useState<ImageData[]>([]);
   const [menuItemLoading, setMenuItemLoading] = useState(false);
   const [isEditingMenuItem, setIsEditingMenuItem] = useState(false);
 
@@ -86,6 +94,33 @@ export default function MenuManagement() {
   >(null);
 
   const [error, setError] = useState("");
+
+  // Handle image changes for multiple upload
+  const handleImagesChange = useCallback(
+    (imageData: ImageData[] | string[] | null) => {
+      if (imageData && Array.isArray(imageData) && imageData.length > 0) {
+        if (typeof imageData[0] === "object" && "file" in imageData[0]) {
+          // New image files selected
+          setMenuItemImages(imageData as ImageData[]);
+        } else {
+          // Existing image URLs
+          setMenuItemForm((prev) => ({
+            ...prev,
+            images: imageData as string[],
+          }));
+        }
+      } else {
+        // Clear images
+        setMenuItemImages([]);
+        setMenuItemForm((prev) => ({ ...prev, images: [] }));
+      }
+    },
+    []
+  );
+
+  const handleImageError = (error: string) => {
+    setError(error);
+  };
 
   useEffect(() => {
     // Fetch chef profile using secure authentication
@@ -240,20 +275,17 @@ export default function MenuManagement() {
     setMenuItemLoading(true);
     setError("");
 
-    const requestBody: any = {
-      name: menuItemForm.name,
-      description: menuItemForm.description,
-      preparationTime: menuItemForm.preparationTime,
-      categoryId: menuItemForm.categoryId,
-      chefId: chef.id,
-    };
-
-    // Only include image if it's not empty
-    if (menuItemForm.image.trim()) {
-      requestBody.image = menuItemForm.image.trim();
-    }
-
     try {
+      // First create the menu item
+      const requestBody = {
+        name: menuItemForm.name,
+        description: menuItemForm.description,
+        preparationTime: menuItemForm.preparationTime,
+        categoryId: menuItemForm.categoryId,
+        chefId: chef.id,
+        images: [], // Start with empty array
+      };
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/menu/items`,
         {
@@ -269,6 +301,64 @@ export default function MenuManagement() {
       if (response.ok) {
         const data = await response.json();
         const newMenuItem = data.data.menuItem;
+
+        // Upload images if any
+        let finalImageUrls: string[] = [];
+        if (menuItemImages.length > 0) {
+          try {
+            const imageFormData = new FormData();
+            menuItemImages.forEach((imageData) => {
+              imageFormData.append("images", imageData.file);
+            });
+
+            const imageResponse = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/upload/menu-item/${newMenuItem.id}`,
+              {
+                method: "POST",
+                credentials: "include",
+                body: imageFormData,
+              }
+            );
+
+            if (imageResponse.ok) {
+              const imageData = await imageResponse.json();
+              finalImageUrls = imageData.data.imageUrls;
+            } else {
+              console.warn(
+                "Failed to upload images:",
+                await imageResponse.text()
+              );
+            }
+          } catch (imageError) {
+            console.warn("Failed to upload images:", imageError);
+            // Don't fail the menu item creation for image upload errors
+          }
+        }
+
+        // Update menu item with image URLs if any were uploaded
+        if (finalImageUrls.length > 0) {
+          try {
+            await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/menu/items/${newMenuItem.id}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                  ...requestBody,
+                  images: finalImageUrls,
+                }),
+              }
+            );
+          } catch (updateError) {
+            console.warn(
+              "Failed to update menu item with image URLs:",
+              updateError
+            );
+          }
+        }
 
         // Create customization options if any
         if (menuItemForm.customizationOptions.length > 0) {
@@ -317,22 +407,23 @@ export default function MenuManagement() {
           }
         }
 
-        // Refresh menu items to get the complete data including customization options
+        // Refresh menu items to get the complete data
         await fetchMenuItems(chef.id, chef.secret);
 
+        // Reset form
         setMenuItemForm({
           id: "",
           name: "",
           description: "",
           preparationTime: 30,
           categoryId: selectedCategoryId || "",
-          image: "",
+          images: [],
           customizationOptions: [],
         });
+        setMenuItemImages([]);
         setShowMenuItemModal(false);
       } else {
         const errorData = await response.json();
-        // Show validation errors if available
         if (errorData.errors) {
           const errorMessages = Object.entries(errorData.errors)
             .map(
@@ -372,9 +463,10 @@ export default function MenuManagement() {
       description: "",
       preparationTime: 30,
       categoryId: targetCategoryId,
-      image: "",
+      images: [],
       customizationOptions: [],
     });
+    setMenuItemImages([]);
     setIsEditingMenuItem(false);
     setShowMenuItemModal(true);
     setError("");
@@ -387,9 +479,10 @@ export default function MenuManagement() {
       description: item.description,
       preparationTime: item.preparationTime,
       categoryId: item.categoryId,
-      image: item.image || "",
+      images: item.images || [],
       customizationOptions: [],
     });
+    setMenuItemImages([]);
     setIsEditingMenuItem(true);
     setShowMenuItemModal(true);
     setError("");
@@ -441,9 +534,9 @@ export default function MenuManagement() {
       chefId: chef.id,
     };
 
-    // Only include image if it's not empty
-    if (menuItemForm.image.trim()) {
-      requestBody.image = menuItemForm.image.trim();
+    // Only include images if not empty
+    if (menuItemForm.images.length > 0) {
+      requestBody.images = menuItemForm.images;
     }
 
     try {
@@ -544,7 +637,7 @@ export default function MenuManagement() {
           description: "",
           preparationTime: 30,
           categoryId: selectedCategoryId || "",
-          image: "",
+          images: [],
           customizationOptions: [],
         });
         setIsEditingMenuItem(false);
@@ -956,12 +1049,36 @@ export default function MenuManagement() {
                           key={item.id}
                           className="relative border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
-                          {item.image && (
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-full h-32 object-cover rounded-md mb-3"
-                            />
+                          {item.images && item.images.length > 0 && (
+                            <div className="grid grid-cols-2 gap-1 mb-3">
+                              {item.images
+                                .slice(0, 4)
+                                .map((imageUrl, index) => (
+                                  <img
+                                    key={index}
+                                    src={
+                                      imageUrl.startsWith("http") ||
+                                      imageUrl.startsWith("data:")
+                                        ? imageUrl
+                                        : `${
+                                            process.env.NEXT_PUBLIC_API_URL ||
+                                            "http://localhost:3000"
+                                          }${imageUrl}`
+                                    }
+                                    alt={`${item.name} ${index + 1}`}
+                                    className={`w-full object-cover rounded-md ${
+                                      item.images.length === 1
+                                        ? "h-32 col-span-2"
+                                        : "h-20"
+                                    }`}
+                                  />
+                                ))}
+                              {item.images.length > 4 && (
+                                <div className="h-20 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
+                                  +{item.images.length - 4} more
+                                </div>
+                              )}
+                            </div>
                           )}
                           <h3 className="font-medium text-gray-900 mb-2">
                             {item.name}
@@ -1219,21 +1336,17 @@ export default function MenuManagement() {
                     required
                   />
                 </div>
-                <div>
-                  <label
-                    htmlFor="image"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Image URL (optional)
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Images (optional)
                   </label>
-                  <input
-                    type="url"
-                    id="image"
-                    name="image"
-                    value={menuItemForm.image}
-                    onChange={handleMenuItemInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="https://example.com/image.jpg"
+                  <MultipleImageUpload
+                    currentImages={menuItemForm.images}
+                    onImagesChange={handleImagesChange}
+                    onImageError={handleImageError}
+                    disabled={menuItemLoading}
+                    maxImages={8}
+                    uploadMode="deferred"
                   />
                 </div>
               </div>
@@ -1340,7 +1453,7 @@ export default function MenuManagement() {
                       description: "",
                       preparationTime: 30,
                       categoryId: "",
-                      image: "",
+                      images: [],
                       customizationOptions: [],
                     });
                     setIsEditingMenuItem(false);

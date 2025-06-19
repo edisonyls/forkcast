@@ -468,7 +468,7 @@ router.post(
                   id: true,
                   name: true,
                   description: true,
-                  image: true,
+                  images: true,
                 },
               },
             },

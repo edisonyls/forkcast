@@ -62,7 +62,7 @@ router.get("/:categoryId", async (req, res) => {
             preparationTime: true,
             rating: true,
             ratingCount: true,
-            image: true,
+            images: true,
             chef: {
               select: {
                 id: true,

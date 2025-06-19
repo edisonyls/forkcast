@@ -240,7 +240,7 @@ router.post(
   async (req, res) => {
     try {
       const chefId = req.chef!.chefId;
-      const { name, description, preparationTime, categoryId, image } =
+      const { name, description, preparationTime, categoryId, images } =
         req.body;
 
       // Verify category belongs to the chef
@@ -262,7 +262,7 @@ router.post(
           preparationTime: parseInt(preparationTime),
           categoryId,
           chefId,
-          image,
+          images: images || [],
         },
         include: {
           category: {
@@ -302,7 +302,7 @@ router.put(
     try {
       const chefId = req.chef!.chefId;
       const { itemId } = req.params;
-      const { name, description, preparationTime, categoryId, image } =
+      const { name, description, preparationTime, categoryId, images } =
         req.body;
 
       // Check if menu item exists and belongs to the chef
@@ -336,7 +336,7 @@ router.put(
           description,
           preparationTime: parseInt(preparationTime),
           categoryId,
-          image,
+          images: images || [],
         },
         include: {
           category: {
