@@ -63,7 +63,7 @@ export default function ImageCarousel({
   return (
     <div className={`relative group ${className}`}>
       {/* Main Image */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden h-full w-full">
         <img
           src={
             images[currentIndex].startsWith("http") ||
@@ -74,7 +74,7 @@ export default function ImageCarousel({
                 }`
           }
           alt={`${itemName} - Image ${currentIndex + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
 
         {/* Navigation Arrows - Only show if multiple images */}

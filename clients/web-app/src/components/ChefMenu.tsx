@@ -289,7 +289,7 @@ export default function ChefMenu({
                   key={item.id}
                   className="bg-white rounded-lg shadow-md overflow-hidden h-[400px] flex flex-col"
                 >
-                  <div className="relative h-48 w-full flex-shrink-0">
+                  <div className="relative h-48 w-full flex-shrink-0 overflow-hidden">
                     <ImageCarousel
                       images={item.images || []}
                       itemName={item.name}

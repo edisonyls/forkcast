@@ -82,12 +82,13 @@ router.post(
         fs.unlinkSync(filePath);
       }
 
-      // Process image with Sharp: resize, optimize, and convert to JPG
+      // Process image with Sharp: resize to fit within bounds, maintain aspect ratio
       await sharp(req.file.buffer)
         .resize(400, 400, {
-          fit: "cover",
-          position: "center",
+          fit: "inside",
+          withoutEnlargement: true,
         })
+        .flatten({ background: { r: 255, g: 255, b: 255 } }) // White background for transparency
         .jpeg({
           quality: 85,
           progressive: true,
@@ -141,7 +142,7 @@ router.post(
       // Create menu item directory
       const menuItemDir = createMenuItemDirectory(chefId, menuItemId);
 
-      // Clear existing images first
+      // Find existing images to determine starting index for new images
       const existingFiles = fs
         .readdirSync(menuItemDir)
         .filter(
@@ -150,24 +151,29 @@ router.post(
             file.endsWith(".jpeg") ||
             file.endsWith(".png")
         );
-      existingFiles.forEach((file) => {
-        fs.unlinkSync(path.join(menuItemDir, file));
+
+      // Get existing image URLs for response
+      const existingImageUrls = existingFiles.map((file) => {
+        const baseFileName = file.replace(/\.(jpg|jpeg|png)$/i, ".jpg");
+        return `/uploads/${chefId}/food/${menuItemId}/${baseFileName}?t=${Date.now()}`;
       });
 
-      const uploadedImages: string[] = [];
+      const uploadedImages: string[] = [...existingImageUrls];
 
-      // Process each uploaded image
+      // Process each uploaded image, starting from the next available index
+      const startIndex = existingFiles.length;
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const fileName = `image${i + 1}.jpg`; // image1.jpg, image2.jpg, etc.
+        const fileName = `image${startIndex + i + 1}.jpg`; // Continue numbering from existing images
         const filePath = path.join(menuItemDir, fileName);
 
-        // Process image with Sharp: resize, optimize, and convert to JPG
+        // Process image with Sharp: resize to fit within bounds, maintain aspect ratio
         await sharp(file.buffer)
           .resize(800, 600, {
-            fit: "cover",
-            position: "center",
+            fit: "inside",
+            withoutEnlargement: true,
           })
+          .flatten({ background: { r: 255, g: 255, b: 255 } }) // White background for transparency
           .jpeg({
             quality: 85,
             progressive: true,

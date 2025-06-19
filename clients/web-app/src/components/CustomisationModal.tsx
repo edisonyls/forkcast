@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
+import ImageCarousel from "./ImageCarousel";
 
 interface CustomizationOption {
   id: string | number;
@@ -121,22 +122,11 @@ export default function CustomizationModal({
           </button>
         </div>
 
-        <div className="relative h-48 w-full mb-4">
-          <Image
-            src={
-              item.images && item.images.length > 0
-                ? item.images[0].startsWith("http") ||
-                  item.images[0].startsWith("data:")
-                  ? item.images[0]
-                  : `${
-                      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-                    }${item.images[0]}`
-                : "/food-placeholder.jpg"
-            }
-            alt={item.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover rounded"
+        <div className="relative h-48 w-full mb-4 rounded overflow-hidden">
+          <ImageCarousel
+            images={item.images || []}
+            itemName={item.name}
+            className="h-full w-full"
           />
         </div>
 

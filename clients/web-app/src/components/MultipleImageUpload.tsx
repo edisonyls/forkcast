@@ -152,7 +152,7 @@ export default function MultipleImageUpload({
                   alt={`Menu item image ${index + 1}`}
                   fill
                   sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover"
+                  className="object-contain bg-gray-50"
                 />
                 {!disabled && (
                   <button
@@ -176,7 +176,7 @@ export default function MultipleImageUpload({
                   alt="Preview"
                   fill
                   sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover"
+                  className="object-contain bg-gray-50"
                 />
                 {!disabled && (
                   <button
