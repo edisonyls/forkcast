@@ -3,23 +3,17 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy workspace package files
+# Copy workspace package files and install root dependencies
 COPY package*.json ./
-COPY shared/package*.json ./shared/
-COPY upload-service/package*.json ./upload-service/
-
-# Install workspace dependencies
 RUN npm install
 
-# Copy shared package source and build it
+# Copy and build shared package
 COPY shared/ ./shared/
-RUN cd shared && npx tsc --skipLibCheck || true
+RUN cd shared && npm install && (npx tsc --skipLibCheck || true)
 
-# Copy upload service source
+# Copy upload service and install its dependencies
 COPY upload-service/ ./upload-service/
-
-# Build the upload service (ignore type errors for production)
-RUN cd upload-service && npx tsc --skipLibCheck || true
+RUN cd upload-service && npm install && (npx tsc --skipLibCheck || true)
 
 # Set working directory to upload service
 WORKDIR /app/upload-service

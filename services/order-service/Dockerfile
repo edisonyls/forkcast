@@ -3,23 +3,17 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy workspace package files
+# Copy workspace package files and install root dependencies
 COPY package*.json ./
-COPY shared/package*.json ./shared/
-COPY order-service/package*.json ./order-service/
-
-# Install workspace dependencies
 RUN npm install
 
-# Copy shared package source and build it
+# Copy and build shared package
 COPY shared/ ./shared/
-RUN cd shared && npx tsc --skipLibCheck || true
+RUN cd shared && npm install && (npx tsc --skipLibCheck || true)
 
-# Copy order service source
+# Copy order service and install its dependencies
 COPY order-service/ ./order-service/
-
-# Build the order service (ignore type errors for production)
-RUN cd order-service && npx tsc --skipLibCheck || true
+RUN cd order-service && npm install && (npx tsc --skipLibCheck || true)
 
 # Set working directory to order service
 WORKDIR /app/order-service

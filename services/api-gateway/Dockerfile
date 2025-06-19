@@ -3,23 +3,17 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy workspace package files
+# Copy workspace package files and install root dependencies
 COPY package*.json ./
-COPY shared/package*.json ./shared/
-COPY api-gateway/package*.json ./api-gateway/
-
-# Install workspace dependencies
 RUN npm install
 
-# Copy shared package source and build it
+# Copy and build shared package
 COPY shared/ ./shared/
-RUN cd shared && npx tsc --skipLibCheck || true
+RUN cd shared && npm install && (npx tsc --skipLibCheck || true)
 
-# Copy api gateway source
+# Copy api gateway and install its dependencies
 COPY api-gateway/ ./api-gateway/
-
-# Build the api gateway (ignore type errors for production)
-RUN cd api-gateway && npx tsc --skipLibCheck || true
+RUN cd api-gateway && npm install && (npx tsc --skipLibCheck || true)
 
 # Set working directory to api gateway
 WORKDIR /app/api-gateway

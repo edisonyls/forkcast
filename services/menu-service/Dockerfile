@@ -3,23 +3,17 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy workspace package files
+# Copy workspace package files and install root dependencies
 COPY package*.json ./
-COPY shared/package*.json ./shared/
-COPY menu-service/package*.json ./menu-service/
-
-# Install workspace dependencies
 RUN npm install
 
-# Copy shared package source and build it
+# Copy and build shared package
 COPY shared/ ./shared/
-RUN cd shared && npx tsc --skipLibCheck || true
+RUN cd shared && npm install && (npx tsc --skipLibCheck || true)
 
-# Copy menu service source
+# Copy menu service and install its dependencies
 COPY menu-service/ ./menu-service/
-
-# Build the menu service (ignore type errors for production)
-RUN cd menu-service && npx tsc --skipLibCheck || true
+RUN cd menu-service && npm install && (npx tsc --skipLibCheck || true)
 
 # Set working directory to menu service
 WORKDIR /app/menu-service
