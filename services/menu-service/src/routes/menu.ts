@@ -329,6 +329,48 @@ router.put(
         return sendErrorResponse(res, "Category not found", 404);
       }
 
+      // If images have changed, cleanup old images
+      const oldImages = existingItem.images || [];
+      const newImages = images || [];
+
+      // Check if images have changed by comparing arrays
+      const imagesChanged =
+        JSON.stringify(oldImages.sort()) !== JSON.stringify(newImages.sort());
+
+      if (imagesChanged && oldImages.length > 0) {
+        try {
+          const uploadServiceUrl =
+            process.env.UPLOAD_SERVICE_URL || "http://localhost:3006";
+          const cleanupResponse = await fetch(
+            `${uploadServiceUrl}/api/upload/menu-item/${itemId}/cleanup`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Cookie: req.headers.cookie || "", // Forward the auth cookie
+              },
+              body: JSON.stringify({
+                oldImages: oldImages,
+                newImages: newImages,
+              }),
+            }
+          );
+
+          if (!cleanupResponse.ok) {
+            console.warn(
+              `Failed to cleanup old images for menu item ${itemId}: ${cleanupResponse.status}`
+            );
+            // Continue with update even if image cleanup fails
+          }
+        } catch (error) {
+          console.warn(
+            `Error during image cleanup for menu item ${itemId}:`,
+            error
+          );
+          // Continue with update even if image cleanup fails
+        }
+      }
+
       const updatedMenuItem = await prisma.menuItem.update({
         where: { id: itemId },
         data: {
@@ -384,6 +426,36 @@ router.delete("/items/:itemId", authenticateChef, async (req, res) => {
       return sendErrorResponse(res, "Menu item not found", 404);
     }
 
+    // Clean up associated images first
+    try {
+      const uploadServiceUrl =
+        process.env.UPLOAD_SERVICE_URL || "http://localhost:3006";
+      const cleanupResponse = await fetch(
+        `${uploadServiceUrl}/api/upload/menu-item/${itemId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: req.headers.cookie || "", // Forward the auth cookie
+          },
+        }
+      );
+
+      if (!cleanupResponse.ok) {
+        console.warn(
+          `Failed to cleanup images for menu item ${itemId}: ${cleanupResponse.status}`
+        );
+        // Continue with deletion even if image cleanup fails
+      }
+    } catch (error) {
+      console.warn(
+        `Error during image cleanup for menu item ${itemId}:`,
+        error
+      );
+      // Continue with deletion even if image cleanup fails
+    }
+
+    // Delete the menu item from database
     await prisma.menuItem.delete({
       where: { id: itemId },
     });

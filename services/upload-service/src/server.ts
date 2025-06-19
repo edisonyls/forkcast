@@ -10,8 +10,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3006;
 
-// Security middleware (no CORS needed - handled by API Gateway)
-app.use(helmet());
+// Security middleware with relaxed cross-origin policies for images
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // Cookie parser middleware (required for authentication)
 app.use(cookieParser());
@@ -31,8 +37,26 @@ app.get("/health", (req, res) => {
 // Routes
 app.use("/api/upload", uploadRoutes);
 
-// Static file serving for uploaded images
-app.use("/uploads", express.static("uploads"));
+// Static file serving for uploaded images with proper CORS headers
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    // Set CORS headers for all static file requests
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.header("Cross-Origin-Resource-Policy", "cross-origin");
+
+    next();
+  },
+  express.static("uploads", {
+    setHeaders: (res, path) => {
+      // Set cache headers for images
+      if (path.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        res.setHeader("Cache-Control", "public, max-age=3600"); // 1 hour cache
+      }
+    },
+  })
+);
 
 // Error handling middleware
 app.use(

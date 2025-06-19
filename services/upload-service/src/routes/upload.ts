@@ -230,4 +230,112 @@ router.delete("/chef-profile", authenticateChef, async (req, res) => {
   }
 });
 
+// Delete menu item images (protected endpoint)
+router.delete("/menu-item/:menuItemId", authenticateChef, async (req, res) => {
+  try {
+    const chefId = req.chef!.chefId;
+    const { menuItemId } = req.params;
+
+    if (!menuItemId) {
+      return sendErrorResponse(res, "Menu item ID is required", 400);
+    }
+
+    const menuItemDir = path.join(uploadsDir, chefId, "food", menuItemId);
+
+    // Check if directory exists
+    if (fs.existsSync(menuItemDir)) {
+      // Remove all files in the directory
+      const files = fs.readdirSync(menuItemDir);
+      files.forEach((file) => {
+        fs.unlinkSync(path.join(menuItemDir, file));
+      });
+
+      // Remove the directory itself
+      fs.rmdirSync(menuItemDir);
+
+      return sendSuccessResponse(
+        res,
+        {},
+        "Menu item images deleted successfully"
+      );
+    } else {
+      return sendSuccessResponse(res, {}, "No images found to delete");
+    }
+  } catch (error) {
+    console.error("Menu item image deletion error:", error);
+    return sendErrorResponse(res, "Failed to delete menu item images", 500);
+  }
+});
+
+// Cleanup old menu item images when updating (protected endpoint)
+router.post(
+  "/menu-item/:menuItemId/cleanup",
+  authenticateChef,
+  async (req, res) => {
+    try {
+      const chefId = req.chef!.chefId;
+      const { menuItemId } = req.params;
+      const { oldImages, newImages } = req.body;
+
+      if (!menuItemId) {
+        return sendErrorResponse(res, "Menu item ID is required", 400);
+      }
+
+      const menuItemDir = path.join(uploadsDir, chefId, "food", menuItemId);
+
+      // If all images are removed, delete the entire directory
+      if (!newImages || newImages.length === 0) {
+        if (fs.existsSync(menuItemDir)) {
+          const files = fs.readdirSync(menuItemDir);
+          files.forEach((file) => {
+            fs.unlinkSync(path.join(menuItemDir, file));
+          });
+          fs.rmdirSync(menuItemDir);
+        }
+        return sendSuccessResponse(
+          res,
+          {},
+          "All images cleaned up successfully"
+        );
+      }
+
+      // Otherwise, only delete images that are no longer needed
+      const oldImageFilenames = oldImages
+        .map((url: string) => {
+          const match = url.match(/\/([^\/\?]+)\?/);
+          return match ? match[1] : null;
+        })
+        .filter(Boolean);
+
+      const newImageFilenames = newImages
+        .map((url: string) => {
+          const match = url.match(/\/([^\/\?]+)\?/);
+          return match ? match[1] : null;
+        })
+        .filter(Boolean);
+
+      // Delete images that are in old but not in new
+      const imagesToDelete = oldImageFilenames.filter(
+        (filename: string) => !newImageFilenames.includes(filename)
+      );
+
+      imagesToDelete.forEach((filename: string) => {
+        const filePath = path.join(menuItemDir, filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      });
+
+      return sendSuccessResponse(
+        res,
+        { deletedCount: imagesToDelete.length },
+        "Old images cleaned up successfully"
+      );
+    } catch (error) {
+      console.error("Menu item image cleanup error:", error);
+      return sendErrorResponse(res, "Failed to cleanup menu item images", 500);
+    }
+  }
+);
+
 export default router;

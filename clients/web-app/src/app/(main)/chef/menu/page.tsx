@@ -102,20 +102,29 @@ export default function MenuManagement() {
         if (typeof imageData[0] === "object" && "file" in imageData[0]) {
           // New image files selected
           setMenuItemImages(imageData as ImageData[]);
+          // When editing, clear the existing images from form since we're replacing them
+          if (isEditingMenuItem) {
+            setMenuItemForm((prev) => ({
+              ...prev,
+              images: [],
+            }));
+          }
         } else {
-          // Existing image URLs
+          // Existing image URLs (could be remaining images after removal)
           setMenuItemForm((prev) => ({
             ...prev,
             images: imageData as string[],
           }));
+          // Clear new images if we're just dealing with existing ones
+          setMenuItemImages([]);
         }
       } else {
-        // Clear images
+        // Clear all images
         setMenuItemImages([]);
         setMenuItemForm((prev) => ({ ...prev, images: [] }));
       }
     },
-    []
+    [isEditingMenuItem]
   );
 
   const handleImageError = (error: string) => {
@@ -211,6 +220,12 @@ export default function MenuManagement() {
       if (response.ok) {
         const data = await response.json();
         setMenuItems(data.data.menuItems || []);
+      } else {
+        console.error(
+          "Failed to fetch menu items:",
+          response.status,
+          await response.text()
+        );
       }
     } catch (error) {
       console.error("Error fetching menu items:", error);
@@ -338,7 +353,7 @@ export default function MenuManagement() {
         // Update menu item with image URLs if any were uploaded
         if (finalImageUrls.length > 0) {
           try {
-            await fetch(
+            const updateResponse = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/api/menu/items/${newMenuItem.id}`,
               {
                 method: "PUT",
@@ -352,11 +367,27 @@ export default function MenuManagement() {
                 }),
               }
             );
+
+            if (updateResponse.ok) {
+              // Successfully updated menu item with image URLs
+            } else {
+              const updateErrorData = await updateResponse.json();
+              console.error(
+                "Failed to update menu item with images:",
+                updateErrorData
+              );
+              setError(
+                `Failed to save image URLs: ${
+                  updateErrorData.error || "Unknown error"
+                }`
+              );
+            }
           } catch (updateError) {
-            console.warn(
+            console.error(
               "Failed to update menu item with image URLs:",
               updateError
             );
+            setError("Failed to save image URLs to menu item");
           }
         }
 
@@ -482,6 +513,8 @@ export default function MenuManagement() {
       images: item.images || [],
       customizationOptions: [],
     });
+
+    // Clear any previous new images, but existing images will be passed via currentImages prop
     setMenuItemImages([]);
     setIsEditingMenuItem(true);
     setShowMenuItemModal(true);
@@ -526,20 +559,59 @@ export default function MenuManagement() {
     setMenuItemLoading(true);
     setError("");
 
-    const requestBody: any = {
-      name: menuItemForm.name,
-      description: menuItemForm.description,
-      preparationTime: menuItemForm.preparationTime,
-      categoryId: menuItemForm.categoryId,
-      chefId: chef.id,
-    };
-
-    // Only include images if not empty
-    if (menuItemForm.images.length > 0) {
-      requestBody.images = menuItemForm.images;
-    }
-
     try {
+      // Handle image uploads if there are new images
+      let finalImageUrls: string[] = [];
+
+      // Check if there are new images to upload
+      const newImages = menuItemImages.filter((img) => img.file !== null);
+
+      if (newImages.length > 0) {
+        // Upload new images
+        try {
+          const imageFormData = new FormData();
+          newImages.forEach((imageData) => {
+            imageFormData.append("images", imageData.file);
+          });
+
+          const imageResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/upload/menu-item/${menuItemForm.id}`,
+            {
+              method: "POST",
+              credentials: "include",
+              body: imageFormData,
+            }
+          );
+
+          if (imageResponse.ok) {
+            const imageData = await imageResponse.json();
+            finalImageUrls = imageData.data.imageUrls;
+          } else {
+            console.warn(
+              "Failed to upload images:",
+              await imageResponse.text()
+            );
+            // Continue with update even if image upload fails
+            finalImageUrls = menuItemForm.images; // Keep existing images
+          }
+        } catch (imageError) {
+          console.warn("Failed to upload images:", imageError);
+          finalImageUrls = menuItemForm.images; // Keep existing images
+        }
+      } else {
+        // No new images, use whatever is in the form (could be existing images or empty)
+        finalImageUrls = menuItemForm.images;
+      }
+
+      const requestBody: any = {
+        name: menuItemForm.name,
+        description: menuItemForm.description,
+        preparationTime: menuItemForm.preparationTime,
+        categoryId: menuItemForm.categoryId,
+        chefId: chef.id,
+        images: finalImageUrls,
+      };
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/menu/items/${menuItemForm.id}`,
         {
@@ -640,6 +712,7 @@ export default function MenuManagement() {
           images: [],
           customizationOptions: [],
         });
+        setMenuItemImages([]);
         setIsEditingMenuItem(false);
         setShowMenuItemModal(false);
       } else {
@@ -918,10 +991,10 @@ export default function MenuManagement() {
                                       : category.id
                                   )
                                 }
-                                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-1.5 bg-white bg-opacity-90 backdrop-blur-sm text-gray-600 hover:text-gray-800 hover:bg-white rounded-full shadow-md transition-all"
                               >
                                 <svg
-                                  className="w-4 h-4"
+                                  className="w-5 h-5"
                                   fill="currentColor"
                                   viewBox="0 0 20 20"
                                 >
@@ -1123,7 +1196,7 @@ export default function MenuManagement() {
                                     openDropdownId === item.id ? null : item.id
                                   )
                                 }
-                                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-1.5 bg-white bg-opacity-90 backdrop-blur-sm text-gray-600 hover:text-gray-800 hover:bg-white rounded-full shadow-md transition-all"
                               >
                                 <svg
                                   className="w-5 h-5"

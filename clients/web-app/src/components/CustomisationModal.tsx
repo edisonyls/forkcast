@@ -12,7 +12,7 @@ interface CustomizationOption {
 interface MenuItem {
   id: string | number;
   name: string;
-  image: string;
+  images: string[];
   description: string;
   rating: number;
   preparationTime: number;
@@ -71,7 +71,15 @@ export default function CustomizationModal({
       addToCart({
         menuItemId: item.id,
         name: item.name,
-        image: item.image,
+        image:
+          item.images && item.images.length > 0
+            ? item.images[0].startsWith("http") ||
+              item.images[0].startsWith("data:")
+              ? item.images[0]
+              : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${
+                  item.images[0]
+                }`
+            : "/food-placeholder.jpg",
         description: item.description,
         rating: item.rating,
         preparationTime: item.preparationTime,
@@ -115,9 +123,19 @@ export default function CustomizationModal({
 
         <div className="relative h-48 w-full mb-4">
           <Image
-            src={item.image}
+            src={
+              item.images && item.images.length > 0
+                ? item.images[0].startsWith("http") ||
+                  item.images[0].startsWith("data:")
+                  ? item.images[0]
+                  : `${
+                      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+                    }${item.images[0]}`
+                : "/food-placeholder.jpg"
+            }
             alt={item.name}
             fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover rounded"
           />
         </div>

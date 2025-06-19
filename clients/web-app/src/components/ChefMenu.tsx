@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import CustomizationModal from "./CustomisationModal";
+import ImageCarousel from "./ImageCarousel";
 
 interface Chef {
   id: string | number;
@@ -19,7 +20,7 @@ interface Category {
 interface MenuItem {
   id: string | number;
   name: string;
-  image: string;
+  images: string[];
   description: string;
   rating: number;
   preparationTime: number;
@@ -289,11 +290,10 @@ export default function ChefMenu({
                   className="bg-white rounded-lg shadow-md overflow-hidden h-[400px] flex flex-col"
                 >
                   <div className="relative h-48 w-full flex-shrink-0">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
+                    <ImageCarousel
+                      images={item.images || []}
+                      itemName={item.name}
+                      className="h-full w-full"
                     />
                   </div>
                   <div className="p-4 flex flex-col flex-1">

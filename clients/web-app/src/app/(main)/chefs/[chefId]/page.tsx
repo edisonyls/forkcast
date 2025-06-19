@@ -424,7 +424,7 @@ export default function ChefPage() {
           menuItems={menuItems.map((item) => ({
             id: item.id,
             name: item.name,
-            image: item.image || "/food-placeholder.jpg",
+            images: item.images || [],
             description: item.description,
             rating: item.rating,
             preparationTime: item.preparationTime,
