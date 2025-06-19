@@ -1,4 +1,7 @@
-FROM node:18-alpine
+FROM node:18-alpine3.18
+
+# Install OpenSSL and other dependencies for Prisma
+RUN apk add --no-cache openssl openssl-dev libc6-compat
 
 # Set working directory
 WORKDIR /app
@@ -9,7 +12,7 @@ RUN npm install
 
 # Copy and build shared package
 COPY shared/ ./shared/
-RUN cd shared && npm install && (npx tsc --skipLibCheck || true)
+RUN cd shared && npm install && npx prisma generate && (npx tsc --skipLibCheck || true)
 
 # Copy notification service and install its dependencies
 COPY notification-service/ ./notification-service/
