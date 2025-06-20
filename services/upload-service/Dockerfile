@@ -3,24 +3,24 @@ FROM node:18-alpine3.18
 # Install OpenSSL and other dependencies for Prisma
 RUN apk add --no-cache openssl openssl-dev libc6-compat
 
-# Set working directory
+# Set working directory to parent
+WORKDIR /app
+
+# Copy shared package first
+COPY shared/ ./shared/
+
+# Install shared dependencies, generate Prisma, and build shared package
+WORKDIR /app/shared
+RUN npm install && npx prisma generate && npm run build
+
+# Set working directory for upload-service
 WORKDIR /app/upload-service
 
 # Copy package.json and package-lock.json (if available)
 COPY upload-service/package*.json ./
 
-# Install dependencies
+# Install dependencies (now the ../shared reference will work correctly)
 RUN npm install
-
-# Copy shared package first
-COPY shared/ /app/shared/
-
-# Install shared dependencies and generate Prisma
-WORKDIR /app/shared
-RUN npm install && npx prisma generate
-
-# Go back to upload-service
-WORKDIR /app/upload-service
 
 # Copy upload service source code
 COPY upload-service/src ./src
