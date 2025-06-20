@@ -585,7 +585,11 @@ export default function MenuManagement() {
 
           if (imageResponse.ok) {
             const imageData = await imageResponse.json();
-            finalImageUrls = imageData.data.imageUrls;
+            // Merge existing images (that weren't deleted) with newly uploaded images
+            finalImageUrls = [
+              ...menuItemForm.images,
+              ...imageData.data.imageUrls,
+            ];
           } else {
             console.warn(
               "Failed to upload images:",

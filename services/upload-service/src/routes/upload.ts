@@ -152,13 +152,8 @@ router.post(
             file.endsWith(".png")
         );
 
-      // Get existing image URLs for response
-      const existingImageUrls = existingFiles.map((file) => {
-        const baseFileName = file.replace(/\.(jpg|jpeg|png)$/i, ".jpg");
-        return `/uploads/${chefId}/food/${menuItemId}/${baseFileName}?t=${Date.now()}`;
-      });
-
-      const uploadedImages: string[] = [...existingImageUrls];
+      // Only return the newly uploaded images, not existing ones
+      const newlyUploadedImages: string[] = [];
 
       // Process each uploaded image, starting from the next available index
       const startIndex = existingFiles.length;
@@ -180,16 +175,16 @@ router.post(
           })
           .toFile(filePath);
 
-        // Generate the URL with cache busting
+        // Generate the URL with cache busting for newly uploaded image only
         const imageUrl = `/uploads/${chefId}/food/${menuItemId}/${fileName}?t=${Date.now()}`;
-        uploadedImages.push(imageUrl);
+        newlyUploadedImages.push(imageUrl);
       }
 
       return sendSuccessResponse(
         res,
         {
-          imageUrls: uploadedImages,
-          count: uploadedImages.length,
+          imageUrls: newlyUploadedImages,
+          count: newlyUploadedImages.length,
         },
         "Menu item images uploaded successfully"
       );
