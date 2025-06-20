@@ -48,7 +48,7 @@ app.use(
 
     next();
   },
-  express.static("uploads", {
+  express.static("/app/uploads", {
     setHeaders: (res, path) => {
       // Set cache headers for images
       if (path.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {

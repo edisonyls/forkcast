@@ -11,8 +11,8 @@ import {
 
 const router = express.Router();
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(process.cwd(), "uploads");
+// Use absolute path for uploads directory to match Docker volume mount
+const uploadsDir = "/app/uploads";
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }

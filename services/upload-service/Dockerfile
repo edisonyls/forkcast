@@ -29,8 +29,8 @@ COPY upload-service/tsconfig.json ./
 # Build the service
 RUN npx tsc --skipLibCheck || true
 
-# Create uploads directory
-RUN mkdir -p uploads/profiles
+# Ensure the Docker volume mount point exists
+RUN mkdir -p /app/uploads
 
 # Set default environment variables
 ENV PORT=3006
