@@ -21,17 +21,86 @@ fi
 # Navigate to web-app directory
 cd "$(dirname "$0")/../clients/web-app"
 
-# Check if SERVICES_VM_IP is set
-if [ -z "$SERVICES_VM_IP" ]; then
-    echo "❌ SERVICES_VM_IP environment variable is not set."
-    echo "📝 Please set it with: export SERVICES_VM_IP=<your_services_vm_ip>"
+# Detect deployment mode
+DEPLOYMENT_MODE="production"
+USE_SYSTEMD=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --local|--dev|--development)
+            DEPLOYMENT_MODE="development"
+            echo "🔧 Running in LOCAL DEVELOPMENT mode"
+            shift
+            ;;
+        --systemd|--nginx)
+            USE_SYSTEMD=true
+            echo "🔧 Using systemd service (for nginx setup)"
+            shift
+            ;;
+        *)
+            echo "Unknown option $1"
+            echo "Usage: $0 [--local|--dev|--development] [--systemd|--nginx]"
+            exit 1
+            ;;
+    esac
+done
+
+# Auto-detect if no explicit flag provided
+if [[ "$DEPLOYMENT_MODE" == "production" ]] && [[ "$USE_SYSTEMD" == "false" ]]; then
+    if [[ -f "/proc/version" ]] && grep -q "Microsoft" /proc/version 2>/dev/null; then
+        # Running in WSL, likely local development
+        DEPLOYMENT_MODE="development"
+        echo "🔧 Detected WSL environment - Running in LOCAL DEVELOPMENT mode"
+    elif [[ "$USER" == "$(whoami)" ]] && [[ -d "/Users" ]] && [[ "$(uname)" == "Darwin" ]]; then
+        # Running on macOS, likely local development
+        DEPLOYMENT_MODE="development"
+        echo "🔧 Detected macOS environment - Running in LOCAL DEVELOPMENT mode"
+    else
+        echo "🚀 Running in PRODUCTION VM mode"
+    fi
+fi
+
+# Check if .env.local exists and extract SERVICES_VM_IP from it
+if [ ! -f ".env.local" ]; then
+    echo "❌ .env.local file not found."
+    echo "📝 Please create .env.local from env.production.example and set your Services VM IP"
+    echo "💡 Run: cp env.production.example .env.local"
+    if [[ "$DEPLOYMENT_MODE" == "development" ]]; then
+        echo "💡 For local development, you can use: NEXT_PUBLIC_API_URL=http://localhost:3000"
+    else
+        echo "💡 For production, replace localhost with your Services VM IP"
+    fi
     exit 1
 fi
 
-# Validate SERVICES_VM_IP is not placeholder
-if [[ "$SERVICES_VM_IP" == *"SERVICES_VM_IP"* ]]; then
-    echo "❌ Please set SERVICES_VM_IP to the actual Services VM IP address"
+# Extract SERVICES_VM_IP from .env.local
+SERVICES_VM_IP=$(grep "NEXT_PUBLIC_API_URL" .env.local | sed 's/.*http:\/\/\([^:]*\):.*/\1/')
+
+# Validate SERVICES_VM_IP based on deployment mode
+if [ -z "$SERVICES_VM_IP" ]; then
+    echo "❌ Could not extract Services VM IP from .env.local"
+    echo "📝 Please ensure .env.local has a line like: NEXT_PUBLIC_API_URL=http://YOUR_SERVICES_VM_IP:3000"
     exit 1
+fi
+
+if [[ "$DEPLOYMENT_MODE" == "production" ]]; then
+    # Production mode: reject localhost
+    if [ "$SERVICES_VM_IP" = "localhost" ] || [ "$SERVICES_VM_IP" = "127.0.0.1" ]; then
+        echo "❌ Services VM IP is still set to localhost in .env.local"
+        echo "📝 For PRODUCTION deployment, please edit .env.local and replace localhost with your actual Services VM IP address"
+        echo "💡 Example: NEXT_PUBLIC_API_URL=http://192.168.1.100:3000"
+        echo "💡 Or run with --local flag for development: $0 --local"
+        exit 1
+    fi
+    echo "✅ Using Services VM IP: $SERVICES_VM_IP (PRODUCTION mode)"
+else
+    # Development mode: allow localhost
+    if [ "$SERVICES_VM_IP" = "localhost" ] || [ "$SERVICES_VM_IP" = "127.0.0.1" ]; then
+        echo "✅ Using localhost for DEVELOPMENT mode: $SERVICES_VM_IP"
+    else
+        echo "✅ Using Services VM IP: $SERVICES_VM_IP (DEVELOPMENT mode - connecting to remote services)"
+    fi
 fi
 
 # Use production configuration
@@ -44,22 +113,18 @@ else
     exit 1
 fi
 
-# Create production environment file
-echo "🔧 Setting up environment variables..."
-if [ -f "env.production.example" ]; then
-    cp env.production.example .env.local
-    # Replace SERVICES_VM_IP with the actual IP
-    sed -i.bak "s/SERVICES_VM_IP/$SERVICES_VM_IP/g" .env.local
-    rm .env.local.bak 2>/dev/null || true
-    echo "✅ Production environment configured"
-else
-    echo "❌ Environment example file not found"
-    exit 1
-fi
+# The .env.local file is already configured, so we can skip the environment setup step
+echo "✅ Environment already configured in .env.local"
 
 # Install dependencies
 echo "📦 Installing dependencies..."
-npm ci --production
+if [[ "$DEPLOYMENT_MODE" == "development" ]]; then
+    # Development: install all dependencies (including devDependencies needed for build)
+    npm ci
+else
+    # Production: install only production dependencies
+    npm ci --production
+fi
 
 # Build the application
 echo "🔨 Building the application..."
@@ -67,24 +132,79 @@ npm run build
 
 # Stop any existing Next.js processes
 echo "🛑 Stopping existing processes..."
-pkill -f "next" || true
+if [[ "$DEPLOYMENT_MODE" == "development" ]]; then
+    # In development, be more specific about stopping Next.js processes
+    pkill -f "next start" || true
+    pkill -f "next dev" || true
+else
+    # In production, stop all Next.js processes
+    pkill -f "next" || true
+fi
+
+# Check if port 3000 is available and choose appropriate port
+FRONTEND_PORT=3000
+if [[ "$DEPLOYMENT_MODE" == "development" ]]; then
+    # Local development: Check for port conflicts and use 3001 if needed
+    if lsof -ti :3000 > /dev/null 2>&1; then
+        # Port 3000 is in use (likely backend services), use 3001 for frontend
+        FRONTEND_PORT=3001
+        echo "⚠️  Port 3000 is in use (likely backend services), using port $FRONTEND_PORT for frontend"
+        
+        # Check if 3001 is also in use
+        if lsof -ti :3001 > /dev/null 2>&1; then
+            echo "🛑 Stopping existing frontend process on port 3001..."
+            kill -9 $(lsof -ti :3001) 2>/dev/null || true
+            sleep 2
+        fi
+    fi
+else
+    # Production VM: Always use port 3000 (no conflicts expected - backend is on separate VM)
+    FRONTEND_PORT=3000
+    echo "🌐 Using port 3000 for frontend (backend services are on separate Services VM)"
+fi
 
 # Start the application
 echo "🚀 Starting the application..."
-nohup npm start > app.log 2>&1 &
-
-# Wait for the application to start
-echo "⏳ Waiting for application to start..."
-sleep 10
-
-# Check if the application is running
-if curl -f http://localhost:3000 > /dev/null 2>&1; then
-    echo "✅ Client VM deployment completed successfully!"
-    echo "🌐 Frontend available at: http://$(hostname -I | awk '{print $1}'):3000"
-    echo "🔗 Connected to Services VM at: $SERVICES_VM_IP"
-    echo "📝 View logs with: tail -f app.log"
+if [[ "$USE_SYSTEMD" == "true" ]]; then
+    echo "🔧 Skipping application start - will be managed by systemd service"
+    echo "📝 To start the service, run: sudo systemctl start forkcast-frontend"
+    echo "📝 To enable auto-start on boot: sudo systemctl enable forkcast-frontend"
+elif [[ "$DEPLOYMENT_MODE" == "development" ]]; then
+    # Development: use the determined port
+    nohup npm start -- -p $FRONTEND_PORT > app.log 2>&1 &
 else
-    echo "❌ Application failed to start. Check logs:"
-    tail -n 20 app.log
-    exit 1
+    # Production: use port 3000
+    nohup npm start > app.log 2>&1 &
+fi
+
+# Wait for the application to start (skip for systemd)
+if [[ "$USE_SYSTEMD" != "true" ]]; then
+    echo "⏳ Waiting for application to start..."
+    sleep 10
+
+    # Check if the application is running
+    if curl -f http://localhost:$FRONTEND_PORT > /dev/null 2>&1; then
+        echo "✅ Client VM deployment completed successfully!"
+        if [[ "$DEPLOYMENT_MODE" == "development" ]]; then
+            echo "🌐 Frontend available at: http://localhost:$FRONTEND_PORT"
+            if [[ "$FRONTEND_PORT" != "3000" ]]; then
+                echo "🔗 Backend services running at: http://localhost:3000"
+            fi
+        else
+            echo "🌐 Frontend available at: http://$(hostname -I | awk '{print $1}'):3000"
+            echo "🔗 Connected to Services VM at: $SERVICES_VM_IP"
+        fi
+        echo "📝 View logs with: tail -f app.log"
+    else
+        echo "❌ Application failed to start. Check logs:"
+        tail -n 20 app.log
+        exit 1
+    fi
+else
+    echo "✅ Application build completed successfully!"
+    echo "🔧 Next steps for systemd + nginx setup:"
+    echo "   1. Create systemd service: sudo systemctl enable forkcast-frontend"
+    echo "   2. Start service: sudo systemctl start forkcast-frontend"
+    echo "   3. Configure nginx reverse proxy"
+    echo "   4. Setup SSL with Let's Encrypt"
 fi 
