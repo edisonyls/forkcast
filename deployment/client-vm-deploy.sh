@@ -122,13 +122,20 @@ if [[ "$DEPLOYMENT_MODE" == "development" ]]; then
     # Development: install all dependencies (including devDependencies needed for build)
     npm ci
 else
-    # Production: install only production dependencies
-    npm ci --production
+    # Production: also need all dependencies for build process
+    # We can't use --production here because build requires devDependencies
+    npm ci
 fi
 
 # Build the application
 echo "🔨 Building the application..."
 npm run build
+
+# Optional: Remove devDependencies after build in production (saves disk space)
+if [[ "$DEPLOYMENT_MODE" == "production" ]] && [[ "$USE_SYSTEMD" == "true" ]]; then
+    echo "🧹 Removing devDependencies (build complete, no longer needed)..."
+    npm prune --production
+fi
 
 # Stop any existing Next.js processes
 echo "🛑 Stopping existing processes..."
