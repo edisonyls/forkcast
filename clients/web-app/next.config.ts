@@ -13,6 +13,12 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "https",
+        hostname: "forkcast.edisonyls.com",
+        port: "",
+        pathname: "/uploads/**",
+      },
+      {
         protocol: "http",
         hostname: SERVICES_VM_IP,
         port: "3000",
