@@ -148,26 +148,46 @@ else
     pkill -f "next" || true
 fi
 
-# Check if port 3000 is available and choose appropriate port
-FRONTEND_PORT=3000
-if [[ "$DEPLOYMENT_MODE" == "development" ]]; then
-    # Local development: Check for port conflicts and use 3001 if needed
-    if lsof -ti :3000 > /dev/null 2>&1; then
-        # Port 3000 is in use (likely backend services), use 3001 for frontend
-        FRONTEND_PORT=3001
-        echo "⚠️  Port 3000 is in use (likely backend services), using port $FRONTEND_PORT for frontend"
-        
-        # Check if 3001 is also in use
-        if lsof -ti :3001 > /dev/null 2>&1; then
-            echo "🛑 Stopping existing frontend process on port 3001..."
-            kill -9 $(lsof -ti :3001) 2>/dev/null || true
-            sleep 2
+# Function to find next available port starting from a given port
+find_available_port() {
+    local start_port=$1
+    local port=$start_port
+    local max_attempts=10  # Check up to 10 ports (3000-3009)
+    
+    while [ $((port - start_port)) -lt $max_attempts ]; do
+        if ! lsof -ti :$port > /dev/null 2>&1; then
+            echo $port
+            return 0
         fi
+        ((port++))
+    done
+    
+    # If no port found, return the start port anyway and let it fail gracefully
+    echo $start_port
+    return 1
+}
+
+# Check for available port starting from 3000
+echo "🔍 Checking for available ports..."
+FRONTEND_PORT=$(find_available_port 3000)
+
+if lsof -ti :$FRONTEND_PORT > /dev/null 2>&1; then
+    echo "⚠️  All ports from 3000-3009 are in use. Will attempt to use port $FRONTEND_PORT anyway."
+    echo "🛑 Stopping existing process on port $FRONTEND_PORT..."
+    kill -9 $(lsof -ti :$FRONTEND_PORT) 2>/dev/null || true
+    sleep 2
+    
+    # Double check if port is now free
+    if lsof -ti :$FRONTEND_PORT > /dev/null 2>&1; then
+        echo "❌ Failed to free up port $FRONTEND_PORT. Please manually stop the process using this port."
+        exit 1
     fi
 else
-    # Production VM: Always use port 3000 (no conflicts expected - backend is on separate VM)
-    FRONTEND_PORT=3000
-    echo "🌐 Using port 3000 for frontend (backend services are on separate Services VM)"
+    if [[ "$FRONTEND_PORT" != "3000" ]]; then
+        echo "⚠️  Port 3000 is in use, using port $FRONTEND_PORT for frontend"
+    else
+        echo "✅ Using port $FRONTEND_PORT for frontend"
+    fi
 fi
 
 # Start the application
@@ -180,8 +200,8 @@ elif [[ "$DEPLOYMENT_MODE" == "development" ]]; then
     # Development: use the determined port
     nohup npm start -- -p $FRONTEND_PORT > app.log 2>&1 &
 else
-    # Production: use port 3000
-    nohup npm start > app.log 2>&1 &
+    # Production: use the dynamically determined port
+    nohup npm start -- -p $FRONTEND_PORT > app.log 2>&1 &
 fi
 
 # Wait for the application to start (skip for systemd)
@@ -198,7 +218,7 @@ if [[ "$USE_SYSTEMD" != "true" ]]; then
                 echo "🔗 Backend services running at: http://localhost:3000"
             fi
         else
-            echo "🌐 Frontend available at: http://$(hostname -I | awk '{print $1}'):3000"
+            echo "🌐 Frontend available at: http://$(hostname -I | awk '{print $1}'):$FRONTEND_PORT"
             echo "🔗 Connected to Services VM at: $SERVICES_VM_IP"
         fi
         echo "📝 View logs with: tail -f app.log"
