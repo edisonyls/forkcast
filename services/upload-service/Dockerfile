@@ -4,28 +4,44 @@ FROM node:18-alpine3.18
 RUN apk add --no-cache openssl openssl-dev libc6-compat
 
 # Set working directory
-WORKDIR /app
+WORKDIR /app/upload-service
 
-# Copy workspace package files and install root dependencies
-COPY package*.json ./
+# Copy package.json and package-lock.json (if available)
+COPY upload-service/package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy and build shared package
-COPY shared/ ./shared/
-RUN cd shared && npm install && npx prisma generate && (npx tsc --skipLibCheck || true)
+# Copy shared package first
+COPY shared/ /app/shared/
 
-# Copy upload service and install its dependencies
-COPY upload-service/ ./upload-service/
-RUN cd upload-service && npm install && (npx tsc --skipLibCheck || true)
+# Install shared dependencies and generate Prisma
+WORKDIR /app/shared
+RUN npm install && npx prisma generate
 
-# Set working directory to upload service
+# Go back to upload-service
 WORKDIR /app/upload-service
+
+# Copy upload service source code
+COPY upload-service/src ./src
+COPY upload-service/tsconfig.json ./
+
+# Build the service
+RUN npx tsc --skipLibCheck || true
 
 # Create uploads directory
 RUN mkdir -p uploads/profiles
 
+# Set default environment variables
+ENV PORT=3006
+ENV NODE_ENV=production
+
 # Expose port
 EXPOSE 3006
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "fetch('http://localhost:3006/health').then(() => process.exit(0)).catch(() => process.exit(1))"
 
 # Start the application
 CMD ["npm", "start"] 

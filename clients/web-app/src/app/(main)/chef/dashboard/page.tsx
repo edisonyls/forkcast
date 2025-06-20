@@ -177,7 +177,8 @@ export default function ChefDashboard() {
                 {chef.image ? (
                   <Image
                     src={
-                      chef.image.startsWith("http")
+                      chef.image.startsWith("http") ||
+                      chef.image.startsWith("data:")
                         ? chef.image
                         : `${
                             process.env.NEXT_PUBLIC_API_URL ||
