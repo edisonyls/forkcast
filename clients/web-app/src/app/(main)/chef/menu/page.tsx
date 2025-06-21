@@ -102,13 +102,7 @@ export default function MenuManagement() {
         if (typeof imageData[0] === "object" && "file" in imageData[0]) {
           // New image files selected
           setMenuItemImages(imageData as ImageData[]);
-          // When editing, clear the existing images from form since we're replacing them
-          if (isEditingMenuItem) {
-            setMenuItemForm((prev) => ({
-              ...prev,
-              images: [],
-            }));
-          }
+          // Don't clear existing images when editing - they should be preserved
         } else {
           // Existing image URLs (could be remaining images after removal)
           setMenuItemForm((prev) => ({
@@ -124,7 +118,7 @@ export default function MenuManagement() {
         setMenuItemForm((prev) => ({ ...prev, images: [] }));
       }
     },
-    [isEditingMenuItem]
+    []
   );
 
   const handleImageError = (error: string) => {

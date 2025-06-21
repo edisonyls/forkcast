@@ -43,14 +43,27 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024, // 5MB limit per file
+    files: 10, // Maximum 10 files
+    // Note: Express body parser in server.ts handles the total request size
   },
   fileFilter: (req: any, file: any, cb: any) => {
-    // Allow only image files
-    if (file.mimetype.startsWith("image/")) {
+    // Allow only specific image formats
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Only image files are allowed"));
+      cb(
+        new Error(
+          `Invalid file type. Only ${allowedMimeTypes.join(", ")} are allowed`
+        )
+      );
     }
   },
 });
