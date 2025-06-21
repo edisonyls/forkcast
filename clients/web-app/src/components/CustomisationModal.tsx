@@ -68,6 +68,12 @@ export default function CustomizationModal({
           : []),
       ];
 
+      // Generate special notes from customizations
+      const specialNotes =
+        allCustomizations.length > 0
+          ? `Customizations: ${allCustomizations.map((c) => c.name).join(", ")}`
+          : undefined;
+
       // Add item to cart with selected customizations
       addToCart({
         menuItemId: item.id,
@@ -88,6 +94,7 @@ export default function CustomizationModal({
         chefName: item.chefName || "Unknown Chef",
         quantity,
         customizations: allCustomizations,
+        specialNotes,
       });
 
       // Reset modal state

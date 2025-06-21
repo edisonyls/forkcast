@@ -18,7 +18,7 @@ export default function Search() {
       <div className="relative">
         <input
           type="text"
-          placeholder="Search by cuisine or chef name..."
+          placeholder="Search by cuisine or host name..."
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

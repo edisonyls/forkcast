@@ -238,7 +238,7 @@ export default function EventsManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-lg">Loading...</div>
       </div>
     );
@@ -249,7 +249,7 @@ export default function EventsManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Pending Orders Alert - Detailed by Event */}
         {(() => {

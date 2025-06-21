@@ -11,8 +11,8 @@ import {
 
 const router = express.Router();
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(process.cwd(), "uploads");
+// Use absolute path for uploads directory to match Docker volume mount
+const uploadsDir = "/app/uploads";
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -43,14 +43,27 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024, // 5MB limit per file
+    files: 10, // Maximum 10 files
+    // Note: Express body parser in server.ts handles the total request size
   },
   fileFilter: (req: any, file: any, cb: any) => {
-    // Allow only image files
-    if (file.mimetype.startsWith("image/")) {
+    // Allow only specific image formats
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Only image files are allowed"));
+      cb(
+        new Error(
+          `Invalid file type. Only ${allowedMimeTypes.join(", ")} are allowed`
+        )
+      );
     }
   },
 });
@@ -152,13 +165,8 @@ router.post(
             file.endsWith(".png")
         );
 
-      // Get existing image URLs for response
-      const existingImageUrls = existingFiles.map((file) => {
-        const baseFileName = file.replace(/\.(jpg|jpeg|png)$/i, ".jpg");
-        return `/uploads/${chefId}/food/${menuItemId}/${baseFileName}?t=${Date.now()}`;
-      });
-
-      const uploadedImages: string[] = [...existingImageUrls];
+      // Only return the newly uploaded images, not existing ones
+      const newlyUploadedImages: string[] = [];
 
       // Process each uploaded image, starting from the next available index
       const startIndex = existingFiles.length;
@@ -180,16 +188,16 @@ router.post(
           })
           .toFile(filePath);
 
-        // Generate the URL with cache busting
+        // Generate the URL with cache busting for newly uploaded image only
         const imageUrl = `/uploads/${chefId}/food/${menuItemId}/${fileName}?t=${Date.now()}`;
-        uploadedImages.push(imageUrl);
+        newlyUploadedImages.push(imageUrl);
       }
 
       return sendSuccessResponse(
         res,
         {
-          imageUrls: uploadedImages,
-          count: uploadedImages.length,
+          imageUrls: newlyUploadedImages,
+          count: newlyUploadedImages.length,
         },
         "Menu item images uploaded successfully"
       );

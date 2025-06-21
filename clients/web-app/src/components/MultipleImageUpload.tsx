@@ -18,6 +18,20 @@ interface MultipleImageUploadProps {
   uploadMode?: "immediate" | "deferred";
 }
 
+// Accepted image formats
+const ACCEPTED_IMAGE_FORMATS = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/gif": [".gif"],
+  "image/webp": [".webp"],
+};
+
+const ACCEPTED_EXTENSIONS = Object.values(ACCEPTED_IMAGE_FORMATS)
+  .flat()
+  .join(", ");
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB total
+
 export default function MultipleImageUpload({
   currentImages = [],
   onImagesChange,
@@ -62,23 +76,48 @@ export default function MultipleImageUpload({
     const totalImages =
       previewImages.length + displayImages.length + files.length;
     if (totalImages > maxImages) {
-      onImageError?.(`Maximum ${maxImages} images allowed`);
+      onImageError?.(
+        `Maximum ${maxImages} images allowed. You can only add ${
+          maxImages - previewImages.length - displayImages.length
+        } more image(s).`
+      );
       return;
     }
 
     const validFiles: File[] = [];
     const errors: string[] = [];
+    let totalSize = 0;
+
+    // Calculate existing file sizes (approximate)
+    totalSize += previewImages.reduce((sum, img) => sum + img.file.size, 0);
 
     files.forEach((file) => {
       // Validate file type
-      if (!file.type.startsWith("image/")) {
-        errors.push(`${file.name} is not an image file`);
+      const isValidType = Object.keys(ACCEPTED_IMAGE_FORMATS).includes(
+        file.type
+      );
+      if (!isValidType) {
+        errors.push(
+          `"${file.name}" is not a supported image format. Accepted formats: ${ACCEPTED_EXTENSIONS}`
+        );
         return;
       }
 
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        errors.push(`${file.name} is too large (max 5MB)`);
+      // Validate individual file size
+      if (file.size > MAX_FILE_SIZE) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        errors.push(
+          `"${file.name}" is too large (${sizeMB}MB). Maximum size per image is 5MB.`
+        );
+        return;
+      }
+
+      // Check total size
+      totalSize += file.size;
+      if (totalSize > MAX_TOTAL_SIZE) {
+        errors.push(
+          `Total size of all images exceeds 50MB limit. Please select fewer or smaller images.`
+        );
         return;
       }
 
@@ -86,24 +125,31 @@ export default function MultipleImageUpload({
     });
 
     if (errors.length > 0) {
-      onImageError?.(errors.join(", "));
+      onImageError?.(errors.join(" "));
       return;
     }
 
     // Process valid files
+    const newImageData: ImageData[] = [];
+    let processedCount = 0;
+
     validFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const previewUrl = e.target?.result as string;
         const imageId = Math.random().toString(36).substring(7);
 
-        const newImageData: ImageData = {
+        newImageData.push({
           file,
           previewUrl,
           id: imageId,
-        };
+        });
 
-        setPreviewImages((prev) => [...prev, newImageData]);
+        processedCount++;
+        if (processedCount === validFiles.length) {
+          // All files processed, update state at once
+          setPreviewImages((prev) => [...prev, ...newImageData]);
+        }
       };
       reader.readAsDataURL(file);
     });
@@ -159,6 +205,7 @@ export default function MultipleImageUpload({
                     type="button"
                     onClick={() => removeDisplayImage(index)}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    aria-label="Remove image"
                   >
                     ×
                   </button>
@@ -183,6 +230,7 @@ export default function MultipleImageUpload({
                     type="button"
                     onClick={() => removePreviewImage(imageData.id)}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    aria-label="Remove image"
                   >
                     ×
                   </button>
@@ -203,7 +251,7 @@ export default function MultipleImageUpload({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={Object.keys(ACCEPTED_IMAGE_FORMATS).join(",")}
             multiple
             onChange={handleFileSelect}
             className="hidden"
@@ -237,8 +285,10 @@ export default function MultipleImageUpload({
                 : `Add More Images (${totalImages}/${maxImages})`}
             </span>
             <span className="text-xs text-gray-500 mt-1">
-              Click to select multiple images • Max {maxImages} images • 5MB
-              each
+              Click or drag to select multiple images
+            </span>
+            <span className="text-xs text-gray-400 mt-1">
+              Accepted formats: {ACCEPTED_EXTENSIONS} • Max 5MB per image
             </span>
           </button>
         </div>

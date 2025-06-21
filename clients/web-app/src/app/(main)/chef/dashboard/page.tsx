@@ -94,7 +94,7 @@ export default function ChefDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-lg">Loading...</div>
       </div>
     );
@@ -102,7 +102,7 @@ export default function ChefDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="text-red-600 mb-4">{error}</div>
           <button
@@ -121,7 +121,7 @@ export default function ChefDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="bg-gray-50 py-8">
       {/* Toast Notification */}
       {toast && (
         <Toast
@@ -177,7 +177,8 @@ export default function ChefDashboard() {
                 {chef.image ? (
                   <Image
                     src={
-                      chef.image.startsWith("http")
+                      chef.image.startsWith("http") ||
+                      chef.image.startsWith("data:")
                         ? chef.image
                         : `${
                             process.env.NEXT_PUBLIC_API_URL ||

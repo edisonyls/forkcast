@@ -14,19 +14,19 @@ RUN npm install
 COPY shared/ ./shared/
 RUN cd shared && npm install && npx prisma generate && (npx tsc --skipLibCheck || true)
 
-# Copy api gateway and install its dependencies
-COPY api-gateway/ ./api-gateway/
-RUN cd api-gateway && npm install && (npx tsc --skipLibCheck || true)
+# Copy menu service and install its dependencies
+COPY menu-service/ ./menu-service/
+RUN cd menu-service && npm install && (npx tsc --skipLibCheck || true)
 
-# Set working directory to api gateway
-WORKDIR /app/api-gateway
+# Set working directory to menu service
+WORKDIR /app/menu-service
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3002
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "fetch('http://localhost:3000/health').then(() => process.exit(0)).catch(() => process.exit(1))"
+  CMD node -e "fetch('http://localhost:3002/health').then(() => process.exit(0)).catch(() => process.exit(1))"
 
 # Start the application
 CMD ["npm", "start"] 

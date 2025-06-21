@@ -24,6 +24,7 @@ export default function ChefCard({ chef }: ChefCardProps) {
               src={
                 chef.image &&
                 !chef.image.startsWith("http") &&
+                !chef.image.startsWith("data:") &&
                 !chef.image.startsWith("/user.png")
                   ? `${
                       process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"

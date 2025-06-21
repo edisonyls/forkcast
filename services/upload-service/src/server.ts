@@ -24,7 +24,12 @@ app.use(cookieParser());
 
 // Body parsing for JSON requests
 app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Note: Multer handles multipart form data parsing with its own limits
+// Individual file limit: 5MB (configured in routes/upload.ts)
+// Total files: 10 max (configured in routes/upload.ts)
+// This allows for up to 50MB of image data per request
 
 // Logging
 app.use(morgan("combined"));
@@ -48,7 +53,7 @@ app.use(
 
     next();
   },
-  express.static("uploads", {
+  express.static("/app/uploads", {
     setHeaders: (res, path) => {
       // Set cache headers for images
       if (path.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {

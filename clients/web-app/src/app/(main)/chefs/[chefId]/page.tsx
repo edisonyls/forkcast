@@ -295,7 +295,7 @@ export default function ChefPage() {
             onClick={() => router.push("/chefs")}
             className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition-colors"
           >
-            Back to Chefs
+            Back to Hosts
           </button>
         </div>
       </div>
@@ -366,7 +366,7 @@ export default function ChefPage() {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            <span>Back to Chefs</span>
+            <span>Back to Hosts</span>
           </button>
         </div>
 
@@ -401,7 +401,7 @@ export default function ChefPage() {
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          <span>Back to Chefs</span>
+          <span>Back to Hosts</span>
         </button>
       </div>
 
