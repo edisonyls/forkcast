@@ -886,7 +886,7 @@ export default function MenuManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-lg">Loading...</div>
       </div>
     );
@@ -897,22 +897,22 @@ export default function MenuManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between py-6 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Menu Management
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">
                 Manage your categories and menu items
               </p>
             </div>
             <Link
               href="/chef/dashboard"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-center sm:text-left whitespace-nowrap"
             >
               ← Back to Dashboard
             </Link>
@@ -931,9 +931,9 @@ export default function MenuManagement() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Sidebar - Categories */}
-          <div className="w-80 flex-shrink-0">
+          <div className="hidden lg:block lg:w-80 flex-shrink-0">
             <div className="bg-white rounded-lg shadow">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
@@ -1070,28 +1070,66 @@ export default function MenuManagement() {
 
           {/* Right Content - Menu Items */}
           <div className="flex-1">
+            {/* Mobile Category Selector */}
+            {categories.length > 0 && (
+              <div className="lg:hidden mb-6">
+                <label
+                  htmlFor="mobile-category-select"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Select Category
+                </label>
+                <div className="flex gap-3">
+                  <select
+                    id="mobile-category-select"
+                    value={selectedCategoryId || ""}
+                    onChange={(e) => setSelectedCategoryId(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map((category) => {
+                      const itemCount = menuItems.filter(
+                        (item) => item.categoryId === category.id
+                      ).length;
+                      return (
+                        <option key={category.id} value={category.id}>
+                          {category.name} ({itemCount} items)
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <button
+                    onClick={() => setShowCategoryModal(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 whitespace-nowrap"
+                  >
+                    + Add Category
+                  </button>
+                </div>
+              </div>
+            )}
+
             {categories.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-12 text-center">
+              <div className="bg-white rounded-lg shadow p-6 sm:p-12 text-center">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   Welcome to Menu Management
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 mb-6 text-sm sm:text-base">
                   Start by creating your first category, then add menu items to
                   it.
                 </p>
                 <button
                   onClick={() => setShowCategoryModal(true)}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium"
                 >
                   Create Your First Category
                 </button>
               </div>
             ) : selectedCategory ? (
               <div className="bg-white rounded-lg shadow">
-                <div className="p-6 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
+                <div className="p-4 sm:p-6 border-b border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                         {selectedCategory.name}
                       </h2>
                       <p className="text-gray-600 text-sm">
@@ -1100,31 +1138,31 @@ export default function MenuManagement() {
                     </div>
                     <button
                       onClick={() => openMenuItemModal(selectedCategory.id)}
-                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                      className="bg-green-600 text-white px-4 py-3 sm:py-2 rounded-md hover:bg-green-700 text-center font-medium"
                     >
                       + Add Item
                     </button>
                   </div>
                 </div>
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {filteredMenuItems.length === 0 ? (
-                    <div className="text-center py-12">
-                      <p className="text-gray-500 mb-4">
+                    <div className="text-center py-8 sm:py-12">
+                      <p className="text-gray-500 mb-4 text-sm sm:text-base">
                         No items in this category yet.
                       </p>
                       <button
                         onClick={() => openMenuItemModal(selectedCategory.id)}
-                        className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700"
+                        className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 font-medium"
                       >
                         Add Your First Item
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {filteredMenuItems.map((item) => (
                         <div
                           key={item.id}
-                          className="relative border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                          className="relative border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
                         >
                           {item.images && item.images.length > 0 && (
                             <div className="grid grid-cols-2 gap-1 mb-3">
@@ -1277,8 +1315,8 @@ export default function MenuManagement() {
 
       {/* Category Modal */}
       {showCategoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {isEditingCategory ? "Edit Category" : "Add New Category"}
             </h3>
@@ -1307,11 +1345,11 @@ export default function MenuManagement() {
                   required
                 />
               </div>
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <button
                   type="submit"
                   disabled={categoryLoading}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 bg-blue-600 text-white py-3 sm:py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 font-medium"
                 >
                   {categoryLoading
                     ? isEditingCategory
@@ -1329,7 +1367,7 @@ export default function MenuManagement() {
                     setIsEditingCategory(false);
                     setError("");
                   }}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
+                  className="flex-1 bg-gray-300 text-gray-700 py-3 sm:py-2 rounded-md hover:bg-gray-400 font-medium"
                 >
                   Cancel
                 </button>
@@ -1341,8 +1379,8 @@ export default function MenuManagement() {
 
       {/* Menu Item Modal */}
       {showMenuItemModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {isEditingMenuItem ? "Edit Menu Item" : "Add New Menu Item"}
             </h3>
@@ -1351,7 +1389,7 @@ export default function MenuManagement() {
                 isEditingMenuItem ? handleUpdateMenuItem : handleCreateMenuItem
               }
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label
                     htmlFor="name"
@@ -1413,7 +1451,7 @@ export default function MenuManagement() {
                     required
                   />
                 </div>
-                <div className="md:col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Images (optional)
                   </label>
@@ -1461,7 +1499,10 @@ export default function MenuManagement() {
                 </label>
                 <div className="space-y-2">
                   {menuItemForm.customizationOptions.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-2">
+                    <div
+                      key={index}
+                      className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2"
+                    >
                       <input
                         type="text"
                         value={option.name}
@@ -1475,7 +1516,7 @@ export default function MenuManagement() {
                             customizationOptions: updatedOptions,
                           });
                         }}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full sm:flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         placeholder="e.g., Extra cheese, No onions, Spice level"
                       />
                       <button
@@ -1490,7 +1531,7 @@ export default function MenuManagement() {
                             customizationOptions: updatedOptions,
                           });
                         }}
-                        className="text-red-600 hover:text-red-800 px-2 py-1"
+                        className="text-red-600 hover:text-red-800 px-3 py-2 sm:px-2 sm:py-1 text-sm font-medium rounded self-start sm:self-auto"
                       >
                         Remove
                       </button>
@@ -1514,11 +1555,11 @@ export default function MenuManagement() {
                 </div>
               </div>
 
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <button
                   type="submit"
                   disabled={menuItemLoading}
-                  className="flex-1 bg-green-600 text-white py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
+                  className="flex-1 bg-green-600 text-white py-3 sm:py-2 rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
                 >
                   {menuItemLoading
                     ? isEditingMenuItem
@@ -1544,7 +1585,7 @@ export default function MenuManagement() {
                     setIsEditingMenuItem(false);
                     setError("");
                   }}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
+                  className="flex-1 bg-gray-300 text-gray-700 py-3 sm:py-2 rounded-md hover:bg-gray-400 font-medium"
                 >
                   Cancel
                 </button>
