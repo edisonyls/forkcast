@@ -39,7 +39,7 @@ export default function HeaderUser() {
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-orange-600">
-          Forkcast
+          ForkCast
         </Link>
         <nav className="flex items-center space-x-6">
           {!isChefDashboard && (
@@ -77,10 +77,10 @@ export default function HeaderUser() {
             </button>
           ) : (
             <Link
-              href="/register"
+              href="/chef/signup"
               className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors"
             >
-              Become a Chef
+              Become a Host
             </Link>
           )}
         </nav>

@@ -30,6 +30,8 @@ export default function CartPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<string>("");
   const [loadingEvents, setLoadingEvents] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationMessage, setCelebrationMessage] = useState("");
 
   // Fetch events when cart chef changes
   useEffect(() => {
@@ -89,33 +91,97 @@ export default function CartPage() {
           credentials: "include",
           body: JSON.stringify({
             customerName: orderData.customerName,
-            items: items.map((item) => {
-              let specialNotes = "";
+            items: (() => {
+              // Aggregate items by menuItemId with detailed breakdown
+              const aggregatedItems = new Map<
+                string | number,
+                {
+                  menuItemId: string | number;
+                  quantity: number;
+                  specialNotes?: string;
+                  customizationBreakdown: Map<string, number>;
+                }
+              >();
 
-              // Include customizations in special notes
-              if (item.customizations && item.customizations.length > 0) {
-                specialNotes = `Customizations: ${item.customizations
-                  .map((c) => c.name)
-                  .join(", ")}`;
-              }
+              items.forEach((item) => {
+                const key = item.menuItemId.toString();
+                const existing = aggregatedItems.get(key);
+                const customizationKey =
+                  item.specialNotes || "No customizations";
 
-              return {
-                menuItemId: item.menuItemId,
-                quantity: item.quantity,
-                specialNotes: specialNotes || undefined,
-              };
-            }),
+                if (existing) {
+                  // Item already exists, add to quantity and track customizations
+                  existing.quantity += item.quantity;
+
+                  // Track customization breakdown
+                  const currentCount =
+                    existing.customizationBreakdown.get(customizationKey) || 0;
+                  existing.customizationBreakdown.set(
+                    customizationKey,
+                    currentCount + item.quantity
+                  );
+                } else {
+                  // New item, add to map
+                  const customizationBreakdown = new Map<string, number>();
+                  customizationBreakdown.set(customizationKey, item.quantity);
+
+                  aggregatedItems.set(key, {
+                    menuItemId: item.menuItemId,
+                    quantity: item.quantity,
+                    specialNotes: undefined, // We'll build this from the breakdown
+                    customizationBreakdown,
+                  });
+                }
+              });
+
+              // Convert map to array and build detailed notes
+              return Array.from(aggregatedItems.values()).map((item) => {
+                // Build detailed breakdown notes
+                const breakdownEntries = Array.from(
+                  item.customizationBreakdown.entries()
+                );
+
+                if (
+                  breakdownEntries.length === 1 &&
+                  breakdownEntries[0][0] === "No customizations"
+                ) {
+                  // All items have no customizations
+                  return {
+                    menuItemId: item.menuItemId,
+                    quantity: item.quantity,
+                    specialNotes: undefined,
+                  };
+                } else {
+                  // Build detailed breakdown
+                  const breakdown = breakdownEntries
+                    .map(([customization, qty]) => {
+                      if (customization === "No customizations") {
+                        return `${qty}x No customizations`;
+                      } else {
+                        return `${qty}x ${customization}`;
+                      }
+                    })
+                    .join("; ");
+
+                  return {
+                    menuItemId: item.menuItemId,
+                    quantity: item.quantity,
+                    specialNotes: `BREAKDOWN: ${breakdown}`,
+                  };
+                }
+              });
+            })(),
           }),
         }
       );
 
       if (response.ok) {
         const eventInfo = events.find((e) => e.id === selectedEvent);
-        alert(
-          `Order placed successfully for: ${eventInfo?.title}!\n\nYou can see your order status on the menu items.`
+        setCelebrationMessage(
+          `Order placed successfully for: ${eventInfo?.title}!`
         );
-        // Clear the cart after successful order
-        clearCart();
+        setShowCelebration(true);
+        // Don't clear cart immediately - wait for celebration modal to be dismissed
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || "Unknown error");
@@ -153,53 +219,85 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-16">
-          <div className="mb-6">
-            <svg
-              className="w-24 h-24 mx-auto text-gray-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+      <>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-16">
+            <div className="mb-6">
+              <svg
+                className="w-24 h-24 mx-auto text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5m2.5-5h10m0 0v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-8z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Your Cart is Empty
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Start exploring our amazing hosts and add some delicious items to
+              your cart!
+            </p>
+            <Link
+              href={getContinueShoppingLink()}
+              className="bg-orange-600 text-white px-6 py-3 rounded-md hover:bg-orange-700 transition-colors inline-flex items-center gap-2"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1}
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5m2.5-5h10m0 0v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-8z"
-              />
-            </svg>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              {lastVisitedChef?.hasAccess
+                ? `Browse ${lastVisitedChef.name}'s Menu`
+                : "Browse Hosts"}
+            </Link>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Your Cart is Empty
-          </h2>
-          <p className="text-gray-600 mb-8">
-            Start exploring our amazing chefs and add some delicious items to
-            your cart!
-          </p>
-          <Link
-            href={getContinueShoppingLink()}
-            className="bg-orange-600 text-white px-6 py-3 rounded-md hover:bg-orange-700 transition-colors inline-flex items-center gap-2"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            {lastVisitedChef?.hasAccess
-              ? `Browse ${lastVisitedChef.name}'s Menu`
-              : "Browse Chefs"}
-          </Link>
         </div>
-      </div>
+
+        {/* Celebration Modal */}
+        {showCelebration && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+              <div className="mb-6">
+                <div className="text-6xl mb-4">🎉</div>
+                <h2 className="text-2xl font-bold text-green-600 mb-2">
+                  Order Placed Successfully!
+                </h2>
+                <p className="text-gray-700">{celebrationMessage}</p>
+              </div>
+              <div className="mb-6">
+                <p className="text-sm text-gray-600">
+                  You can check your order status by visiting the chef's event
+                  page.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowCelebration(false);
+                  clearCart();
+                }}
+                className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold"
+              >
+                Awesome! 🎊
+              </button>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 
@@ -518,6 +616,36 @@ export default function CartPage() {
         selectedEvent={selectedEvent}
         totalItems={getTotalItems()}
       />
+
+      {/* Celebration Modal */}
+      {showCelebration && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+            <div className="mb-6">
+              <div className="text-6xl mb-4">🎉</div>
+              <h2 className="text-2xl font-bold text-green-600 mb-2">
+                Order Placed Successfully!
+              </h2>
+              <p className="text-gray-700">{celebrationMessage}</p>
+            </div>
+            <div className="mb-6">
+              <p className="text-sm text-gray-600">
+                You can check your order status by visiting the chef's event
+                page.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowCelebration(false);
+                clearCart();
+              }}
+              className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold"
+            >
+              Awesome! 🎊
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

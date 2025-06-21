@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Forkcast - Discover Local Chefs",
-  description: "Connect with talented local chefs and discover amazing cuisine",
+  title: "Forkcast - Discover Local Hosts",
+  description: "Connect with talented local hosts and discover amazing cuisine",
 };
 
 export default function RootLayout({

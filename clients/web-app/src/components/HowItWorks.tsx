@@ -72,8 +72,8 @@ export default function HowItWorks() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {hostSteps.map((step, index) => (
-              <div key={index} className="relative">
-                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow">
+              <div key={index} className="relative h-full">
+                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
                       {step.step}
@@ -83,10 +83,10 @@ export default function HowItWorks() {
                   <h4 className="text-lg font-semibold mb-2 text-gray-900">
                     {step.title}
                   </h4>
-                  <p className="text-gray-600">{step.description}</p>
+                  <p className="text-gray-600 flex-grow">{step.description}</p>
                 </div>
                 {index < hostSteps.length - 1 && (
-                  <div className="hidden lg:block absolute top-12 -right-3 w-6">
+                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 transform -translate-y-1/2">
                     <svg
                       className="w-6 h-6 text-gray-300"
                       fill="none"
@@ -114,8 +114,8 @@ export default function HowItWorks() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {guestSteps.map((step, index) => (
-              <div key={index} className="relative">
-                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow">
+              <div key={index} className="relative h-full">
+                <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-10 h-10 bg-amber-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
                       {step.step}
@@ -125,10 +125,10 @@ export default function HowItWorks() {
                   <h4 className="text-lg font-semibold mb-2 text-gray-900">
                     {step.title}
                   </h4>
-                  <p className="text-gray-600">{step.description}</p>
+                  <p className="text-gray-600 flex-grow">{step.description}</p>
                 </div>
                 {index < guestSteps.length - 1 && (
-                  <div className="hidden lg:block absolute top-12 -right-3 w-6">
+                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 transform -translate-y-1/2">
                     <svg
                       className="w-6 h-6 text-gray-300"
                       fill="none"

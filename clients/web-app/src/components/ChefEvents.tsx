@@ -108,7 +108,7 @@ export default function ChefEvents({
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 text-lg">
-          This chef hasn't created any events yet.
+          This host hasn't created any events yet.
         </p>
         <p className="text-gray-400 text-sm mt-2">
           Check back later for upcoming events!

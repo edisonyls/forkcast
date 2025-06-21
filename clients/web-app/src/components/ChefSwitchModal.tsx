@@ -43,7 +43,7 @@ export default function ChefSwitchModal({
               />
             </svg>
           </div>
-          <h2 className="text-lg font-bold text-gray-800">Switch Chef?</h2>
+          <h2 className="text-lg font-bold text-gray-800">Switch Host?</h2>
         </div>
 
         <div className="mb-6">
@@ -60,7 +60,7 @@ export default function ChefSwitchModal({
             To view{" "}
             <span className="font-semibold text-orange-600">{newChef}</span>'s
             menu, we'll need to clear your current cart since orders can only
-            contain items from one chef.
+            contain items from one host.
           </p>
           <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
             <div className="flex items-start">

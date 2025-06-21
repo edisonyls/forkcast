@@ -51,7 +51,7 @@ export default function ChefSecretModal({
 
         <div className="mb-4">
           <p className="text-gray-600">
-            This chef requires a secret to access their menu. Please enter the
+            This host requires a secret to access their menu. Please enter the
             secret to continue.
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function ChefSecretModal({
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="Enter chef's secret"
+              placeholder="Enter host's secret"
               disabled={isLoading}
               autoFocus
             />

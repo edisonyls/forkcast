@@ -131,7 +131,7 @@ export default function ChefMenu({
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 text-lg">
-          This chef hasn't added any menu categories yet.
+          This host hasn't added any menu categories yet.
         </p>
         <p className="text-gray-400 text-sm mt-2">Please check back later!</p>
       </div>
@@ -231,7 +231,7 @@ export default function ChefMenu({
                   {availableEvents.length === 0 ? (
                     <div className="text-center py-6">
                       <p className="text-sm text-gray-500 mb-2">
-                        No upcoming events available from this chef
+                        No upcoming events available from this host
                       </p>
                       <p className="text-xs text-gray-400">
                         Check back later for upcoming events!
@@ -289,7 +289,7 @@ export default function ChefMenu({
                 No menu items in this category yet.
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                The chef is still building their menu!
+                The host is still building their menu!
               </p>
             </div>
           ) : (
