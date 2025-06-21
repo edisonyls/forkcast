@@ -4,7 +4,7 @@ import Image from "next/image";
 interface Chef {
   id: string | number;
   name: string;
-  image: string;
+  image: string | null;
   rating: number;
   bio: string;
 }

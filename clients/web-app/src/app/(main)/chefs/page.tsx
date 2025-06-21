@@ -97,13 +97,7 @@ export default function ChefsPage() {
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {chefs.map((chef) => (
-          <ChefCard
-            key={chef.id}
-            chef={{
-              ...chef,
-              image: chef.image || "/chef-placeholder.jpg",
-            }}
-          />
+          <ChefCard key={chef.id} chef={chef} />
         ))}
       </div>
     </div>
