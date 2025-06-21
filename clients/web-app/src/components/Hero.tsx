@@ -18,18 +18,12 @@ export default function Hero() {
             what your guests want!
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex justify-center mb-12">
             <Link
               href="/chef/signup"
               className="bg-gradient-to-r from-orange-600 to-amber-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:from-orange-700 hover:to-amber-700 transition-all transform hover:scale-105 shadow-lg"
             >
               Create Your Menu
-            </Link>
-            <Link
-              href="/chefs"
-              className="bg-white text-gray-800 px-8 py-4 rounded-lg text-lg font-medium border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50 transition-all"
-            >
-              Browse Sample Menus
             </Link>
           </div>
 
