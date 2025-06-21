@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-4 mt-8">
+    <footer className="bg-gray-900 text-white py-4">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
           {/* Brand and Copyright */}
@@ -11,30 +11,30 @@ export default function Footer() {
               ForkCast
             </Link>
             <span className="text-gray-400 text-xs sm:text-sm">
-              © {new Date().getFullYear()} Made with ❤️ for hosts
+              © {new Date().getFullYear()} Connecting hosts & guests
             </span>
           </div>
 
           {/* Quick Links */}
           <div className="flex items-center gap-4 text-xs sm:text-sm">
+            <Link
+              href="/host"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              For Hosts
+            </Link>
+            <Link
+              href="/guest"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              For Guests
+            </Link>
             <a
               href="mailto:support@forkcast.app"
               className="text-gray-400 hover:text-white transition-colors"
             >
               Contact
             </a>
-            <Link
-              href="/chef/signup"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              Create Menu
-            </Link>
-            <Link
-              href="/chefs"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              Browse Menus
-            </Link>
           </div>
         </div>
       </div>

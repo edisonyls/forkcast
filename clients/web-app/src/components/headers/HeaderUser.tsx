@@ -14,6 +14,10 @@ export default function HeaderUser() {
 
   // Check if user is on chef dashboard pages
   const isChefDashboard = pathname?.startsWith("/chef/");
+  // Check if user is on host-focused pages
+  const isHostPage = pathname === "/host";
+  // Check if user is on guest-focused pages
+  const isGuestPage = pathname === "/guest" || pathname?.startsWith("/chefs");
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -51,7 +55,8 @@ export default function HeaderUser() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            {!isChefDashboard && (
+            {/* Show cart only for guest pages and general pages (not host or chef dashboard) */}
+            {!isChefDashboard && !isHostPage && (
               <Link
                 href="/cart"
                 className="relative flex items-center text-gray-600 hover:text-orange-600 transition-colors"
@@ -84,7 +89,32 @@ export default function HeaderUser() {
               >
                 Sign Out
               </button>
+            ) : isHostPage ? (
+              // Host page navigation: Sign In + Become a Host
+              <>
+                <Link
+                  href="/chef/signin"
+                  className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/chef/signup"
+                  className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors"
+                >
+                  Become a Host
+                </Link>
+              </>
+            ) : isGuestPage ? (
+              // Guest page navigation: Browse Hosts
+              <Link
+                href="/chefs"
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+              >
+                Browse Hosts
+              </Link>
             ) : (
+              // Default navigation: Become a Host
               <Link
                 href="/chef/signup"
                 className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors"
@@ -96,7 +126,8 @@ export default function HeaderUser() {
 
           {/* Mobile Menu Button and Cart Icon */}
           <div className="md:hidden flex items-center space-x-4">
-            {!isChefDashboard && (
+            {/* Show cart only for guest pages and general pages (not host or chef dashboard) */}
+            {!isChefDashboard && !isHostPage && (
               <Link
                 href="/cart"
                 className="relative flex items-center text-gray-600 hover:text-orange-600 transition-colors p-2"
@@ -167,7 +198,35 @@ export default function HeaderUser() {
                 >
                   Sign Out
                 </button>
+              ) : isHostPage ? (
+                // Host page mobile navigation
+                <>
+                  <Link
+                    href="/chef/signin"
+                    className="text-gray-600 hover:text-gray-900 transition-colors font-medium py-2 px-3 rounded-md hover:bg-gray-100"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/chef/signup"
+                    className="bg-orange-600 text-white px-4 py-3 rounded-md hover:bg-orange-700 transition-colors text-center font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Become a Host
+                  </Link>
+                </>
+              ) : isGuestPage ? (
+                // Guest page mobile navigation
+                <Link
+                  href="/chefs"
+                  className="bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 transition-colors text-center font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Browse Hosts
+                </Link>
               ) : (
+                // Default mobile navigation
                 <Link
                   href="/chef/signup"
                   className="bg-orange-600 text-white px-4 py-3 rounded-md hover:bg-orange-700 transition-colors text-center font-medium"

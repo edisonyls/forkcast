@@ -21,22 +21,16 @@ export default function HeaderHome() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-4">
             <Link
-              href="/chefs"
-              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
-            >
-              Browse Menus
-            </Link>
-            <Link
-              href="/chef/signin"
-              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/chef/signup"
+              href="/host"
               className="bg-orange-600 text-white px-5 py-2 rounded-lg hover:bg-orange-700 transition-all font-medium"
             >
-              Create Menu
+              For Host
+            </Link>
+            <Link
+              href="/guest"
+              className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-all font-medium"
+            >
+              For Guests
             </Link>
           </nav>
 
@@ -76,25 +70,18 @@ export default function HeaderHome() {
           <nav className="md:hidden mt-4 pb-4 border-t border-gray-200">
             <div className="flex flex-col space-y-3 pt-4">
               <Link
-                href="/chefs"
-                className="text-gray-600 hover:text-gray-900 transition-colors font-medium py-2 px-3 rounded-md hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Browse Menus
-              </Link>
-              <Link
-                href="/chef/signin"
-                className="text-gray-600 hover:text-gray-900 transition-colors font-medium py-2 px-3 rounded-md hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/chef/signup"
+                href="/host"
                 className="bg-orange-600 text-white px-5 py-3 rounded-lg hover:bg-orange-700 transition-all font-medium text-center"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Create Menu
+                For Host
+              </Link>
+              <Link
+                href="/guest"
+                className="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700 transition-all font-medium text-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                For Guests
               </Link>
             </div>
           </nav>
