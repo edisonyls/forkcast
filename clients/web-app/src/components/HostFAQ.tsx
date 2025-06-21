@@ -12,6 +12,11 @@ export default function HostFAQ() {
         "ForkCast is completely free for hosts! Create unlimited menus, share with as many guests as you want, and track all selections without any charges.",
     },
     {
+      question: "Is my personal data and menu information safe?",
+      answer:
+        "Yes! As a small, personally-run project, we take your privacy seriously. Your personal information, menu details, and guest data are stored securely on our private server with regular backups. We never share your personal data with third parties or use it for any purpose other than providing the service. While we're not a large company with enterprise-grade infrastructure, we follow good security practices and are committed to protecting your information.",
+    },
+    {
       question: "How do I get my menu link to share with guests?",
       answer:
         "Once you create a menu, you'll get a unique link that you can share via text, email, social media, or any messaging platform. Guests click the link to view and select from your menu.",
