@@ -249,7 +249,7 @@ export default function EventsManagement() {
   }
 
   return (
-    <div className="bg-gray-50 py-8">
+    <div className="bg-gray-50 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Pending Orders Alert - Detailed by Event */}
         {(() => {
@@ -263,7 +263,7 @@ export default function EventsManagement() {
             .filter((event) => event.pendingOrdersCount > 0);
 
           return eventsWithPendingOrders.length > 0 ? (
-            <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 sm:p-6">
               <div className="flex items-start">
                 <div className="flex-shrink-0 mt-0.5">
                   <svg
@@ -286,10 +286,10 @@ export default function EventsManagement() {
                     {eventsWithPendingOrders.map((event) => (
                       <div
                         key={event.id}
-                        className="flex items-center justify-between bg-white rounded-md p-3 border border-yellow-300"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between bg-white rounded-md p-3 sm:p-4 border border-yellow-300 space-y-2 sm:space-y-0"
                       >
                         <div className="flex-1">
-                          <div className="flex items-center space-x-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                             <span className="font-medium text-gray-900">
                               {event.title}
                             </span>
@@ -307,7 +307,7 @@ export default function EventsManagement() {
                         </div>
                         <Link
                           href={`/chef/events/${event.id}`}
-                          className="bg-yellow-600 text-white px-3 py-1 rounded-md text-sm hover:bg-yellow-700 transition-colors"
+                          className="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700 transition-colors text-center font-medium"
                         >
                           Review Orders
                         </Link>
@@ -321,19 +321,19 @@ export default function EventsManagement() {
         })()}
 
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Event Management
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">
                 Create events for friends to place orders
               </p>
             </div>
             <Link
               href="/chef/dashboard"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+              className="bg-gray-600 text-white px-4 py-3 sm:py-2 rounded-md hover:bg-gray-700 text-center font-medium whitespace-nowrap"
             >
               Back to Dashboard
             </Link>
@@ -344,7 +344,7 @@ export default function EventsManagement() {
         <div className="mb-6">
           <button
             onClick={() => setShowEventModal(true)}
-            className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
+            className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 sm:py-2 rounded-md hover:bg-orange-700 font-medium"
           >
             Create New Event
           </button>
@@ -352,11 +352,13 @@ export default function EventsManagement() {
 
         {/* Events List */}
         {events.length === 0 ? (
-          <div className="bg-white shadow rounded-lg p-6 text-center">
-            <p className="text-gray-500">No events created yet.</p>
+          <div className="bg-white shadow rounded-lg p-6 sm:p-12 text-center">
+            <p className="text-gray-500 text-sm sm:text-base">
+              No events created yet.
+            </p>
             <button
               onClick={() => setShowEventModal(true)}
-              className="mt-4 bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
+              className="mt-4 bg-orange-600 text-white px-6 py-3 rounded-md hover:bg-orange-700 font-medium"
             >
               Create Your First Event
             </button>
@@ -376,18 +378,18 @@ export default function EventsManagement() {
 
               return (
                 <div className="bg-white shadow rounded-lg mb-6">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-2xl font-bold text-gray-900">
+                  <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                       Upcoming Events
                     </h2>
                   </div>
 
                   {upcomingEvents.length === 0 ? (
-                    <div className="p-6 text-center">
-                      <p className="text-gray-500">
+                    <div className="p-4 sm:p-6 text-center">
+                      <p className="text-gray-500 text-sm sm:text-base">
                         No upcoming events scheduled.
                       </p>
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-xs sm:text-sm text-gray-400 mt-1">
                         Create your next culinary experience!
                       </p>
                     </div>
@@ -402,30 +404,32 @@ export default function EventsManagement() {
                         return (
                           <div
                             key={event.id}
-                            className={`p-6 ${
+                            className={`p-4 sm:p-6 ${
                               pendingOrdersCount > 0
                                 ? "bg-yellow-50 border-l-4 border-l-yellow-400"
                                 : ""
                             }`}
                           >
-                            <div className="flex items-start justify-between">
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center space-x-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
                                   <h3 className="text-lg font-medium text-gray-900 truncate">
                                     {event.title}
                                   </h3>
-                                  <span
-                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                                      event.status
-                                    )}`}
-                                  >
-                                    {event.status}
-                                  </span>
-                                  {pendingOrdersCount > 0 && (
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                      {pendingOrdersCount} Pending
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                                        event.status
+                                      )}`}
+                                    >
+                                      {event.status}
                                     </span>
-                                  )}
+                                    {pendingOrdersCount > 0 && (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        {pendingOrdersCount} Pending
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
 
                                 {event.description && (
@@ -557,7 +561,7 @@ export default function EventsManagement() {
                                   )}
                               </div>
 
-                              <div className="relative dropdown-container">
+                              <div className="relative dropdown-container flex sm:justify-end">
                                 <button
                                   onClick={() =>
                                     setOpenDropdownId(
@@ -566,7 +570,7 @@ export default function EventsManagement() {
                                         : event.id
                                     )
                                   }
-                                  className="bg-white rounded-md p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                                  className="bg-white rounded-md p-2.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 shadow-md"
                                 >
                                   <svg
                                     className="w-5 h-5"
@@ -578,12 +582,31 @@ export default function EventsManagement() {
                                 </button>
 
                                 {openDropdownId === event.id && (
-                                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
                                     <Link
                                       href={`/chef/events/${event.id}`}
                                       onClick={() => setOpenDropdownId(null)}
-                                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                      className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     >
+                                      <svg
+                                        className="w-4 h-4 mr-2"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                        />
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        />
+                                      </svg>
                                       View Orders
                                     </Link>
                                     {event._count.eventOrders === 0 && (
@@ -592,8 +615,21 @@ export default function EventsManagement() {
                                           handleDeleteEvent(event.id);
                                           setOpenDropdownId(null);
                                         }}
-                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                        className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-red-600 hover:bg-red-50"
                                       >
+                                        <svg
+                                          className="w-4 h-4 mr-2"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                          />
+                                        </svg>
                                         Delete Event
                                       </button>
                                     )}
@@ -623,33 +659,35 @@ export default function EventsManagement() {
 
               return (
                 <div className="bg-white shadow rounded-lg">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-2xl font-bold text-gray-900">
+                  <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                       Past Events
                     </h2>
                   </div>
 
                   {pastEvents.length === 0 ? (
-                    <div className="p-6 text-center">
-                      <p className="text-gray-500">No past events yet.</p>
-                      <p className="text-sm text-gray-400 mt-1">
+                    <div className="p-4 sm:p-6 text-center">
+                      <p className="text-gray-500 text-sm sm:text-base">
+                        No past events yet.
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-400 mt-1">
                         Your event history will appear here.
                       </p>
                     </div>
                   ) : (
                     <div className="divide-y-2 divide-gray-300">
                       {pastEvents.map((event) => (
-                        <div key={event.id} className="p-6">
-                          <div className="flex items-start justify-between">
+                        <div key={event.id} className="p-4 sm:p-6">
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center space-x-3">
+                              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
                                 <h3 className="text-lg font-medium text-gray-900 truncate">
                                   {event.title}
                                 </h3>
                                 <span
                                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
                                     event.status
-                                  )}`}
+                                  )} self-start sm:self-auto`}
                                 >
                                   {event.status}
                                 </span>
@@ -776,7 +814,7 @@ export default function EventsManagement() {
                                 )}
                             </div>
 
-                            <div className="relative dropdown-container">
+                            <div className="relative dropdown-container flex sm:justify-end">
                               <button
                                 onClick={() =>
                                   setOpenDropdownId(
@@ -785,7 +823,7 @@ export default function EventsManagement() {
                                       : event.id
                                   )
                                 }
-                                className="bg-white rounded-md p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                                className="bg-white rounded-md p-2.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 shadow-md"
                               >
                                 <svg
                                   className="w-5 h-5"
@@ -797,12 +835,31 @@ export default function EventsManagement() {
                               </button>
 
                               {openDropdownId === event.id && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
                                   <Link
                                     href={`/chef/events/${event.id}`}
                                     onClick={() => setOpenDropdownId(null)}
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-gray-700 hover:bg-gray-100"
                                   >
+                                    <svg
+                                      className="w-4 h-4 mr-2"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                      />
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                      />
+                                    </svg>
                                     View Orders
                                   </Link>
                                   {event._count.eventOrders === 0 && (
@@ -811,8 +868,21 @@ export default function EventsManagement() {
                                         handleDeleteEvent(event.id);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                      className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-red-600 hover:bg-red-50"
                                     >
+                                      <svg
+                                        className="w-4 h-4 mr-2"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        />
+                                      </svg>
                                       Delete Event
                                     </button>
                                   )}
@@ -832,72 +902,75 @@ export default function EventsManagement() {
 
         {/* Create Event Modal */}
         {showEventModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Create New Event
-                </h3>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Create New Event
+              </h3>
 
-                {error && (
-                  <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
-                    {error}
-                  </div>
-                )}
+              {error && (
+                <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded text-sm">
+                  {error}
+                </div>
+              )}
 
-                <form onSubmit={handleCreateEvent}>
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Event Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={eventDate}
-                      onChange={(e) => setEventDate(e.target.value)}
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Select the date for your event
-                    </p>
-                  </div>
+              <form onSubmit={handleCreateEvent}>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    required
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Select the date for your event
+                  </p>
+                </div>
 
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description (Optional)
-                    </label>
-                    <textarea
-                      value={eventDescription}
-                      onChange={(e) => setEventDescription(e.target.value)}
-                      rows={3}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      placeholder="Add a description for your event (only visible to you)"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      This description is only visible to you and helps you keep
-                      track of event details
-                    </p>
-                  </div>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    value={eventDescription}
+                    onChange={(e) => setEventDescription(e.target.value)}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    placeholder="Add a description for your event (only visible to you)"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    This description is only visible to you and helps you keep
+                    track of event details
+                  </p>
+                </div>
 
-                  <div className="flex space-x-3">
-                    <button
-                      type="submit"
-                      disabled={eventLoading}
-                      className="flex-1 bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 disabled:opacity-50"
-                    >
-                      {eventLoading ? "Creating..." : "Create Event"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowEventModal(false)}
-                      className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
+                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                  <button
+                    type="submit"
+                    disabled={eventLoading}
+                    className="flex-1 bg-orange-600 text-white py-3 sm:py-2 px-4 rounded-md hover:bg-orange-700 disabled:opacity-50 font-medium"
+                  >
+                    {eventLoading ? "Creating..." : "Create Event"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEventModal(false);
+                      setEventDate("");
+                      setEventDescription("");
+                      setError("");
+                    }}
+                    className="flex-1 bg-gray-300 text-gray-700 py-3 sm:py-2 px-4 rounded-md hover:bg-gray-400 font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
