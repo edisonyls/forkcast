@@ -74,14 +74,22 @@ export default function MenuManagement() {
   const [isEditingCategory, setIsEditingCategory] = useState(false);
 
   // Menu item form state
-  const [menuItemForm, setMenuItemForm] = useState({
+  const [menuItemForm, setMenuItemForm] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    preparationTime: number | string;
+    categoryId: string;
+    images: string[];
+    customizationOptions: { name: string }[];
+  }>({
     id: "",
     name: "",
     description: "",
     preparationTime: 30,
     categoryId: "",
-    images: [] as string[],
-    customizationOptions: [] as { name: string }[],
+    images: [],
+    customizationOptions: [],
   });
   const [menuItemImages, setMenuItemImages] = useState<ImageData[]>([]);
   const [menuItemLoading, setMenuItemLoading] = useState(false);
@@ -284,12 +292,19 @@ export default function MenuManagement() {
     setMenuItemLoading(true);
     setError("");
 
+    // Ensure preparation time has a valid value
+    const preparationTime =
+      !menuItemForm.preparationTime ||
+      isNaN(Number(menuItemForm.preparationTime))
+        ? 30
+        : Number(menuItemForm.preparationTime);
+
     try {
       // First create the menu item
       const requestBody = {
         name: menuItemForm.name,
         description: menuItemForm.description,
-        preparationTime: menuItemForm.preparationTime,
+        preparationTime: preparationTime,
         categoryId: menuItemForm.categoryId,
         chefId: chef.id,
         images: [], // Start with empty array
@@ -476,7 +491,12 @@ export default function MenuManagement() {
     const { name, value } = e.target;
     setMenuItemForm({
       ...menuItemForm,
-      [name]: name === "preparationTime" ? parseInt(value) || 30 : value,
+      [name]:
+        name === "preparationTime"
+          ? value === ""
+            ? ""
+            : parseInt(value) || 30
+          : value,
     });
   };
 
@@ -553,6 +573,13 @@ export default function MenuManagement() {
     setMenuItemLoading(true);
     setError("");
 
+    // Ensure preparation time has a valid value
+    const preparationTime =
+      !menuItemForm.preparationTime ||
+      isNaN(Number(menuItemForm.preparationTime))
+        ? 30
+        : Number(menuItemForm.preparationTime);
+
     try {
       // Handle image uploads if there are new images
       let finalImageUrls: string[] = [];
@@ -604,7 +631,7 @@ export default function MenuManagement() {
       const requestBody: any = {
         name: menuItemForm.name,
         description: menuItemForm.description,
-        preparationTime: menuItemForm.preparationTime,
+        preparationTime: preparationTime,
         categoryId: menuItemForm.categoryId,
         chefId: chef.id,
         images: finalImageUrls,
