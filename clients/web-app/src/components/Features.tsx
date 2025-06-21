@@ -22,6 +22,13 @@ export default function Features() {
       color: "bg-yellow-50",
     },
     {
+      title: "Privacy Focused",
+      description:
+        "We care about your privacy. Your personal information stays private and will never be sold or shared with others.",
+      icon: "🔒",
+      color: "bg-emerald-50",
+    },
+    {
       title: "Easy Sharing",
       description:
         "Share your menu with a simple link. Guests can browse and select without creating an account.",
@@ -34,13 +41,6 @@ export default function Features() {
         "See what your guests are selecting in real-time. Adjust quantities and plan your cooking accordingly.",
       icon: "📊",
       color: "bg-blue-50",
-    },
-    {
-      title: "Reuse Menus",
-      description:
-        "Save your menus for future gatherings. Build a collection of crowd-pleasers over time.",
-      icon: "📚",
-      color: "bg-red-50",
     },
   ];
 
