@@ -1,4 +1,5 @@
 import express from "express";
+import { z } from "zod";
 import {
   prisma,
   sendSuccessResponse,
@@ -84,7 +85,11 @@ router.post(
 router.put(
   "/categories/:categoryId",
   authenticateChef,
-  validateRequest(categorySchema),
+  validateRequest(
+    z.object({
+      name: z.string().min(1, "Name is required"),
+    })
+  ),
   async (req, res) => {
     try {
       const chefId = req.chef!.chefId;
