@@ -474,39 +474,23 @@ export default function ChefSettings() {
                     <div className="text-center mb-4 sm:mb-6">
                       <div className="inline-block">
                         <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
-                          {chef.image ? (
-                            <Image
-                              src={
-                                chef.image.startsWith("http") ||
-                                chef.image.startsWith("data:")
-                                  ? chef.image
-                                  : `${
-                                      process.env.NEXT_PUBLIC_API_URL ||
-                                      "http://localhost:3000"
-                                    }${chef.image}`
-                              }
-                              alt={chef.name}
-                              width={128}
-                              height={128}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                              <svg
-                                className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
-                              </svg>
-                            </div>
-                          )}
+                          <Image
+                            src={
+                              chef.image &&
+                              !chef.image.startsWith("http") &&
+                              !chef.image.startsWith("data:") &&
+                              !chef.image.startsWith("/user.png")
+                                ? `${
+                                    process.env.NEXT_PUBLIC_API_URL ||
+                                    "http://localhost:3000"
+                                  }${chef.image}`
+                                : chef.image || "/user.png"
+                            }
+                            alt={chef.name}
+                            width={128}
+                            height={128}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                       </div>
                     </div>
