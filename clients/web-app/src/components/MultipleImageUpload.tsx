@@ -204,7 +204,7 @@ export default function MultipleImageUpload({
                   <button
                     type="button"
                     onClick={() => removeDisplayImage(index)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-md"
                     aria-label="Remove image"
                   >
                     ×
@@ -229,7 +229,7 @@ export default function MultipleImageUpload({
                   <button
                     type="button"
                     onClick={() => removePreviewImage(imageData.id)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-md"
                     aria-label="Remove image"
                   >
                     ×
