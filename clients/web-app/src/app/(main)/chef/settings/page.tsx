@@ -248,7 +248,7 @@ export default function ChefSettings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -256,7 +256,7 @@ export default function ChefSettings() {
 
   if (error && !chef) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
@@ -273,7 +273,7 @@ export default function ChefSettings() {
   if (!chef) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="bg-gray-50 py-4 sm:py-8">
       {/* Toast Notification */}
       {toast && (
         <Toast
@@ -285,17 +285,19 @@ export default function ChefSettings() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-              <p className="text-gray-600 mt-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Settings
+              </h1>
+              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
                 Manage your profile and preferences
               </p>
             </div>
             <Link
               href="/chef/dashboard"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+              className="bg-gray-600 text-white px-4 py-3 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-center font-medium"
             >
               Back to Dashboard
             </Link>
@@ -304,8 +306,8 @@ export default function ChefSettings() {
 
         {/* Profile Section */}
         <div className="bg-white shadow rounded-lg">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
               Profile Information
             </h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -313,7 +315,7 @@ export default function ChefSettings() {
             </p>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {error && (
               <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                 {error}
@@ -321,7 +323,7 @@ export default function ChefSettings() {
             )}
 
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                 {/* Left Column - Form */}
                 <div className="space-y-6">
                   {/* Email (Read-only) */}
@@ -416,34 +418,38 @@ export default function ChefSettings() {
                     >
                       Menu Access Secret *
                     </label>
-                    <div className="mt-1 flex">
-                      <input
-                        type="text"
-                        id="secret"
-                        name="secret"
-                        value={formData.secret}
-                        onChange={handleInputChange}
-                        className={`flex-1 px-3 py-2 border rounded-l-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm ${
-                          formErrors.secret
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        }`}
-                        placeholder="Enter menu access secret"
-                      />
-                      <button
-                        type="button"
-                        onClick={copySecret}
-                        className="px-3 py-2 border border-l-0 border-gray-300 bg-gray-100 hover:bg-gray-200 text-sm text-gray-700"
-                      >
-                        Copy
-                      </button>
-                      <button
-                        type="button"
-                        onClick={generateNewSecret}
-                        className="px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-blue-100 hover:bg-blue-200 text-sm text-blue-700"
-                      >
-                        Generate
-                      </button>
+                    <div className="mt-1">
+                      <div className="sm:flex sm:space-x-0">
+                        <input
+                          type="text"
+                          id="secret"
+                          name="secret"
+                          value={formData.secret}
+                          onChange={handleInputChange}
+                          className={`w-full px-3 py-2 border rounded-md sm:rounded-l-md sm:rounded-r-none shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm sm:flex-1 ${
+                            formErrors.secret
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          }`}
+                          placeholder="Enter menu access secret"
+                        />
+                        <div className="flex space-x-2 sm:space-x-0 mt-2 sm:mt-0">
+                          <button
+                            type="button"
+                            onClick={copySecret}
+                            className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 sm:border-l-0 bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 rounded-md sm:rounded-none font-medium"
+                          >
+                            Copy
+                          </button>
+                          <button
+                            type="button"
+                            onClick={generateNewSecret}
+                            className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 sm:border-l-0 rounded-md sm:rounded-l-none sm:rounded-r-md bg-blue-100 hover:bg-blue-200 text-sm text-blue-700 font-medium"
+                          >
+                            Generate
+                          </button>
+                        </div>
+                      </div>
                     </div>
                     {formErrors.secret && (
                       <p className="mt-1 text-sm text-red-600">
@@ -465,13 +471,14 @@ export default function ChefSettings() {
                     </label>
 
                     {/* Current Image Display */}
-                    <div className="text-center mb-6">
+                    <div className="text-center mb-4 sm:mb-6">
                       <div className="inline-block">
-                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
+                        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
                           {chef.image ? (
                             <Image
                               src={
-                                chef.image.startsWith("http")
+                                chef.image.startsWith("http") ||
+                                chef.image.startsWith("data:")
                                   ? chef.image
                                   : `${
                                       process.env.NEXT_PUBLIC_API_URL ||
@@ -486,7 +493,7 @@ export default function ChefSettings() {
                           ) : (
                             <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                               <svg
-                                className="w-12 h-12 text-gray-400"
+                                className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -505,7 +512,7 @@ export default function ChefSettings() {
                     </div>
 
                     {/* Image Upload */}
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center">
                       <ImageUpload
                         currentImage={previewImage || chef.image}
                         onImageChange={handleImagePreview}
@@ -527,20 +534,24 @@ export default function ChefSettings() {
                     </div>
 
                     {/* Stats */}
-                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
                       <h4 className="text-sm font-medium text-gray-900 mb-2">
                         Profile Stats
                       </h4>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <div className="flex justify-between">
-                          <span>Rating:</span>
+                      <div className="space-y-2 text-sm text-gray-600">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                          <span className="font-medium sm:font-normal">
+                            Rating:
+                          </span>
                           <span>
                             {chef.rating.toFixed(1)} ⭐ ({chef.ratingCount}{" "}
                             reviews)
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Member since:</span>
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                          <span className="font-medium sm:font-normal">
+                            Member since:
+                          </span>
                           <span>
                             {new Date(chef.createdAt).toLocaleDateString()}
                           </span>
@@ -552,8 +563,8 @@ export default function ChefSettings() {
               </div>
 
               {/* Save Button */}
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <div className="flex justify-between items-center">
+              <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                   <div>
                     {hasChanges() && (
                       <p className="text-sm text-orange-600">
@@ -564,7 +575,7 @@ export default function ChefSettings() {
                   <button
                     type="submit"
                     disabled={updatingProfile || !hasChanges()}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="bg-blue-600 text-white px-6 py-3 sm:py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-center"
                   >
                     {updatingProfile ? "Saving..." : "Save Changes"}
                   </button>

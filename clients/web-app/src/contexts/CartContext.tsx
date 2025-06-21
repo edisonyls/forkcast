@@ -17,6 +17,7 @@ export interface CartItem {
     id: string | number;
     name: string;
   }[];
+  specialNotes?: string; // For any additional notes/special instructions
   addedAt: Date;
 }
 
@@ -156,13 +157,62 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addToCart = (newItem: Omit<CartItem, "id" | "addedAt">) => {
-    const cartItem: CartItem = {
-      ...newItem,
-      id: `${newItem.menuItemId}-${Date.now()}-${Math.random()}`,
-      addedAt: new Date(),
-    };
+    setItems((prevItems) => {
+      // Check if an identical item already exists (same menuItemId, customizations, and specialNotes)
+      const existingItemIndex = prevItems.findIndex((item) => {
+        if (item.menuItemId.toString() !== newItem.menuItemId.toString()) {
+          return false;
+        }
 
-    setItems((prevItems) => [...prevItems, cartItem]);
+        // Compare customizations - they need to be identical
+        if (item.customizations.length !== newItem.customizations.length) {
+          return false;
+        }
+
+        // Sort both arrays by id for comparison
+        const existingCustomizations = [...item.customizations].sort((a, b) =>
+          a.id.toString().localeCompare(b.id.toString())
+        );
+        const newCustomizations = [...newItem.customizations].sort((a, b) =>
+          a.id.toString().localeCompare(b.id.toString())
+        );
+
+        // Check if all customizations match
+        const customizationsMatch = existingCustomizations.every(
+          (customization, index) =>
+            customization.id.toString() ===
+            newCustomizations[index]?.id.toString()
+        );
+
+        if (!customizationsMatch) {
+          return false;
+        }
+
+        // Compare special notes - they need to be identical (including undefined/empty)
+        const existingNotes = item.specialNotes?.trim() || "";
+        const newNotes = newItem.specialNotes?.trim() || "";
+
+        return existingNotes === newNotes;
+      });
+
+      if (existingItemIndex !== -1) {
+        // Item already exists, increment its quantity
+        const updatedItems = [...prevItems];
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + newItem.quantity,
+        };
+        return updatedItems;
+      } else {
+        // Item doesn't exist, add as new item
+        const cartItem: CartItem = {
+          ...newItem,
+          id: `${newItem.menuItemId}-${Date.now()}-${Math.random()}`,
+          addedAt: new Date(),
+        };
+        return [...prevItems, cartItem];
+      }
+    });
 
     // Set the cart chef if not already set
     if (!cartChef) {

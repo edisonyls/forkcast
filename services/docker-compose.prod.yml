@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,6 +18,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
 
   # Redis Cache
   redis:
@@ -32,135 +33,147 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
 
   # API Gateway
   api-gateway:
     build:
       context: .
-      dockerfile: ./api-gateway/Dockerfile
+      dockerfile: api-gateway/Dockerfile
     container_name: forkcast-api-gateway
     ports:
       - "3000:3000"
     environment:
       - PORT=3000
-      - NODE_ENV=development
-      - MENU_SERVICE_URL=http://menu-service:3002
-      - ORDER_SERVICE_URL=http://order-service:3003
-      - SEARCH_SERVICE_URL=http://search-service:3004
-      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
-      - UPLOAD_SERVICE_URL=http://upload-service:3006
-      - FRONTEND_URL=http://localhost:3000
+      - NODE_ENV=${NODE_ENV}
+      - MENU_SERVICE_URL=${MENU_SERVICE_URL}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
+      - SEARCH_SERVICE_URL=${SEARCH_SERVICE_URL}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - UPLOAD_SERVICE_URL=${UPLOAD_SERVICE_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       - menu-service
       - order-service
       - search-service
       - notification-service
       - upload-service
+    restart: unless-stopped
 
   # Menu Service
   menu-service:
     build:
       context: .
-      dockerfile: ./menu-service/Dockerfile
+      dockerfile: menu-service/Dockerfile
     container_name: forkcast-menu-service
     ports:
       - "3002:3002"
     environment:
       - PORT=3002
-      - NODE_ENV=development
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/forkcast}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
 
   # Order Service
   order-service:
     build:
       context: .
-      dockerfile: ./order-service/Dockerfile
+      dockerfile: order-service/Dockerfile
     container_name: forkcast-order-service
     ports:
       - "3003:3003"
     environment:
       - PORT=3003
-      - NODE_ENV=development
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/forkcast}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
 
   # Search Service
   search-service:
     build:
       context: .
-      dockerfile: ./search-service/Dockerfile
+      dockerfile: search-service/Dockerfile
     container_name: forkcast-search-service
     ports:
       - "3004:3004"
     environment:
       - PORT=3004
-      - NODE_ENV=development
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/forkcast}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
 
   # Notification Service
   notification-service:
     build:
       context: .
-      dockerfile: ./notification-service/Dockerfile
+      dockerfile: notification-service/Dockerfile
     container_name: forkcast-notification-service
     ports:
       - "3005:3005"
     environment:
       - PORT=3005
-      - NODE_ENV=development
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/forkcast}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
-      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USER=${SMTP_USER:-your-email@gmail.com}
-      - SMTP_PASS=${SMTP_PASS:-your-app-password}
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
 
   # Upload Service
   upload-service:
     build:
       context: .
-      dockerfile: ./upload-service/Dockerfile
+      dockerfile: upload-service/Dockerfile
     container_name: forkcast-upload-service
     ports:
       - "3006:3006"
     environment:
       - PORT=3006
-      - NODE_ENV=development
-      - FRONTEND_URL=http://localhost:3000
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - NODE_ENV=${NODE_ENV}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
     volumes:
       - upload_data:/app/uploads
+    restart: unless-stopped
 
 volumes:
   postgres_data:

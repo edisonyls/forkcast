@@ -33,11 +33,11 @@ export default function ChefsPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Our Chefs
+          Our Hosts
         </h1>
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading chefs...</p>
+          <p className="mt-4 text-gray-600">Loading hosts...</p>
         </div>
       </div>
     );
@@ -47,11 +47,11 @@ export default function ChefsPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Our Chefs
+          Our Hosts
         </h1>
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            Unable to Load Chefs
+            Unable to Load Hosts
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
@@ -69,14 +69,14 @@ export default function ChefsPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Our Chefs
+          Our Hosts
         </h1>
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            No Chefs Available
+            No Hosts Available
           </h2>
           <p className="text-gray-600 mb-6">
-            No chefs have been added to the platform yet. Please check back
+            No hosts have been added to the platform yet. Please check back
             later.
           </p>
           <button
@@ -93,7 +93,7 @@ export default function ChefsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-        Our Chefs
+        Our Hosts
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {chefs.map((chef) => (
