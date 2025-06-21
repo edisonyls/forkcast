@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { z } from "zod";
 import {
   prisma,
   sendSuccessResponse,
@@ -152,7 +153,11 @@ router.post("/", validateRequest(categorySchema), async (req, res) => {
 // Update category
 router.put(
   "/:categoryId",
-  validateRequest(categorySchema),
+  validateRequest(
+    z.object({
+      name: z.string().min(1, "Name is required"),
+    })
+  ),
   async (req, res) => {
     try {
       const { categoryId } = req.params;
