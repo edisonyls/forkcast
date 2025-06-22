@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Toast from "@/components/Toast";
 
 export default function ChefSignIn() {
   const router = useRouter();
@@ -12,6 +13,48 @@ export default function ChefSignIn() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "info" | "error";
+  } | null>(null);
+
+  // Check for existing authentication on component mount
+  useEffect(() => {
+    checkExistingAuth();
+  }, []);
+
+  const checkExistingAuth = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chef/profile/me`,
+        {
+          method: "GET",
+          credentials: "include", // Include cookies in the request
+        }
+      );
+
+      if (response.ok) {
+        // User is already authenticated, show toast and redirect
+        setToast({
+          message: "Welcome back! You're already signed in.",
+          type: "success",
+        });
+
+        // Small delay to show the toast before redirecting
+        setTimeout(() => {
+          router.push("/chef/dashboard");
+        }, 1500);
+      } else {
+        // User is not authenticated, show sign-in form
+        setCheckingAuth(false);
+      }
+    } catch (error) {
+      // Error checking auth, show sign-in form
+      console.error("Error checking authentication:", error);
+      setCheckingAuth(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +95,25 @@ export default function ChefSignIn() {
       [e.target.name]: e.target.value,
     });
   };
+
+  // Show loading state while checking authentication
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        </div>
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
