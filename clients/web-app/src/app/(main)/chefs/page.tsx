@@ -36,7 +36,7 @@ export default function ChefsPage() {
           Our Hosts
         </h1>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading hosts...</p>
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function ChefsPage() {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition-colors"
+            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
           >
             Try Again
           </button>
@@ -81,7 +81,7 @@ export default function ChefsPage() {
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition-colors"
+            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
           >
             Refresh
           </button>

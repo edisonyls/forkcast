@@ -330,7 +330,7 @@ export default function EventOrderModal({
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
@@ -342,7 +342,7 @@ export default function EventOrderModal({
                   type="email"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
@@ -353,7 +353,7 @@ export default function EventOrderModal({
                   type="tel"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
@@ -364,7 +364,7 @@ export default function EventOrderModal({
                   value={specialRequests}
                   onChange={(e) => setSpecialRequests(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Any special dietary requirements or requests..."
                 />
               </div>
@@ -424,7 +424,7 @@ export default function EventOrderModal({
                           <button
                             type="button"
                             onClick={() => addItem(item.id)}
-                            className="bg-orange-600 text-white w-8 h-8 rounded-full hover:bg-orange-700"
+                            className="bg-green-600 text-white w-8 h-8 rounded-full hover:bg-green-700"
                           >
                             +
                           </button>
@@ -457,7 +457,7 @@ export default function EventOrderModal({
                                       onChange={() =>
                                         toggleCustomization(item.id, option)
                                       }
-                                      className="mr-2 text-orange-600 focus:ring-orange-500 rounded"
+                                      className="mr-2 text-green-600 focus:ring-green-500 rounded"
                                     />
                                     <span className="text-sm text-gray-700">
                                       {option.name}
@@ -480,7 +480,7 @@ export default function EventOrderModal({
                             onChange={(e) =>
                               updateSpecialNotes(item.id, e.target.value)
                             }
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                             placeholder="Any additional special instructions..."
                           />
                         </div>
@@ -538,7 +538,7 @@ export default function EventOrderModal({
             <button
               type="submit"
               disabled={loading || orderItems.length === 0}
-              className="flex-1 bg-orange-600 text-white py-3 px-4 rounded-md hover:bg-orange-700 disabled:opacity-50"
+              className="flex-1 bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
             >
               {loading
                 ? "Placing Order..."

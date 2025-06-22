@@ -187,19 +187,19 @@ export default function ChefMenu({
           </div>
 
           {/* Information Panel for Finding Orders */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-start space-x-2">
               <div className="flex-shrink-0">
-                <span className="text-blue-600 text-sm">📋</span>
+                <span className="text-green-600 text-sm">📋</span>
               </div>
               <div className="flex-1">
-                <p className="text-xs text-blue-700 mb-2">
+                <p className="text-xs text-green-700 mb-2">
                   <strong>Have placed an order?</strong> Check the Events tab to
                   review and track your orders!
                 </p>
                 <button
                   onClick={() => setShowEventsTab(true)}
-                  className="text-xs px-2 py-1 border border-blue-300 rounded text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+                  className="text-xs px-2 py-1 border border-green-300 rounded text-green-700 bg-white hover:bg-green-50 transition-colors"
                 >
                   🗓️ View Orders
                 </button>
@@ -214,7 +214,7 @@ export default function ChefMenu({
                 onClick={() => setShowEventsTab(false)}
                 className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
                   !showEventsTab
-                    ? "bg-orange-50 text-orange-700 border-b-2 border-orange-500"
+                    ? "bg-green-50 text-green-700 border-b-2 border-green-500"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -224,13 +224,13 @@ export default function ChefMenu({
                 onClick={() => setShowEventsTab(true)}
                 className={`flex-1 py-3 px-4 text-sm font-medium transition-colors relative ${
                   showEventsTab
-                    ? "bg-blue-50 text-blue-700 border-b-2 border-blue-500"
+                    ? "bg-green-50 text-green-700 border-b-2 border-green-500"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Events
                 {availableEvents.length > 0 && (
-                  <span className="ml-1 bg-blue-100 text-blue-800 text-xs px-1.5 py-0.5 rounded-full">
+                  <span className="ml-1 bg-green-100 text-green-800 text-xs px-1.5 py-0.5 rounded-full">
                     {availableEvents.length}
                   </span>
                 )}
@@ -249,7 +249,7 @@ export default function ChefMenu({
                           onClick={() => setSelectedCategory(category.id)}
                           className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
                             selectedCategory === category.id
-                              ? "bg-orange-100 text-orange-700"
+                              ? "bg-green-100 text-green-700"
                               : "hover:bg-gray-100"
                           }`}
                         >
@@ -262,7 +262,7 @@ export default function ChefMenu({
               ) : (
                 // Events Tab
                 <>
-                  <h3 className="font-bold mb-4 text-blue-700">
+                  <h3 className="font-bold mb-4 text-green-700">
                     🗓️ Available Events
                   </h3>
 
@@ -281,13 +281,13 @@ export default function ChefMenu({
                         <div
                           key={event.id}
                           onClick={() => setSelectedEventId(event.id)}
-                          className={`border rounded-lg p-3 hover:bg-blue-100 transition-colors cursor-pointer ${
+                          className={`border rounded-lg p-3 hover:bg-green-100 transition-colors cursor-pointer ${
                             selectedEventId === event.id
-                              ? "bg-blue-100 border-blue-300"
-                              : "bg-blue-50 border-blue-200"
+                              ? "bg-green-100 border-green-300"
+                              : "bg-green-50 border-green-200"
                           }`}
                         >
-                          <h4 className="font-medium text-sm text-blue-900 mb-2">
+                          <h4 className="font-medium text-sm text-green-900 mb-2">
                             {event.title}
                           </h4>
                           <div className="flex justify-between items-center">
@@ -302,7 +302,7 @@ export default function ChefMenu({
                             >
                               {event.status || "OPEN"}
                             </span>
-                            <span className="text-xs text-blue-600">
+                            <span className="text-xs text-green-600">
                               {event.eventOrders?.length || 0} orders
                             </span>
                           </div>
@@ -349,7 +349,7 @@ export default function ChefMenu({
                       <h3 className="text-lg font-bold flex-1 mr-2 line-clamp-2 leading-tight">
                         {item.name}
                       </h3>
-                      <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm flex-shrink-0">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm flex-shrink-0">
                         {item.preparationTime} mins
                       </span>
                     </div>
@@ -367,7 +367,7 @@ export default function ChefMenu({
                         setSelectedItem(item);
                         setIsModalOpen(true);
                       }}
-                      className="w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 transition-colors"
+                      className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition-colors"
                     >
                       Add to Order
                     </button>
@@ -397,7 +397,7 @@ export default function ChefMenu({
 
                 return (
                   <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="border-l-4 border-blue-500 pl-4 mb-6">
+                    <div className="border-l-4 border-green-500 pl-4 mb-6">
                       <h2 className="text-2xl font-bold text-gray-900">
                         {selectedEvent.title}
                       </h2>
@@ -477,7 +477,7 @@ export default function ChefMenu({
                                       <span className="text-gray-700 font-medium text-sm">
                                         {item.menuItem.name}
                                       </span>
-                                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
                                         {item.quantity}x
                                       </span>
                                     </div>

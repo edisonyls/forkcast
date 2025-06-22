@@ -274,7 +274,7 @@ export default function ChefPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading chef information...</p>
         </div>
       </div>
@@ -293,7 +293,7 @@ export default function ChefPage() {
           </p>
           <button
             onClick={() => router.push("/chefs")}
-            className="bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700 transition-colors"
+            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
           >
             Back to Hosts
           </button>
@@ -313,7 +313,7 @@ export default function ChefPage() {
                 {chef.name}
               </h1>
               <p className="text-gray-600 mb-4">{chef.bio}</p>
-              <p className="text-orange-600 font-medium">
+              <p className="text-green-600 font-medium">
                 🔒 This chef requires a secret to access their menu.
               </p>
             </div>

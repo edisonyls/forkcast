@@ -246,7 +246,7 @@ export default function CartPage() {
             </p>
             <Link
               href={getContinueShoppingLink()}
-              className="bg-orange-600 text-white px-6 py-3 rounded-md hover:bg-orange-700 transition-colors inline-flex items-center gap-2"
+              className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-2"
             >
               <svg
                 className="w-5 h-5"
@@ -316,7 +316,7 @@ export default function CartPage() {
               {cartChef && (
                 <>
                   <span className="hidden sm:inline text-gray-400">•</span>
-                  <p className="text-orange-600 font-medium">
+                  <p className="text-green-600 font-medium">
                     from {cartChef.name}
                   </p>
                 </>
@@ -366,7 +366,7 @@ export default function CartPage() {
                       <h3 className="text-lg font-bold text-gray-800">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-orange-600 font-medium">
+                      <p className="text-sm text-green-600 font-medium">
                         by {item.chefName}
                       </p>
                     </div>
@@ -504,7 +504,7 @@ export default function CartPage() {
                           value={event.id}
                           checked={selectedEvent === event.id}
                           onChange={(e) => setSelectedEvent(e.target.value)}
-                          className="text-orange-600 focus:ring-orange-500"
+                          className="text-green-600 focus:ring-green-500"
                         />
                         <div className="ml-3">
                           <div className="font-medium text-gray-800">
@@ -539,7 +539,7 @@ export default function CartPage() {
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
           <Link
             href={getContinueShoppingLink()}
-            className="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-2"
+            className="text-green-600 hover:text-green-700 font-medium flex items-center gap-2"
           >
             <svg
               className="w-5 h-5"
@@ -573,7 +573,7 @@ export default function CartPage() {
                 setShowOrderModal(true);
               }}
               disabled={events.length === 0 || !selectedEvent}
-              className="bg-orange-600 text-white px-8 py-3 rounded-md hover:bg-orange-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {events.length === 0 ? (
                 <>No Events Available</>

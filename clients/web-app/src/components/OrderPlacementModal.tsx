@@ -80,11 +80,11 @@ export default function OrderPlacementModal({
         </div>
 
         {selectedEventInfo && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <p className="text-sm text-blue-700">
+          <div className="mb-4 p-3 bg-green-50 rounded-md">
+            <p className="text-sm text-green-700">
               <strong>Event:</strong> {selectedEventInfo.title}
             </p>
-            <p className="text-sm text-blue-600">
+            <p className="text-sm text-green-600">
               📅{" "}
               {new Date(selectedEventInfo.eventDate).toLocaleDateString(
                 "en-US",
@@ -98,8 +98,8 @@ export default function OrderPlacementModal({
           </div>
         )}
 
-        <div className="mb-4 p-3 bg-orange-50 rounded-md">
-          <p className="text-sm text-orange-700">
+        <div className="mb-4 p-3 bg-green-50 rounded-md">
+          <p className="text-sm text-green-700">
             <strong>Order Summary:</strong> {totalItems}{" "}
             {totalItems === 1 ? "item" : "items"}
           </p>
@@ -114,7 +114,7 @@ export default function OrderPlacementModal({
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="Enter your full name"
               required
             />
@@ -137,7 +137,7 @@ export default function OrderPlacementModal({
             <button
               type="submit"
               disabled={isSubmitting || !customerName.trim()}
-              className="flex-1 bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               {isSubmitting ? "Placing Order..." : "Place Order"}
             </button>
