@@ -13,23 +13,68 @@ import {
 
 const router = express.Router();
 
-// Get all chefs (public endpoint)
+// Get all chefs (public endpoint with search functionality)
 router.get("/", async (req, res) => {
   try {
-    const chefs = await prisma.chef.findMany({
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        bio: true,
-        rating: true,
-        ratingCount: true,
-        image: true,
-        createdAt: true,
-      },
-    });
+    const { search, page = "1", limit = "20" } = req.query;
 
-    return sendSuccessResponse(res, { chefs }, "Chefs retrieved successfully");
+    // Build where clause for filtering
+    const where: any = {};
+
+    // Add search filter - search across name, bio, and username
+    if (search && typeof search === "string" && search.trim()) {
+      where.OR = [
+        { name: { contains: search.trim(), mode: "insensitive" } },
+        { bio: { contains: search.trim(), mode: "insensitive" } },
+        { username: { contains: search.trim(), mode: "insensitive" } },
+      ];
+    }
+
+    // Parse pagination parameters
+    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 20));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Get chefs with search and pagination
+    const [chefs, total] = await Promise.all([
+      prisma.chef.findMany({
+        where,
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          bio: true,
+          rating: true,
+          ratingCount: true,
+          image: true,
+          createdAt: true,
+        },
+        skip,
+        take: limitNum,
+        orderBy: [
+          { rating: "desc" },
+          { ratingCount: "desc" },
+          { createdAt: "desc" },
+        ],
+      }),
+      prisma.chef.count({ where }),
+    ]);
+
+    // Calculate pagination info
+    const totalPages = Math.ceil(total / limitNum);
+    const pagination = {
+      currentPage: pageNum,
+      totalPages,
+      totalCount: total,
+      hasNext: pageNum < totalPages,
+      hasPrev: pageNum > 1,
+    };
+
+    return sendSuccessResponse(
+      res,
+      { chefs, pagination },
+      "Chefs retrieved successfully"
+    );
   } catch (error) {
     console.error("Get chefs error:", error);
     return sendErrorResponse(res, "Failed to retrieve chefs", 500);

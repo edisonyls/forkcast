@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ChefCard from "@/components/ChefCard";
 import { apiService, type Chef } from "@/lib/api";
 
@@ -8,26 +8,33 @@ export default function ChefsPage() {
   const [chefs, setChefs] = useState<Chef[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => {
-    const loadChefs = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const { chefs } = await apiService.getChefs();
-        setChefs(chefs || []);
-      } catch (err) {
-        console.error("Failed to fetch chefs:", err);
-        setError(
-          "Failed to load chefs. Please check your connection and try again."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadChefs();
+  const loadChefs = useCallback(async (searchQuery?: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await apiService.getChefs({
+        search: searchQuery || undefined,
+        limit: 50,
+      });
+      setChefs(result.chefs || []);
+      setTotalCount(result.pagination?.totalCount || 0);
+    } catch (err) {
+      console.error("Failed to fetch chefs:", err);
+      setError(
+        "Failed to load chefs. Please check your connection and try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Load all chefs on initial page load
+  useEffect(() => {
+    loadChefs();
+  }, [loadChefs]);
 
   if (loading) {
     return (
@@ -90,16 +97,115 @@ export default function ChefsPage() {
     );
   }
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    loadChefs(searchTerm.trim() || undefined);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    loadChefs();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
         Our Hosts
       </h1>
+
+      {/* Search and Filters */}
+      <div className="mb-8 space-y-4">
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="max-w-md mx-auto">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search by name, username, or bio..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        {/* Results Summary */}
+        <div className="text-center text-sm text-gray-600">
+          {loading ? (
+            "Searching..."
+          ) : (
+            <>
+              {totalCount === 0 && searchTerm
+                ? `No hosts found for "${searchTerm}"`
+                : `Showing ${chefs.length} of ${totalCount} host${
+                    totalCount !== 1 ? "s" : ""
+                  }`}
+              {searchTerm && (
+                <button
+                  onClick={handleClearSearch}
+                  className="ml-2 text-green-600 hover:text-green-700 underline"
+                >
+                  Clear search
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Results */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {chefs.map((chef) => (
           <ChefCard key={chef.id} chef={chef} />
         ))}
       </div>
+
+      {/* No Results Message */}
+      {!loading && chefs.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-gray-400 mb-4">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-600 mb-2">
+            {searchTerm ? "No hosts found" : "No hosts available"}
+          </h3>
+          <p className="text-gray-500">
+            {searchTerm
+              ? `Try adjusting your search terms`
+              : "No hosts have been added to the platform yet"}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
