@@ -233,7 +233,14 @@ export default function EventsManagement() {
   };
 
   const isEventPast = (eventDate: string) => {
-    return new Date(eventDate) < new Date();
+    const today = new Date();
+    const event = new Date(eventDate);
+
+    // Set both dates to start of day for fair comparison
+    today.setHours(0, 0, 0, 0);
+    event.setHours(0, 0, 0, 0);
+
+    return event < today;
   };
 
   if (loading) {
@@ -367,9 +374,15 @@ export default function EventsManagement() {
           <>
             {/* Upcoming Events Section */}
             {(() => {
-              const now = new Date();
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+
               const upcomingEvents = events
-                .filter((event) => new Date(event.eventDate) >= now)
+                .filter((event) => {
+                  const eventDate = new Date(event.eventDate);
+                  eventDate.setHours(0, 0, 0, 0);
+                  return eventDate >= today;
+                })
                 .sort(
                   (a, b) =>
                     new Date(a.eventDate).getTime() -
@@ -648,9 +661,15 @@ export default function EventsManagement() {
 
             {/* Past Events Section */}
             {(() => {
-              const now = new Date();
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+
               const pastEvents = events
-                .filter((event) => new Date(event.eventDate) < now)
+                .filter((event) => {
+                  const eventDate = new Date(event.eventDate);
+                  eventDate.setHours(0, 0, 0, 0);
+                  return eventDate < today;
+                })
                 .sort(
                   (a, b) =>
                     new Date(b.eventDate).getTime() -

@@ -89,9 +89,14 @@ export const eventSchema = z.object({
   description: z.string().optional(),
   eventDate: z.string().refine((date) => {
     const eventDate = new Date(date);
-    const now = new Date();
-    return eventDate > now;
-  }, "Event date must be in the future"),
+    const today = new Date();
+
+    // Set both dates to start of day for fair comparison
+    eventDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return eventDate >= today;
+  }, "Event date cannot be in the past"),
   maxOrders: z.number().int().positive().optional(),
 });
 
@@ -102,9 +107,14 @@ export const eventUpdateSchema = z.object({
     .string()
     .refine((date) => {
       const eventDate = new Date(date);
-      const now = new Date();
-      return eventDate > now;
-    }, "Event date must be in the future")
+      const today = new Date();
+
+      // Set both dates to start of day for fair comparison
+      eventDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      return eventDate >= today;
+    }, "Event date cannot be in the past")
     .optional(),
   maxOrders: z.number().int().positive().optional(),
   status: z.enum(["OPEN", "CLOSED", "CANCELLED"]).optional(),
