@@ -405,16 +405,6 @@ export default function ChefPage() {
         </button>
       </div>
 
-      {/* Chef Info Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{chef.name}</h1>
-        <p className="text-gray-600">{chef.bio}</p>
-        <div className="flex justify-center items-center mt-2">
-          <span className="text-yellow-500">★</span>
-          <span className="ml-1">{chef.rating}</span>
-        </div>
-      </div>
-
       {/* Menu */}
       <div className="flex flex-col md:flex-row gap-8">
         <ChefMenu
@@ -423,6 +413,7 @@ export default function ChefPage() {
             name: chef.name,
             image: chef.image || "/user.png",
             rating: chef.rating,
+            bio: chef.bio,
           }}
           categories={availableCategories.map((cat) => ({
             id: cat.id,
