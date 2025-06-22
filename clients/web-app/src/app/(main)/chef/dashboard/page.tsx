@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Toast from "@/components/Toast";
+import OnboardingChecklist from "@/components/OnboardingChecklist";
 
 interface Chef {
   id: string;
@@ -318,6 +319,9 @@ export default function ChefDashboard() {
             </div>
           </Link>
         </div>
+
+        {/* Onboarding Checklist */}
+        <OnboardingChecklist chef={{ id: chef.id, secret: chef.secret }} />
       </div>
     </div>
   );
