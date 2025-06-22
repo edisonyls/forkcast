@@ -72,18 +72,11 @@ class ApiService {
   }
 
   // Chef API methods
-  async getChefs(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    minRating?: number;
-  }) {
+  async getChefs(params?: { page?: number; limit?: number; search?: string }) {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append("page", params.page.toString());
     if (params?.limit) queryParams.append("limit", params.limit.toString());
     if (params?.search) queryParams.append("search", params.search);
-    if (params?.minRating)
-      queryParams.append("minRating", params.minRating.toString());
 
     const query = queryParams.toString();
     return this.fetchApi<{
