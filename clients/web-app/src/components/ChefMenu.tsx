@@ -10,6 +10,7 @@ interface Chef {
   name: string;
   image?: string;
   rating: number;
+  bio?: string;
 }
 
 interface Category {
@@ -144,7 +145,7 @@ export default function ChefMenu({
       <div className="w-full md:w-1/4">
         <div className="sticky top-4 space-y-4">
           {/* Chef Info */}
-          <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="bg-white rounded-lg shadow-md p-3">
             <Image
               src={
                 chef.image &&
@@ -157,15 +158,41 @@ export default function ChefMenu({
                   : chef.image || "/user.png"
               }
               alt={chef.name}
-              width={200}
-              height={200}
-              className="rounded-full mx-auto mb-4"
+              width={80}
+              height={80}
+              className="rounded-full mx-auto mb-2"
               priority
             />
-            <h2 className="text-xl font-bold text-center">{chef.name}</h2>
+            <h2 className="text-sm font-bold text-center">{chef.name}</h2>
+            {chef.bio && (
+              <p className="text-xs text-gray-600 text-center mt-1 mb-2 line-clamp-2">
+                {chef.bio}
+              </p>
+            )}
             <div className="flex justify-center items-center">
-              <span className="text-yellow-500">★</span>
-              <span className="ml-1">{chef.rating}</span>
+              <span className="text-yellow-500 text-sm">★</span>
+              <span className="ml-1 text-sm">{chef.rating}</span>
+            </div>
+          </div>
+
+          {/* Information Panel for Finding Orders */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-start space-x-2">
+              <div className="flex-shrink-0">
+                <span className="text-blue-600 text-sm">📋</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-blue-700 mb-2">
+                  <strong>Have placed an order?</strong> Check the Events tab to
+                  review and track your orders!
+                </p>
+                <button
+                  onClick={() => setShowEventsTab(true)}
+                  className="text-xs px-2 py-1 border border-blue-300 rounded text-blue-700 bg-white hover:bg-blue-50 transition-colors"
+                >
+                  🗓️ View Orders
+                </button>
+              </div>
             </div>
           </div>
 
