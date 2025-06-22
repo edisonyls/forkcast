@@ -168,7 +168,14 @@ export default function EventDetailsPage() {
   };
 
   const isEventPast = (eventDate: string) => {
-    return new Date(eventDate) < new Date();
+    const today = new Date();
+    const event = new Date(eventDate);
+
+    // Set both dates to start of day for fair comparison
+    today.setHours(0, 0, 0, 0);
+    event.setHours(0, 0, 0, 0);
+
+    return event < today;
   };
 
   const calculateOrderTotal = (orderItems: EventOrderItem[]) => {

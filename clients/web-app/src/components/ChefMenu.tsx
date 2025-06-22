@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import CustomizationModal from "./CustomisationModal";
 import ImageCarousel from "./ImageCarousel";
@@ -85,16 +85,27 @@ export default function ChefMenu({
     : [];
 
   // Get upcoming events with orders
-  const upcomingEventsWithOrders = events.filter(
-    (event) =>
-      new Date(event.eventDate) > new Date() && event.eventOrders.length > 0
-  );
+  const upcomingEventsWithOrders = events.filter((event) => {
+    const today = new Date();
+    const eventDate = new Date(event.eventDate);
+
+    // Set both dates to start of day for fair comparison
+    today.setHours(0, 0, 0, 0);
+    eventDate.setHours(0, 0, 0, 0);
+
+    return eventDate >= today && event.eventOrders.length > 0;
+  });
 
   // Filter events to only show upcoming/open events
   const availableEvents = events.filter((event) => {
+    const today = new Date();
     const eventDate = new Date(event.eventDate);
-    const now = new Date();
-    return eventDate >= now && event.status !== "CANCELLED";
+
+    // Set both dates to start of day for fair comparison
+    today.setHours(0, 0, 0, 0);
+    eventDate.setHours(0, 0, 0, 0);
+
+    return eventDate >= today && event.status !== "CANCELLED";
   });
 
   // Aggregate orders by menu item across all events
@@ -140,7 +151,7 @@ export default function ChefMenu({
   }
 
   return (
-    <>
+    <React.Fragment>
       {/* Left Side - Categories and Event Orders */}
       <div className="w-full md:w-1/4">
         <div className="sticky top-4 space-y-4">
@@ -503,6 +514,6 @@ export default function ChefMenu({
           }}
         />
       )}
-    </>
+    </React.Fragment>
   );
 }
