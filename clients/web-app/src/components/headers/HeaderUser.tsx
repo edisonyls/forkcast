@@ -62,7 +62,7 @@ export default function HeaderUser() {
             {!isChefDashboard && !isHostPage && (
               <Link
                 href="/cart"
-                className="relative flex items-center text-gray-600 hover:text-orange-600 transition-colors"
+                className="relative flex items-center text-gray-600 hover:text-green-600 transition-colors"
               >
                 <svg
                   className="w-6 h-6"
@@ -78,7 +78,7 @@ export default function HeaderUser() {
                   />
                 </svg>
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}
@@ -133,7 +133,7 @@ export default function HeaderUser() {
             {!isChefDashboard && !isHostPage && (
               <Link
                 href="/cart"
-                className="relative flex items-center text-gray-600 hover:text-orange-600 transition-colors p-2"
+                className="relative flex items-center text-gray-600 hover:text-green-600 transition-colors p-2"
               >
                 <svg
                   className="w-6 h-6"
@@ -149,7 +149,7 @@ export default function HeaderUser() {
                   />
                 </svg>
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}

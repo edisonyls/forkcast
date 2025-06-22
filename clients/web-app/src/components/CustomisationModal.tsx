@@ -141,8 +141,8 @@ export default function CustomizationModal({
 
         {/* Chef info */}
         {item.chefName && (
-          <div className="mb-4 p-3 bg-orange-50 rounded-md">
-            <p className="text-sm text-orange-700">
+          <div className="mb-4 p-3 bg-green-50 rounded-md">
+            <p className="text-sm text-green-700">
               By <span className="font-semibold">{item.chefName}</span>
             </p>
           </div>
@@ -159,7 +159,7 @@ export default function CustomizationModal({
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    className="mr-2 text-orange-600 focus:ring-orange-500"
+                    className="mr-2 text-green-600 focus:ring-green-500"
                     checked={selectedOptions.some(
                       (opt) => opt.id === option.id
                     )}
@@ -183,7 +183,7 @@ export default function CustomizationModal({
             value={customOptions}
             onChange={(e) => setCustomOptions(e.target.value)}
             placeholder="e.g., extra spicy, no onions, gluten-free bread"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
             rows={3}
           />
         </div>
@@ -212,7 +212,7 @@ export default function CustomizationModal({
         <button
           onClick={handleAddToCart}
           disabled={isAdding}
-          className="w-full bg-orange-600 text-white py-3 rounded-md hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          className="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
         >
           {isAdding ? "Adding to Cart..." : "Add to Cart"}
         </button>

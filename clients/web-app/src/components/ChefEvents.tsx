@@ -216,7 +216,7 @@ export default function ChefEvents({
                             setSelectedEvent(event);
                             setIsModalOpen(true);
                           }}
-                          className="w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors"
+                          className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
                         >
                           Place Order for This Event
                         </button>

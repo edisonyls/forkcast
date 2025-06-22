@@ -8,14 +8,14 @@ export default function GuestHomePage() {
       description:
         "Browse talented local hosts and their unique cooking styles. From home cooks to professional chefs.",
       icon: "👨‍🍳",
-      color: "bg-orange-50",
+      color: "bg-green-50",
     },
     {
       title: "Pre-Select Your Favorites",
       description:
         "Choose exactly what you want to eat before arriving. No more disappointment with unexpected dishes.",
       icon: "🍽️",
-      color: "bg-green-50",
+      color: "bg-orange-50",
     },
     {
       title: "No Account Required",

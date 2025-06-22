@@ -34,7 +34,7 @@ export default function ConfirmationModal({
         <div className="flex items-center mb-4">
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${
-              isDestructive ? "bg-red-100" : "bg-orange-100"
+              isDestructive ? "bg-red-100" : "bg-green-100"
             }`}
           >
             {isDestructive ? (
@@ -53,7 +53,7 @@ export default function ConfirmationModal({
               </svg>
             ) : (
               <svg
-                className="w-6 h-6 text-orange-600"
+                className="w-6 h-6 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -84,7 +84,7 @@ export default function ConfirmationModal({
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
               isDestructive
                 ? "bg-red-600 text-white hover:bg-red-700"
-                : "bg-orange-600 text-white hover:bg-orange-700"
+                : "bg-green-600 text-white hover:bg-green-700"
             }`}
           >
             {confirmText}
