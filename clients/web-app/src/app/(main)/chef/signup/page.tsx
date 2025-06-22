@@ -22,8 +22,8 @@ export default function ChefSignUp() {
   const [loading, setLoading] = useState(false);
 
   const validatePassword = (password: string): string | null => {
-    if (password.length < 8 || password.length > 16) {
-      return "Password must be between 8-16 characters";
+    if (password.length < 8 || password.length > 32) {
+      return "Password must be between 8-32 characters";
     }
 
     const hasLetter = /[a-zA-Z]/.test(password);
@@ -368,13 +368,13 @@ export default function ChefSignUp() {
                 className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                   errors.password ? "border-red-500" : "border-gray-300"
                 } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
-                placeholder="8-16 characters with letters and numbers"
+                placeholder="8-32 characters with letters and numbers"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
               )}
               <p className="mt-1 text-xs text-gray-500">
-                Password must be 8-16 characters and contain both letters and
+                Password must be 8-32 characters and contain both letters and
                 numbers
               </p>
             </div>

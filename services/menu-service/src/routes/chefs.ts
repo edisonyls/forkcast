@@ -228,10 +228,10 @@ router.post("/signup", async (req, res) => {
     }
 
     // Password validation
-    if (password.length < 8 || password.length > 16) {
+    if (password.length < 8 || password.length > 32) {
       return sendErrorResponse(
         res,
-        "Password must be between 8-16 characters",
+        "Password must be between 8-32 characters",
         400
       );
     }
