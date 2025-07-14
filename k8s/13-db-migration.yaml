@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration
+  namespace: forkcast
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: db-migration
+        image: forkcast/menu-service:latest  # Using menu service image as it has Prisma
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            cd /app/shared
+            echo "Waiting for database to be ready..."
+            until pg_isready -h postgres -p 5432 -U postgres; do
+              echo "Waiting for database..."
+              sleep 2
+            done
+            echo "Database is ready, running migrations..."
+            npx prisma migrate deploy
+            echo "Seeding database..."
+            npx prisma db seed || echo "Seeding failed or already seeded"
+            echo "Database setup complete!"
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: forkcast-secrets
+              key: POSTGRES_PASSWORD
+        - name: DATABASE_URL
+          value: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/forkcast"
+---
+# Alternative: Use an init container approach for migrations
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-seed
+  namespace: forkcast
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: db-seed
+        image: forkcast/menu-service:latest
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            cd /app/shared
+            echo "Running database seed..."
+            npx prisma db seed || echo "Seeding completed or already done"
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: forkcast-secrets
+              key: POSTGRES_PASSWORD
+        - name: DATABASE_URL
+          value: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/forkcast"

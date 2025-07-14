@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: forkcast-ingress
+  namespace: forkcast
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.forkcast.local  # Change this to your domain or use the master node IP
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 3000
+---
+# NodePort service for API Gateway - accessible from frontend VM
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-nodeport
+  namespace: forkcast
+spec:
+  type: NodePort
+  selector:
+    app: api-gateway
+  ports:
+  - port: 3000
+    targetPort: 3000
+    nodePort: 30001  # Frontend VM can access API at http://<master-node-ip>:30001
