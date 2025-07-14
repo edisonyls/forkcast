@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 // Replace SERVICES_VM_IP with the actual IP address of your Services VM
-const SERVICES_VM_IP = process.env.SERVICES_VM_IP || "192.168.1.105"; // Set your actual Services VM IP as fallback
+const SERVICES_VM_IP = process.env.SERVICES_VM_IP || "192.168.1.105";
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || `http://${SERVICES_VM_IP}:3000`;
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -42,16 +44,29 @@ const nextConfig: NextConfig = {
         port: "3006",
         pathname: "/uploads/**",
       },
+      {
+        protocol: "http",
+        hostname: "api-gateway",
+        port: "3000",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "upload-service",
+        port: "3006",
+        pathname: "/uploads/**",
+      },
     ],
   },
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: `http://${SERVICES_VM_IP}:3000/api/:path*`,
+        destination: `${API_GATEWAY_URL}/api/:path*`,
       },
     ];
   },
+};
 };
 
 export default nextConfig;
