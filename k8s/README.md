@@ -37,10 +37,12 @@ sudo chmod 755 /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
 ### 2. Update Configuration
 
 1. **Update node hostnames** in `02-persistent-volumes.yaml`:
+
    - Replace `worker-node` with your actual worker node hostname
    - Get hostname with: `kubectl get nodes`
 
 2. **Update secrets** in `01-configmap-secrets.yaml`:
+
    ```bash
    # Generate base64 encoded secrets
    echo -n "your-strong-postgres-password" | base64
@@ -53,21 +55,24 @@ sudo chmod 755 /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
 ### 3. Build and Push Docker Images
 
 1. **Update registry configuration** in `build-images.sh`:
+
    ```bash
    REGISTRY="your-dockerhub-username"  # or your private registry
    ```
 
 2. **Build images**:
+
    ```bash
    chmod +x k8s/build-images.sh
    ./k8s/build-images.sh
    ```
 
 3. **Push images to your registry**:
+
    ```bash
    # Login to your registry
    docker login
-   
+
    # Push images (uncomment the push commands in build-images.sh or run manually)
    docker push your-registry/forkcast/api-gateway:latest
    docker push your-registry/forkcast/menu-service:latest
@@ -88,12 +93,14 @@ sudo chmod 755 /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
 ### 4. Deploy Application
 
 First, validate your configuration:
+
 ```bash
 chmod +x k8s/validate.sh
 ./k8s/validate.sh
 ```
 
 Then deploy:
+
 ```bash
 chmod +x k8s/deploy.sh
 ./k8s/deploy.sh
@@ -121,31 +128,33 @@ kubectl get nodes -o wide
 
 ## Configuration Files
 
-| File | Description |
-|------|-------------|
-| `00-namespace.yaml` | Creates the forkcast namespace |
-| `01-configmap-secrets.yaml` | Configuration and secrets |
-| `02-persistent-volumes.yaml` | Storage for database, cache, and uploads |
-| `03-postgres.yaml` | PostgreSQL database |
-| `04-redis.yaml` | Redis cache |
-| `05-menu-service.yaml` | Menu microservice |
-| `06-order-service.yaml` | Order microservice |
-| `07-search-service.yaml` | Search microservice |
-| `08-notification-service.yaml` | Notification microservice |
-| `09-upload-service.yaml` | Upload microservice |
-| `10-api-gateway.yaml` | API Gateway |
-| `11-frontend.yaml` | Next.js frontend |
-| `12-ingress.yaml` | Ingress and NodePort services |
-| `13-db-migration.yaml` | Database migration job |
+| File                           | Description                              |
+| ------------------------------ | ---------------------------------------- |
+| `00-namespace.yaml`            | Creates the forkcast namespace           |
+| `01-configmap-secrets.yaml`    | Configuration and secrets                |
+| `02-persistent-volumes.yaml`   | Storage for database, cache, and uploads |
+| `03-postgres.yaml`             | PostgreSQL database                      |
+| `04-redis.yaml`                | Redis cache                              |
+| `05-menu-service.yaml`         | Menu microservice                        |
+| `06-order-service.yaml`        | Order microservice                       |
+| `07-search-service.yaml`       | Search microservice                      |
+| `08-notification-service.yaml` | Notification microservice                |
+| `09-upload-service.yaml`       | Upload microservice                      |
+| `10-api-gateway.yaml`          | API Gateway                              |
+| `11-frontend.yaml`             | Next.js frontend                         |
+| `12-ingress.yaml`              | Ingress and NodePort services            |
+| `13-db-migration.yaml`         | Database migration job                   |
 
 ## Monitoring and Troubleshooting
 
 ### Check Deployment Status
+
 ```bash
 kubectl get all -n forkcast
 ```
 
 ### View Logs
+
 ```bash
 # Frontend logs
 kubectl logs -f deployment/frontend -n forkcast
@@ -161,6 +170,7 @@ kubectl logs -f --all-containers -n forkcast
 ```
 
 ### Check Service Health
+
 ```bash
 # Get service endpoints
 kubectl get endpoints -n forkcast
@@ -173,6 +183,7 @@ kubectl describe pod <pod-name> -n forkcast
 ```
 
 ### Database Access
+
 ```bash
 # Connect to PostgreSQL
 kubectl exec -it deployment/postgres -n forkcast -- psql -U postgres -d forkcast
@@ -182,6 +193,7 @@ kubectl exec -it deployment/postgres -n forkcast -- psql -U postgres -d forkcast
 ```
 
 ### Redis Access
+
 ```bash
 # Connect to Redis
 kubectl exec -it deployment/redis -n forkcast -- redis-cli
@@ -193,6 +205,7 @@ kubectl exec -it deployment/redis -n forkcast -- redis-cli keys "*"
 ## Scaling
 
 Scale individual services:
+
 ```bash
 # Scale frontend
 kubectl scale deployment frontend --replicas=3 -n forkcast
@@ -207,12 +220,14 @@ kubectl scale deployment menu-service --replicas=3 -n forkcast
 ## Cleanup
 
 To remove the entire application:
+
 ```bash
 chmod +x k8s/cleanup.sh
 ./k8s/cleanup.sh
 ```
 
 **Note**: This preserves persistent data. To completely remove data:
+
 ```bash
 # On worker nodes
 sudo rm -rf /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
@@ -221,23 +236,27 @@ sudo rm -rf /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
 ## Production Considerations
 
 ### Security
+
 1. **Change default passwords** in secrets
 2. **Use proper TLS certificates** for production domains
 3. **Implement network policies** to restrict pod-to-pod communication
 4. **Use secret management tools** like Kubernetes secrets or external secret managers
 
 ### Performance
+
 1. **Resource limits**: Adjust CPU/memory limits based on your node capacity
 2. **Horizontal Pod Autoscaling**: Implement HPA for automatic scaling
 3. **Database optimization**: Consider PostgreSQL configuration tuning
 4. **CDN**: Use a CDN for static assets in production
 
 ### Storage
+
 1. **Backup strategy**: Implement regular database and file backups
 2. **Storage classes**: Use appropriate storage classes for your environment
 3. **Data persistence**: Ensure PersistentVolumes have proper backup and recovery
 
 ### Monitoring
+
 1. **Implement monitoring** with Prometheus/Grafana
 2. **Set up alerting** for critical services
 3. **Log aggregation** with ELK stack or similar
@@ -245,21 +264,25 @@ sudo rm -rf /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
 ## Troubleshooting Common Issues
 
 ### Pods Stuck in Pending
+
 - Check node resources: `kubectl describe nodes`
 - Check PVC status: `kubectl get pvc -n forkcast`
 - Verify storage directories exist on worker nodes
 
 ### Database Connection Issues
+
 - Verify PostgreSQL is running: `kubectl get pods -n forkcast | grep postgres`
 - Check database logs: `kubectl logs deployment/postgres -n forkcast`
 - Verify connection string in services
 
 ### Image Pull Errors
+
 - Ensure images are pushed to your registry
 - Check image names in YAML files match your registry
 - Verify registry credentials if using private registry
 
 ### Service Not Accessible
+
 - Check service status: `kubectl get svc -n forkcast`
 - Verify NodePort services: `kubectl get svc -n forkcast | grep NodePort`
 - Check firewall rules on master/worker nodes

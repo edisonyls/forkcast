@@ -12,16 +12,16 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: api.forkcast.local  # Change this to your domain or use the master node IP
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: api-gateway
-            port:
-              number: 3000
+    - host: api.forkcast.local # Change this to your domain or use the master node IP
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 3000
 ---
 # NodePort service for API Gateway - accessible from frontend VM
 apiVersion: v1
@@ -34,6 +34,6 @@ spec:
   selector:
     app: api-gateway
   ports:
-  - port: 3000
-    targetPort: 3000
-    nodePort: 30001  # Frontend VM can access API at http://<master-node-ip>:30001
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30001 # Frontend VM can access API at http://<master-node-ip>:30001

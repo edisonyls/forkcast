@@ -15,11 +15,11 @@ spec:
   nodeAffinity:
     required:
       nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - worker-node  # Replace with your actual worker node hostname
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - worker-node # Replace with your actual worker node hostname
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -51,11 +51,11 @@ spec:
   nodeAffinity:
     required:
       nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - worker-node  # Replace with your actual worker node hostname
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - worker-node # Replace with your actual worker node hostname
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -87,11 +87,11 @@ spec:
   nodeAffinity:
     required:
       nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - worker-node  # Replace with your actual worker node hostname
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - worker-node # Replace with your actual worker node hostname
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
