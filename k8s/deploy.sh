@@ -61,6 +61,8 @@ echo "Setting up ingress and external access..."
 kubectl apply -f 12-ingress.yaml
 
 echo ""
+echo "⚠️  Skipping frontend deployment (11-frontend.yaml) - frontend runs in separate VM"
+echo ""
 echo "Deployment complete! 🎉"
 echo ""
 echo "To check the status of your deployment:"

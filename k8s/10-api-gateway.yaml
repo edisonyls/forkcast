@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: forkcast/api-gateway:latest # You'll need to build and push this image
+          image: edisonyls/forkcast-api-gateway:latest # You'll need to build and push this image
           ports:
             - containerPort: 3000
           env:

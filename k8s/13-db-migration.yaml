@@ -9,7 +9,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: db-migration
-          image: forkcast/menu-service:latest # Using menu service image as it has Prisma
+          image: edisonyls/forkcast-menu-service:latest # Using menu service image as it has Prisma
           command: ["/bin/sh"]
           args:
             - -c
@@ -46,7 +46,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: db-seed
-          image: forkcast/menu-service:latest
+          image: edisonyls/forkcast-menu-service:latest
           command: ["/bin/sh"]
           args:
             - -c

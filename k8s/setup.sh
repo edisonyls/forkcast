@@ -52,13 +52,7 @@ echo ""
 
 # Update persistent volumes with actual worker node
 echo "Updating persistent volumes configuration..."
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    sed -i '' "s/worker-node/$WORKER_NODES/g" 02-persistent-volumes.yaml
-else
-    # Linux
-    sed -i "s/worker-node/$WORKER_NODES/g" 02-persistent-volumes.yaml
-fi
+sed -i "s/worker-node/$WORKER_NODES/g" 02-persistent-volumes.yaml
 echo "✅ Updated persistent volumes to use worker node: $WORKER_NODES"
 
 # Prompt for registry configuration
@@ -71,20 +65,12 @@ if [ -z "$REGISTRY" ]; then
 fi
 
 # Update build script
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/your-registry.com/$REGISTRY/g" build-images.sh
-else
-    sed -i "s/your-registry.com/$REGISTRY/g" build-images.sh
-fi
+sed -i "s/your-registry.com/$REGISTRY/g" build-images.sh
 
 # Update Kubernetes manifests
 echo "Updating Kubernetes manifests with registry information..."
 for file in 05-menu-service.yaml 06-order-service.yaml 07-search-service.yaml 08-notification-service.yaml 09-upload-service.yaml 10-api-gateway.yaml 13-db-migration.yaml; do
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s|forkcast/|${REGISTRY}/forkcast/|g" "$file"
-    else
-        sed -i "s|forkcast/|${REGISTRY}/forkcast/|g" "$file"
-    fi
+    sed -i "s|forkcast/|${REGISTRY}/forkcast/|g" "$file"
 done
 
 echo "✅ Updated registry configuration"
@@ -110,13 +96,8 @@ POSTGRES_PASSWORD_B64=$(echo -n "$POSTGRES_PASSWORD" | base64)
 JWT_SECRET_B64=$(echo -n "$JWT_SECRET" | base64)
 
 # Update secrets in configmap
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/cG9zdGdyZXM=/$POSTGRES_PASSWORD_B64/g" 01-configmap-secrets.yaml
-    sed -i '' "s/eW91ci1zdXBlci1zZWNyZXQtand0LWtleS1jaGFuZ2UtaW4tcHJvZHVjdGlvbg==/$JWT_SECRET_B64/g" 01-configmap-secrets.yaml
-else
-    sed -i "s/cG9zdGdyZXM=/$POSTGRES_PASSWORD_B64/g" 01-configmap-secrets.yaml
-    sed -i "s/eW91ci1zdXBlci1zZWNyZXQtand0LWtleS1jaGFuZ2UtaW4tcHJvZHVjdGlvbg==/$JWT_SECRET_B64/g" 01-configmap-secrets.yaml
-fi
+sed -i "s/cG9zdGdyZXM=/$POSTGRES_PASSWORD_B64/g" 01-configmap-secrets.yaml
+sed -i "s/eW91ci1zdXBlci1zZWNyZXQtand0LWtleS1jaGFuZ2UtaW4tcHJvZHVjdGlvbg==/$JWT_SECRET_B64/g" 01-configmap-secrets.yaml
 
 echo "✅ Updated security configuration"
 

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: upload-service
-          image: forkcast/upload-service:latest # You'll need to build and push this image
+          image: edisonyls/forkcast-upload-service:latest # You'll need to build and push this image
           ports:
             - containerPort: 3006
           env:

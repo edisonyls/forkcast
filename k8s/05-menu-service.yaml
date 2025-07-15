@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: menu-service
-          image: forkcast/menu-service:latest # You'll need to build and push this image
+          image: edisonyls/forkcast-menu-service:latest # You'll need to build and push this image
           ports:
             - containerPort: 3002
           env:

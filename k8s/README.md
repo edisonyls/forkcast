@@ -57,8 +57,10 @@ sudo chmod 755 /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
 1. **Update registry configuration** in `build-images.sh`:
 
    ```bash
-   REGISTRY="your-dockerhub-username"  # or your private registry
+   REGISTRY="your-dockerhub-username"  # e.g., "edisonyls" for Docker Hub
    ```
+
+   **Note**: For Docker Hub, use just your username. The script will create images like `username/forkcast-service-name:latest`.
 
 2. **Build images**:
 
@@ -67,28 +69,24 @@ sudo chmod 755 /mnt/data/postgres /mnt/data/redis /mnt/data/uploads
    ./k8s/build-images.sh
    ```
 
-3. **Push images to your registry**:
+   The script will build all images and ask if you want to push them to your registry automatically.
+
+3. **If you chose not to push during build**, you can push images manually:
 
    ```bash
    # Login to your registry
    docker login
 
-   # Push images (uncomment the push commands in build-images.sh or run manually)
-   docker push your-registry/forkcast/api-gateway:latest
-   docker push your-registry/forkcast/menu-service:latest
-   # ... etc for all services
+   # Push images manually
+   docker push your-registry/forkcast-api-gateway:latest
+   docker push your-registry/forkcast-menu-service:latest
+   docker push your-registry/forkcast-order-service:latest
+   docker push your-registry/forkcast-search-service:latest
+   docker push your-registry/forkcast-notification-service:latest
+   docker push your-registry/forkcast-upload-service:latest
    ```
 
-4. **Update image references** in all service YAML files:
-   - Replace `forkcast/` with `your-registry/forkcast/` in:
-     - `05-menu-service.yaml`
-     - `06-order-service.yaml`
-     - `07-search-service.yaml`
-     - `08-notification-service.yaml`
-     - `09-upload-service.yaml`
-     - `10-api-gateway.yaml`
-     - `11-frontend.yaml`
-     - `13-db-migration.yaml`
+**Note**: The image references in the Kubernetes YAML files have already been updated to use the correct naming convention (`edisonyls/forkcast-*`).
 
 ### 4. Deploy Application
 

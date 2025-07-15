@@ -1,3 +1,8 @@
+# ⚠️  NOTE: This frontend deployment is NOT used in the current architecture.
+# The frontend runs in a separate VM at https://forkcast.edisonyls.com
+# This file is kept for reference but can be safely ignored during deployment.
+# The frontend VM connects to the backend via NodePort service (port 30001)
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,7 +20,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: forkcast/frontend:latest # You'll need to build and push this image
+          image: edisonyls/forkcast-frontend:latest # NOTE: Frontend runs in separate VM, this may not be needed
           ports:
             - containerPort: 3000
           env:
