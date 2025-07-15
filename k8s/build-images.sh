@@ -13,30 +13,38 @@ echo ""
 REGISTRY="edisonyls"
 TAG="latest"
 
-echo "Building backend service images..."
+echo "Building backend service images with multi-architecture support..."
 echo "Registry: $REGISTRY"
 echo "Tag: $TAG"
+echo "Platforms: linux/amd64,linux/arm64"
 echo ""
 
-cd services
+# Ensure buildx is available
+if ! docker buildx version &> /dev/null; then
+    echo "❌ Docker buildx is required for multi-architecture builds"
+    echo "Please install Docker Desktop or enable buildx"
+    exit 1
+fi
+
+cd ../services
 
 echo "🔨 Building API Gateway..."
-docker build -f api-gateway/Dockerfile -t "${REGISTRY}/forkcast-api-gateway:${TAG}" .
+docker buildx build --platform linux/amd64,linux/arm64 --push -f api-gateway/Dockerfile -t "${REGISTRY}/forkcast-api-gateway:${TAG}" .
 
 echo "🔨 Building Menu Service..."
-docker build -f menu-service/Dockerfile -t "${REGISTRY}/forkcast-menu-service:${TAG}" .
+docker buildx build --platform linux/amd64,linux/arm64 --push -f menu-service/Dockerfile -t "${REGISTRY}/forkcast-menu-service:${TAG}" .
 
 echo "🔨 Building Order Service..."
-docker build -f order-service/Dockerfile -t "${REGISTRY}/forkcast-order-service:${TAG}" .
+docker buildx build --platform linux/amd64,linux/arm64 --push -f order-service/Dockerfile -t "${REGISTRY}/forkcast-order-service:${TAG}" .
 
 echo "🔨 Building Search Service..."
-docker build -f search-service/Dockerfile -t "${REGISTRY}/forkcast-search-service:${TAG}" .
+docker buildx build --platform linux/amd64,linux/arm64 --push -f search-service/Dockerfile -t "${REGISTRY}/forkcast-search-service:${TAG}" .
 
 echo "🔨 Building Notification Service..."
-docker build -f notification-service/Dockerfile -t "${REGISTRY}/forkcast-notification-service:${TAG}" .
+docker buildx build --platform linux/amd64,linux/arm64 --push -f notification-service/Dockerfile -t "${REGISTRY}/forkcast-notification-service:${TAG}" .
 
 echo "🔨 Building Upload Service..."
-docker build -f upload-service/Dockerfile -t "${REGISTRY}/forkcast-upload-service:${TAG}" .
+docker buildx build --platform linux/amd64,linux/arm64 --push -f upload-service/Dockerfile -t "${REGISTRY}/forkcast-upload-service:${TAG}" .
 
 cd ..
 

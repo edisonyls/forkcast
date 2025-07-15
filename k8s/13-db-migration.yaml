@@ -16,7 +16,19 @@ spec:
             - |
               cd /app/shared
               echo "Waiting for database to be ready..."
-              until pg_isready -h postgres -p 5432 -U postgres; do
+              until node -e "
+                const net = require('net');
+                const client = new net.Socket();
+                client.connect(5432, 'postgres', () => {
+                  console.log('Database is ready');
+                  client.destroy();
+                  process.exit(0);
+                });
+                client.on('error', () => {
+                  client.destroy();
+                  process.exit(1);
+                });
+              " 2>/dev/null; do
                 echo "Waiting for database..."
                 sleep 2
               done
