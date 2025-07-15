@@ -36,8 +36,17 @@ kubectl wait --for=condition=ready pod -l app=postgres -n forkcast --timeout=300
 kubectl wait --for=condition=ready pod -l app=redis -n forkcast --timeout=300s
 
 echo "Running database migrations..."
-kubectl apply -f 13-db-migration.yaml
-kubectl wait --for=condition=complete job/db-migration -n forkcast --timeout=300s
+echo "⚠️  Note: Make sure you've built and pushed images first with ./build-images.sh"
+read -p "Have you built and pushed all Docker images? (y/n): " IMAGES_READY
+
+if [[ $IMAGES_READY =~ ^[Yy]$ ]]; then
+    kubectl apply -f 13-db-migration.yaml
+    kubectl wait --for=condition=complete job/db-migration -n forkcast --timeout=300s
+else
+    echo "⚠️  Skipping migrations - please build images first, then run:"
+    echo "   kubectl apply -f 13-db-migration.yaml"
+    echo "   kubectl wait --for=condition=complete job/db-migration -n forkcast --timeout=300s"
+fi
 
 echo "Deploying backend services..."
 kubectl apply -f 05-menu-service.yaml
