@@ -35,30 +35,13 @@ jobs:
               echo "💡 Or ensure SSH key is set up for GitHub"
             fi
 
-            # Check Docker permissions and set command
-            echo "🔧 Checking Docker permissions..."
-            if docker info >/dev/null 2>&1; then
-              echo "✅ Docker access working"
-              DOCKER_CMD="docker"
-            else
-              echo "❌ Docker permission denied"
-              if groups $USER | grep -q docker; then
-                echo "💡 User is in docker group but needs to logout/login"
-                echo "Using sudo for now..."
-                DOCKER_CMD="sudo docker"
-              else
-                echo "💡 User not in docker group - run: sudo usermod -aG docker $USER"
-                echo "💡 Then logout and login"
-                echo "Using sudo for now..."
-                DOCKER_CMD="sudo docker"
-              fi
-            fi
-
             # Build images locally using the dedicated local build script
             echo "🔨 Building Docker images locally (no registry push needed)..."
             cd k8s
             chmod +x build-images-local.sh
             ./build-images-local.sh
+
+            # Prepare for local deployment by updating image references
             echo "📝 Preparing Kubernetes manifests for local deployment..."
 
             # Create a backup of original manifests
@@ -68,11 +51,23 @@ jobs:
               fi
             done
 
-            # Update image pull policy to Never (use local images only)
-            sed -i 's/imagePullPolicy: Always/imagePullPolicy: Never/g' *.yaml 2>/dev/null || true
-
-            # Ensure we're using local image names (remove registry prefix)
+            # Update all service manifests for local deployment
+            echo "🔧 Updating image references and pull policies..."
+            
+            # Update image names (remove registry prefix)
             sed -i 's|edisonyls/forkcast-|forkcast-|g' *.yaml
+            
+            # Add imagePullPolicy: Never to all service containers
+            for service_file in 05-menu-service.yaml 06-order-service.yaml 07-search-service.yaml 08-notification-service.yaml 09-upload-service.yaml 10-api-gateway.yaml; do
+              if [[ -f "$service_file" ]]; then
+                # Add imagePullPolicy: Never after image line if not already present
+                if ! grep -q "imagePullPolicy:" "$service_file"; then
+                  sed -i '/image: forkcast-.*:latest/a\          imagePullPolicy: Never' "$service_file"
+                fi
+              fi
+            done
+            
+            echo "✅ Manifests prepared for local deployment"
 
             # Make deploy script executable and run it
             echo "🚢 Deploying using k8s/deploy.sh script..."
