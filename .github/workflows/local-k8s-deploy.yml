@@ -25,9 +25,34 @@ jobs:
           # Navigate to project directory (under home directory)
           cd ~/forkcast
           
-          # Pull latest changes
+          # Pull latest changes with better error handling
           echo "📥 Pulling latest code..."
-          git pull origin main
+          if git pull origin main; then
+            echo "✅ Code updated successfully"
+          else
+            echo "⚠️ Git pull failed - using existing code"
+            echo "💡 Check: git config --global credential.helper store"
+            echo "💡 Or ensure SSH key is set up for GitHub"
+          fi
+          
+          # Check Docker permissions and set command
+          echo "🔧 Checking Docker permissions..."
+          if docker info >/dev/null 2>&1; then
+            echo "✅ Docker access working"
+            DOCKER_CMD="docker"
+          else
+            echo "❌ Docker permission denied"
+            if groups $USER | grep -q docker; then
+              echo "💡 User is in docker group but needs to logout/login"
+              echo "Using sudo for now..."
+              DOCKER_CMD="sudo docker"
+            else
+              echo "💡 User not in docker group - run: sudo usermod -aG docker $USER"
+              echo "💡 Then logout and login"
+              echo "Using sudo for now..."
+              DOCKER_CMD="sudo docker"
+            fi
+          fi
           
           # Build images locally (no need to push to registry)
           echo "🔨 Building Docker images locally..."
@@ -35,22 +60,22 @@ jobs:
           
           # Build each service image with local tag
           echo "Building API Gateway..."
-          docker build -f api-gateway/Dockerfile -t forkcast-api-gateway:latest .
+          $DOCKER_CMD build -f api-gateway/Dockerfile -t forkcast-api-gateway:latest .
           
           echo "Building Menu Service..."
-          docker build -f menu-service/Dockerfile -t forkcast-menu-service:latest .
+          $DOCKER_CMD build -f menu-service/Dockerfile -t forkcast-menu-service:latest .
           
           echo "Building Order Service..."
-          docker build -f order-service/Dockerfile -t forkcast-order-service:latest .
+          $DOCKER_CMD build -f order-service/Dockerfile -t forkcast-order-service:latest .
           
           echo "Building Search Service..."
-          docker build -f search-service/Dockerfile -t forkcast-search-service:latest .
+          $DOCKER_CMD build -f search-service/Dockerfile -t forkcast-search-service:latest .
           
           echo "Building Notification Service..."
-          docker build -f notification-service/Dockerfile -t forkcast-notification-service:latest .
+          $DOCKER_CMD build -f notification-service/Dockerfile -t forkcast-notification-service:latest .
           
           echo "Building Upload Service..."
-          docker build -f upload-service/Dockerfile -t forkcast-upload-service:latest .
+          $DOCKER_CMD build -f upload-service/Dockerfile -t forkcast-upload-service:latest .
           
           # Update Kubernetes manifests to use local images
           cd ../k8s
