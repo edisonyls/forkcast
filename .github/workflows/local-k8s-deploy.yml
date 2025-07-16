@@ -2,148 +2,114 @@ name: Local Kubernetes Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'services/**'
-      - 'k8s/**'
-      - '.github/workflows/local-k8s-deploy.yml'
+      - "services/**"
+      - "k8s/**"
+      - ".github/workflows/local-k8s-deploy.yml"
 
 jobs:
   deploy-to-local-k8s:
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy to VM Kubernetes Cluster
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_USERNAME }}
-        password: ${{ secrets.VM_PASSWORD }}
-        port: ${{ secrets.VM_PORT }}
-        script: |
-          echo "🚀 Starting Kubernetes deployment on VM..."
-          
-          # Navigate to project directory (under home directory)
-          cd ~/forkcast
-          
-          # Pull latest changes with better error handling
-          echo "📥 Pulling latest code..."
-          if git pull origin main; then
-            echo "✅ Code updated successfully"
-          else
-            echo "⚠️ Git pull failed - using existing code"
-            echo "💡 Check: git config --global credential.helper store"
-            echo "💡 Or ensure SSH key is set up for GitHub"
-          fi
-          
-          # Check Docker permissions and set command
-          echo "🔧 Checking Docker permissions..."
-          if docker info >/dev/null 2>&1; then
-            echo "✅ Docker access working"
-            DOCKER_CMD="docker"
-          else
-            echo "❌ Docker permission denied"
-            if groups $USER | grep -q docker; then
-              echo "💡 User is in docker group but needs to logout/login"
-              echo "Using sudo for now..."
-              DOCKER_CMD="sudo docker"
+      - name: Deploy to VM Kubernetes Cluster
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          password: ${{ secrets.VM_PASSWORD }}
+          port: ${{ secrets.VM_PORT }}
+          script: |
+            echo "🚀 Starting Kubernetes deployment on VM..."
+
+            # Navigate to project directory (under home directory)
+            cd ~/forkcast
+
+            # Pull latest changes with better error handling
+            echo "📥 Pulling latest code..."
+            if git pull origin main; then
+              echo "✅ Code updated successfully"
             else
-              echo "💡 User not in docker group - run: sudo usermod -aG docker $USER"
-              echo "💡 Then logout and login"
-              echo "Using sudo for now..."
-              DOCKER_CMD="sudo docker"
+              echo "⚠️ Git pull failed - using existing code"
+              echo "💡 Check: git config --global credential.helper store"
+              echo "💡 Or ensure SSH key is set up for GitHub"
             fi
-          fi
-          
-          # Build images locally (no need to push to registry)
-          echo "🔨 Building Docker images locally..."
-          cd services
-          
-          # Build each service image with local tag
-          echo "Building API Gateway..."
-          $DOCKER_CMD build -f api-gateway/Dockerfile -t forkcast-api-gateway:latest .
-          
-          echo "Building Menu Service..."
-          $DOCKER_CMD build -f menu-service/Dockerfile -t forkcast-menu-service:latest .
-          
-          echo "Building Order Service..."
-          $DOCKER_CMD build -f order-service/Dockerfile -t forkcast-order-service:latest .
-          
-          echo "Building Search Service..."
-          $DOCKER_CMD build -f search-service/Dockerfile -t forkcast-search-service:latest .
-          
-          echo "Building Notification Service..."
-          $DOCKER_CMD build -f notification-service/Dockerfile -t forkcast-notification-service:latest .
-          
-          echo "Building Upload Service..."
-          $DOCKER_CMD build -f upload-service/Dockerfile -t forkcast-upload-service:latest .
-          
-          # Update Kubernetes manifests to use local images
-          cd ../k8s
-          echo "📝 Updating Kubernetes manifests for local images..."
-          
-          # Update image pull policy to Never (use local images only)
-          sed -i 's/imagePullPolicy: Always/imagePullPolicy: Never/g' *.yaml 2>/dev/null || true
-          sed -i '/image: /a\          imagePullPolicy: Never' 05-menu-service.yaml 06-order-service.yaml 07-search-service.yaml 08-notification-service.yaml 09-upload-service.yaml 10-api-gateway.yaml 2>/dev/null || true
-          
-          # Ensure we're using local image names
-          sed -i 's|edisonyls/forkcast-|forkcast-|g' *.yaml
-          
-          # Deploy to local Kubernetes cluster
-          echo "🚢 Deploying to Kubernetes cluster..."
-          
-          # Apply configuration
-          kubectl apply -f 00-namespace.yaml
-          kubectl apply -f 01-configmap-secrets.yaml
-          kubectl apply -f 02-persistent-volumes.yaml
-          
-          # Deploy infrastructure
-          kubectl apply -f 03-postgres.yaml
-          kubectl apply -f 04-redis.yaml
-          
-          # Wait for database to be ready
-          echo "⏳ Waiting for database..."
-          kubectl wait --for=condition=ready pod -l app=postgres -n forkcast --timeout=120s
-          
-          # Run migrations
-          kubectl apply -f 13-db-migration.yaml
-          kubectl wait --for=condition=complete job -l app=db-migration -n forkcast --timeout=180s
-          
-          # Deploy services (this will trigger rolling update if images changed)
-          echo "🔄 Updating services..."
-          kubectl apply -f 05-menu-service.yaml
-          kubectl apply -f 06-order-service.yaml
-          kubectl apply -f 07-search-service.yaml
-          kubectl apply -f 08-notification-service.yaml
-          kubectl apply -f 09-upload-service.yaml
-          kubectl apply -f 10-api-gateway.yaml
-          
-          # Force rolling update to pick up new images
-          echo "🔄 Forcing rolling update..."
-          kubectl rollout restart deployment/menu-service -n forkcast
-          kubectl rollout restart deployment/order-service -n forkcast
-          kubectl rollout restart deployment/search-service -n forkcast
-          kubectl rollout restart deployment/notification-service -n forkcast
-          kubectl rollout restart deployment/upload-service -n forkcast
-          kubectl rollout restart deployment/api-gateway -n forkcast
-          
-          # Wait for rollout to complete
-          echo "⏳ Waiting for rollout to complete..."
-          kubectl rollout status deployment/menu-service -n forkcast --timeout=300s
-          kubectl rollout status deployment/order-service -n forkcast --timeout=300s
-          kubectl rollout status deployment/search-service -n forkcast --timeout=300s
-          kubectl rollout status deployment/notification-service -n forkcast --timeout=300s
-          kubectl rollout status deployment/upload-service -n forkcast --timeout=300s
-          kubectl rollout status deployment/api-gateway -n forkcast --timeout=300s
-          
-          # Apply ingress
-          kubectl apply -f 12-ingress.yaml
-          
-          # Show final status
-          echo "✅ Deployment completed! Current status:"
-          kubectl get pods -n forkcast
-          
-          echo ""
-          echo "🌐 Services accessible at:"
-          echo "API Gateway: http://localhost:30001 (or VM IP:30001)"
-          
-          echo "🎉 Local Kubernetes deployment complete!"
+
+            # Check Docker permissions and set command
+            echo "🔧 Checking Docker permissions..."
+            if docker info >/dev/null 2>&1; then
+              echo "✅ Docker access working"
+              DOCKER_CMD="docker"
+            else
+              echo "❌ Docker permission denied"
+              if groups $USER | grep -q docker; then
+                echo "💡 User is in docker group but needs to logout/login"
+                echo "Using sudo for now..."
+                DOCKER_CMD="sudo docker"
+              else
+                echo "💡 User not in docker group - run: sudo usermod -aG docker $USER"
+                echo "💡 Then logout and login"
+                echo "Using sudo for now..."
+                DOCKER_CMD="sudo docker"
+              fi
+            fi
+
+            # Build images locally using the dedicated local build script
+            echo "🔨 Building Docker images locally (no registry push needed)..."
+            cd k8s
+            chmod +x build-images-local.sh
+            ./build-images-local.sh
+            echo "📝 Preparing Kubernetes manifests for local deployment..."
+
+            # Create a backup of original manifests
+            for file in *.yaml; do
+              if [[ ! -f "${file}.backup" ]]; then
+                cp "$file" "${file}.backup"
+              fi
+            done
+
+            # Update image pull policy to Never (use local images only)
+            sed -i 's/imagePullPolicy: Always/imagePullPolicy: Never/g' *.yaml 2>/dev/null || true
+
+            # Ensure we're using local image names (remove registry prefix)
+            sed -i 's|edisonyls/forkcast-|forkcast-|g' *.yaml
+
+            # Make deploy script executable and run it
+            echo "🚢 Deploying using k8s/deploy.sh script..."
+            chmod +x deploy.sh
+
+            # Run deployment script in automated mode (skip interactive prompts)
+            export IMAGES_READY=y
+            ./deploy.sh
+
+            # Force rolling update to pick up new local images
+            echo "🔄 Forcing rolling update to use newly built local images..."
+            kubectl rollout restart deployment/menu-service -n forkcast
+            kubectl rollout restart deployment/order-service -n forkcast
+            kubectl rollout restart deployment/search-service -n forkcast
+            kubectl rollout restart deployment/notification-service -n forkcast
+            kubectl rollout restart deployment/upload-service -n forkcast
+            kubectl rollout restart deployment/api-gateway -n forkcast
+
+            # Wait for rollout to complete
+            echo "⏳ Waiting for rolling update to complete..."
+            kubectl rollout status deployment/menu-service -n forkcast --timeout=300s
+            kubectl rollout status deployment/order-service -n forkcast --timeout=300s
+            kubectl rollout status deployment/search-service -n forkcast --timeout=300s
+            kubectl rollout status deployment/notification-service -n forkcast --timeout=300s
+            kubectl rollout status deployment/upload-service -n forkcast --timeout=300s
+            kubectl rollout status deployment/api-gateway -n forkcast --timeout=300s
+
+            # Show final status
+            echo "✅ Local Kubernetes deployment completed!"
+            echo ""
+            echo "📊 Current cluster status:"
+            kubectl get pods -n forkcast -o wide
+
+            echo ""
+            echo "🌐 Services accessible at:"
+            echo "API Gateway: http://$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}'):30001"
+            echo "           : http://localhost:30001 (if using port forwarding)"
+
+            echo ""
+            echo "🎉 Local Kubernetes deployment complete!"
