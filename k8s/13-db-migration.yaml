@@ -32,40 +32,11 @@ spec:
                 echo "Waiting for database..."
                 sleep 2
               done
-              echo "Database is ready, running migrations..."
-              npx prisma migrate deploy
-              echo "Seeding database..."
-              npx prisma db seed || echo "Seeding failed or already seeded"
-              echo "Database setup complete!"
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: forkcast-secrets
-                  key: POSTGRES_PASSWORD
-            - name: DATABASE_URL
-              value: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/forkcast"
----
-# Alternative: Use an init container approach for migrations
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: db-seed
-  namespace: forkcast
-spec:
-  template:
-    spec:
-      restartPolicy: OnFailure
-      containers:
-        - name: db-seed
-          image: edisonyls/forkcast-menu-service:latest
-          command: ["/bin/sh"]
-          args:
-            - -c
-            - |
-              cd /app/shared
-              echo "Running database seed..."
-              npx prisma db seed || echo "Seeding completed or already done"
+              echo "Database is ready, pushing schema..."
+              npx prisma db push --accept-data-loss
+              echo "Generating Prisma client..."
+              npx prisma generate
+              echo "Database schema setup complete! Ready for user registration."
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
