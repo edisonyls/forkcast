@@ -1,0 +1,32 @@
+name: Automated Kubernetes Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/**"
+      - "k8s/**"
+      - ".github/workflows/automated-k8s-deploy.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Kubernetes Cluster
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          password: ${{ secrets.VM_PASSWORD }}
+          port: ${{ secrets.VM_PORT || 22 }}
+          command_timeout: 30m
+          script: |
+            echo "🚀 Starting automated deployment..."
+            
+            # Navigate to k8s directory
+            cd ~/forkcast/k8s
+            
+            # Run the automated deployment script
+            ./automated-cd-deploy.sh
+            
+            echo "✅ GitHub Actions deployment complete!"
