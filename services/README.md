@@ -11,16 +11,16 @@ The frontend should send requests through the API gateway. Service names and
 container ports are used inside the Docker network; host ports are available
 for local access and debugging.
 
-| Component | Container port | Host port | Purpose |
-| --- | ---: | ---: | --- |
-| API gateway | 3000 | 13000 | Frontend entry point and request routing |
-| Menu service | 3002 | 13002 | Chefs, authentication, menus, categories, and events |
-| Order service | 3003 | 13003 | Order service shell and health check |
-| Search service | 3004 | 13004 | Search service shell and health check |
-| Notification service | 3005 | 13005 | Notification service shell and health check |
-| Upload service | 3006 | 13006 | Image uploads and static files |
-| PostgreSQL | 5432 | 15432 | Application database |
-| Redis | 6379 | 16379 | Cache |
+| Component            | Container port | Host port | Purpose                                              |
+| -------------------- | -------------: | --------: | ---------------------------------------------------- |
+| API gateway          |           3000 |     13000 | Frontend entry point and request routing             |
+| Menu service         |           3002 |     13002 | Chefs, authentication, menus, categories, and events |
+| Order service        |           3003 |     13003 | Order service shell and health check                 |
+| Search service       |           3004 |     13004 | Search service shell and health check                |
+| Notification service |           3005 |     13005 | Notification service shell and health check          |
+| Upload service       |           3006 |     13006 | Image uploads and static files                       |
+| PostgreSQL           |           5432 |     15432 | Application database                                 |
+| Redis                |           6379 |     16379 | Cache                                                |
 
 Order, search, and notification route handlers are not implemented yet. Their
 containers currently provide health checks only.
@@ -44,9 +44,44 @@ npm install
 The Compose file contains the development configuration for PostgreSQL, Redis,
 JWT authentication, and service discovery. No `.env` files are required.
 
+#### Optional local environment overrides
+
+Contributors who want to customize the local configuration can copy the
+optional template:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env`, then run Compose from the `services` directory. Compose loads that
+file automatically and substitutes the variables referenced by
+`docker-compose.yml`:
+
+```bash
+docker compose up -d --build
+```
+
+To select a file explicitly, use:
+
+```bash
+docker compose --env-file .env up -d --build
+```
+
+From the repository root, include both paths:
+
+```bash
+docker compose --env-file services/.env \
+  -f services/docker-compose.yml up -d --build
+```
+
+The real `.env` remains ignored by Git. Only `.env.example`, which contains no
+real credentials, is committed. Environment files provide Compose values; they
+are not copied into the Docker images.
+
 ### 2. Build and start the containers
 
 ```bash
+mkdir -p uploads
 docker compose up -d --build
 docker compose ps
 ```
@@ -76,6 +111,65 @@ curl --fail http://localhost:13000/api/chefs
 The first request checks the gateway. The second checks the complete path from
 the gateway through the menu service to PostgreSQL.
 
+## Image storage
+
+The upload service always reads and writes `/app/uploads` inside its container.
+Compose binds that directory to `UPLOADS_PATH` on the Docker host. The setting
+defaults to `services/uploads`, so you can use local storage without
+creating a `.env` file. PostgreSQL stores the resulting `/uploads/...` URL, not
+the image bytes or a base64 data URL. Uploaded files are runtime data and are
+ignored by Git.
+
+### Store images on the local machine
+
+From the `services` directory, create the default storage directory and start
+the stack:
+
+```bash
+mkdir -p uploads
+docker compose up -d --build
+```
+
+Images are stored under `services/uploads`. Stopping or recreating the
+containers does not remove them. Deleting that host directory does.
+
+### Store images on an NFS mount
+
+Mount the NFS export on the machine running Docker before starting Compose.
+The exact mount command depends on the operating system and NFS server. For
+macOS, use a mount point under your home directory because `/mnt` is on the
+read-only system volume:
+
+```bash
+mkdir -p "$HOME/forkcast-uploads"
+sudo mount -t nfs -o vers=4 nfs.example.com:/exports/forkcast \
+  "$HOME/forkcast-uploads"
+export UPLOADS_PATH="$HOME/forkcast-uploads"
+```
+
+On a Linux Docker host, `/mnt` is a conventional location:
+
+```bash
+sudo mkdir -p /mnt/forkcast-uploads
+sudo mount -t nfs -o nfsvers=4 nfs.example.com:/exports/forkcast \
+  /mnt/forkcast-uploads
+export UPLOADS_PATH=/mnt/forkcast-uploads
+```
+
+Replace the example server and export path with the real values. Confirm that
+the mount is present and writable, then start the stack:
+
+```bash
+docker compose up -d --build
+docker compose exec upload-service sh -c 'test -w /app/uploads'
+```
+
+`UPLOADS_PATH` must be a host filesystem path, not an NFS URL. When using
+Docker Desktop, make sure the mounted directory is shared with Docker. Keep
+`UPLOADS_PATH` set whenever running `docker compose up`; otherwise Compose uses
+the local `services/uploads` default. If the write check fails, fix the NFS
+export, mount, or directory permissions before accepting uploads.
+
 ## Connect the frontend
 
 Create `client/.env.local` with:
@@ -100,15 +194,15 @@ in the local Compose configuration.
 
 Base URL: `http://localhost:13000`
 
-| Route | Service |
-| --- | --- |
-| `/api/chef/*` | Menu service chef authentication and profile routes |
-| `/api/chefs/*` | Menu service public chef routes |
-| `/api/menu/*` | Menu items, categories, and customizations |
-| `/api/categories/*` | Menu categories |
-| `/api/events/*` | Events and event orders |
-| `/api/upload/*` | Image uploads |
-| `/uploads/*` | Uploaded static files |
+| Route               | Service                                             |
+| ------------------- | --------------------------------------------------- |
+| `/api/chef/*`       | Menu service chef authentication and profile routes |
+| `/api/chefs/*`      | Menu service public chef routes                     |
+| `/api/menu/*`       | Menu items, categories, and customizations          |
+| `/api/categories/*` | Menu categories                                     |
+| `/api/events/*`     | Events and event orders                             |
+| `/api/upload/*`     | Image uploads                                       |
+| `/uploads/*`        | Uploaded static files                               |
 
 The gateway also reserves `/api/orders`, `/api/search`, and
 `/api/notifications`, but the corresponding service handlers are still TODO.
@@ -154,33 +248,6 @@ DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:15432/forkcast?schema=pub
 Commit generated migration files under `shared/prisma/migrations/`. Use
 `migrate deploy` to apply committed migrations and `migrate dev` only when
 creating migrations during development.
-
-## Troubleshooting
-
-### `No such container: forkcast-user-service`
-
-There is no `user-service` container in the current architecture. Chef signup,
-signin, and profile handling are implemented by `menu-service`. Run migrations
-from the host using the command in the setup section.
-
-### Containers are healthy, but API requests return database errors
-
-Check migration status and menu service logs:
-
-```bash
-DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:15432/forkcast?schema=public' \
-  npx prisma migrate status --schema shared/prisma/schema.prisma
-docker compose logs --tail=200 menu-service postgres
-```
-
-Errors such as `The table public.chefs does not exist` mean the migrations have
-not been applied to the current PostgreSQL volume.
-
-### The frontend times out or calls port 3000 for the backend
-
-Port `3000` belongs to the frontend. The local Docker gateway is published on
-port `13000`. Check `client/.env.local`, restart Next.js, and verify
-<http://localhost:13000/health>.
 
 ## Project structure
 

@@ -1,4 +1,4 @@
-FROM node:18-alpine3.18
+FROM node:20-alpine3.20
 
 # Install OpenSSL and other dependencies for Prisma
 RUN apk add --no-cache openssl openssl-dev libc6-compat
@@ -44,4 +44,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD node -e "fetch('http://localhost:3006/health').then(() => process.exit(0)).catch(() => process.exit(1))"
 
 # Start the application
-CMD ["npm", "start"] 
+CMD ["npm", "start"]

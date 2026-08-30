@@ -259,7 +259,7 @@ router.put("/profile/me", authenticateChef, async (req, res) => {
 // Chef Sign Up
 router.post("/signup", async (req, res) => {
   try {
-    const { email, password, username, name, bio, secret, image } = req.body;
+    const { email, password, username, name, bio, secret } = req.body;
 
     // Validation
     if (!email || !password || !username || !name || !bio || !secret) {
@@ -313,11 +313,6 @@ router.post("/signup", async (req, res) => {
       bio,
       secret,
     };
-
-    // Only include image if it's provided
-    if (image && image.trim()) {
-      chefData.image = image.trim();
-    }
 
     const chef = await prisma.chef.create({
       data: chefData,

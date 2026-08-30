@@ -158,12 +158,13 @@ services:
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
     volumes:
-      - upload_data:/app/uploads
+      - type: bind
+        source: ${UPLOADS_PATH:-./uploads}
+        target: /app/uploads
 
 volumes:
   postgres_data:
   redis_data:
-  upload_data:
 
 networks:
   default:

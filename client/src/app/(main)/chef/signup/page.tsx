@@ -103,7 +103,6 @@ export default function ChefSignUp() {
             name: formData.name,
             bio: formData.bio,
             secret: formData.secret,
-            image: formData.image,
           }),
         }
       );
@@ -126,6 +125,27 @@ export default function ChefSignUp() {
 
             if (uploadResponse.ok) {
               const uploadData = await uploadResponse.json();
+              const imageUrl = uploadData?.data?.imageUrl;
+
+              if (typeof imageUrl !== "string") {
+                throw new Error("Upload response did not include an image URL");
+              }
+
+              const profileResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/chef/profile/me`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  credentials: "include",
+                  body: JSON.stringify({ image: imageUrl }),
+                }
+              );
+
+              if (!profileResponse.ok) {
+                throw new Error("Failed to save profile image URL");
+              }
             } else {
               console.warn(
                 "Failed to upload profile image:",
