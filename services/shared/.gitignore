@@ -56,7 +56,6 @@ temp/
 
 # Shared package specific
 # Prisma
-prisma/migrations/
 prisma/dev.db*
 .env.prisma
 
@@ -66,4 +65,4 @@ types/generated/
 *.generated.d.ts
 
 # Package builds for distribution
-*.tgz 
+*.tgz

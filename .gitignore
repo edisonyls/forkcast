@@ -1,6 +1,15 @@
 .DS_Store
-
-# Environment files with secrets
-services/production.env
-services/.env
+.env
+.env.*
 *.env
+*.env.*
+!.env.example
+!.env.*.example
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+*-credentials.json
+.cloudflared/
+cloudflared/
