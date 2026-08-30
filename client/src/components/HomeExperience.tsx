@@ -682,8 +682,8 @@ export default function HomeExperience() {
             ForkCast gives everyone a tiny bit of certainty. Guests get food
             they’re excited about. Hosts get quantities they can trust.
           </p>
-          <Link href="/host" className={styles.underlinedLink}>
-            See the host experience <ArrowUpRight />
+          <Link href="/chef/signup" className={styles.underlinedLink}>
+            Create your first menu <ArrowUpRight />
           </Link>
         </div>
         <div className={styles.proofNotes}>

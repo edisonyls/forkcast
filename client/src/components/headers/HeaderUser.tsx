@@ -14,8 +14,6 @@ export default function HeaderUser() {
 
   // Check if user is on chef dashboard pages
   const isChefDashboard = pathname?.startsWith("/chef/");
-  // Check if user is on host-focused pages
-  const isHostPage = pathname === "/host";
   // Check if user is on guest-focused pages
   const isGuestPage = pathname === "/guest" || pathname?.startsWith("/chefs");
 
@@ -46,12 +44,12 @@ export default function HeaderUser() {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="border-b border-border-inverse bg-ink text-text-inverse">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link
             href={isChefDashboard ? "/chef/dashboard" : "/"}
-            className="text-2xl font-bold text-orange-600"
+            className="text-2xl font-bold text-brand"
           >
             ForkCast
           </Link>
@@ -59,10 +57,10 @@ export default function HeaderUser() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {/* Show cart only for guest pages and general pages (not host or chef dashboard) */}
-            {!isChefDashboard && !isHostPage && (
+            {!isChefDashboard && (
               <Link
                 href="/cart"
-                className="relative flex items-center text-gray-600 hover:text-green-600 transition-colors"
+                className="relative flex items-center text-text-inverse-muted transition-colors hover:text-brand"
               >
                 <svg
                   className="w-6 h-6"
@@ -78,7 +76,7 @@ export default function HeaderUser() {
                   />
                 </svg>
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs text-ink">
                     {totalItems}
                   </span>
                 )}
@@ -88,31 +86,15 @@ export default function HeaderUser() {
             {isChefDashboard ? (
               <button
                 onClick={handleSignOut}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                className="rounded-md bg-danger px-4 py-2 text-text-inverse transition-opacity hover:opacity-90"
               >
                 Sign Out
               </button>
-            ) : isHostPage ? (
-              // Host page navigation: Sign In + Become a Host
-              <>
-                <Link
-                  href="/chef/signin"
-                  className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/chef/signup"
-                  className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors"
-                >
-                  Become a Host
-                </Link>
-              </>
             ) : isGuestPage ? (
               // Guest page navigation: Browse Hosts
               <Link
                 href="/chefs"
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                className="rounded-full bg-brand px-4 py-2 text-ink transition-colors hover:bg-brand-strong"
               >
                 Browse Hosts
               </Link>
@@ -120,7 +102,7 @@ export default function HeaderUser() {
               // Default navigation: Become a Host
               <Link
                 href="/chef/signup"
-                className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors"
+                className="rounded-full bg-brand px-4 py-2 text-ink transition-colors hover:bg-brand-strong"
               >
                 Become a Host
               </Link>
@@ -130,10 +112,10 @@ export default function HeaderUser() {
           {/* Mobile Menu Button and Cart Icon */}
           <div className="md:hidden flex items-center space-x-4">
             {/* Show cart only for guest pages and general pages (not host or chef dashboard) */}
-            {!isChefDashboard && !isHostPage && (
+            {!isChefDashboard && (
               <Link
                 href="/cart"
-                className="relative flex items-center text-gray-600 hover:text-green-600 transition-colors p-2"
+                className="relative flex items-center p-2 text-text-inverse-muted transition-colors hover:text-brand"
               >
                 <svg
                   className="w-6 h-6"
@@ -149,7 +131,7 @@ export default function HeaderUser() {
                   />
                 </svg>
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs text-ink">
                     {totalItems}
                   </span>
                 )}
@@ -158,7 +140,7 @@ export default function HeaderUser() {
 
             <button
               onClick={toggleMenu}
-              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="rounded-md p-2 text-text-inverse-muted transition-colors hover:bg-overlay-inverse hover:text-text-inverse focus:outline-none"
               aria-label="Toggle menu"
             >
               <svg
@@ -189,7 +171,7 @@ export default function HeaderUser() {
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 border-t border-gray-200">
+          <nav className="mt-4 border-t border-border-inverse pb-4 md:hidden">
             <div className="flex flex-col space-y-3 pt-4">
               {isChefDashboard ? (
                 <button
@@ -197,33 +179,15 @@ export default function HeaderUser() {
                     handleSignOut();
                     setIsMenuOpen(false);
                   }}
-                  className="bg-red-600 text-white px-4 py-3 rounded-md hover:bg-red-700 transition-colors text-center font-medium"
+                  className="rounded-md bg-danger px-4 py-3 text-center font-medium text-text-inverse transition-opacity hover:opacity-90"
                 >
                   Sign Out
                 </button>
-              ) : isHostPage ? (
-                // Host page mobile navigation
-                <>
-                  <Link
-                    href="/chef/signin"
-                    className="text-gray-600 hover:text-gray-900 transition-colors font-medium py-2 px-3 rounded-md hover:bg-gray-100"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/chef/signup"
-                    className="bg-orange-600 text-white px-4 py-3 rounded-md hover:bg-orange-700 transition-colors text-center font-medium"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Become a Host
-                  </Link>
-                </>
               ) : isGuestPage ? (
                 // Guest page mobile navigation
                 <Link
                   href="/chefs"
-                  className="bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 transition-colors text-center font-medium"
+                  className="rounded-full bg-brand px-4 py-3 text-center font-medium text-ink transition-colors hover:bg-brand-strong"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Browse Hosts
@@ -232,7 +196,7 @@ export default function HeaderUser() {
                 // Default mobile navigation
                 <Link
                   href="/chef/signup"
-                  className="bg-orange-600 text-white px-4 py-3 rounded-md hover:bg-orange-700 transition-colors text-center font-medium"
+                  className="rounded-full bg-brand px-4 py-3 text-center font-medium text-ink transition-colors hover:bg-brand-strong"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Become a Host
