@@ -4,15 +4,18 @@ import Link from "next/link";
 
 export default function HeaderAuth() {
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center min-h-[40px]">
-          <Link href="/" className="text-2xl font-bold text-orange-600">
-            ForkCast
-          </Link>
-          {/* Empty space for visual balance */}
-          <div></div>
-        </div>
+    <header className="relative z-50 border-b border-border-inverse bg-ink text-text-inverse">
+      <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center px-5 sm:px-8 lg:px-12">
+        <Link
+          href="/"
+          className="flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.03em]"
+          aria-label="ForkCast home"
+        >
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-brand text-sm font-black text-ink">
+            F
+          </span>
+          ForkCast
+        </Link>
       </div>
     </header>
   );

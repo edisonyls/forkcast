@@ -44,13 +44,17 @@ export default function HeaderUser() {
   };
 
   return (
-    <header className="border-b border-border-inverse bg-ink text-text-inverse">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
+    <header className="relative z-50 border-b border-border-inverse bg-ink text-text-inverse">
+      <div className="mx-auto min-h-[72px] max-w-[1440px] px-5 sm:px-8 lg:px-12">
+        <div className="flex min-h-[72px] items-center justify-between">
           <Link
             href={isChefDashboard ? "/chef/dashboard" : "/"}
-            className="text-2xl font-bold text-brand"
+            className="flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.03em]"
+            aria-label={isChefDashboard ? "ForkCast dashboard" : "ForkCast home"}
           >
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-brand text-sm font-black text-ink">
+              F
+            </span>
             ForkCast
           </Link>
 
