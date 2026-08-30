@@ -1,13 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9fafb;
-  --foreground: #171717;
+  /* ForkCast theme source of truth. Components should use these semantic
+     tokens instead of introducing page-local color literals. */
+  --fc-color-ink: #181713;
+  --fc-color-ink-soft: #2b2a24;
+  --fc-color-canvas: #f3eee3;
+  --fc-color-surface: #fffaf0;
+  --fc-color-surface-muted: #ded5c7;
+  --fc-color-brand: #d8f45b;
+  --fc-color-brand-soft: #eef6ca;
+  --fc-color-brand-strong: #bdd83f;
+  --fc-color-brand-ink: #526019;
+  --fc-color-shadow: #000000;
+
+  /* Reserved for semantic feedback only, never decorative surfaces. */
+  --fc-color-success: #4f7d4c;
+  --fc-color-warning: #a86b1f;
+  --fc-color-danger: #b84f3a;
+  --fc-color-info: #4f7598;
+
+  --fc-color-text: var(--fc-color-ink);
+  --fc-color-text-muted: color-mix(
+    in srgb,
+    var(--fc-color-ink) 62%,
+    transparent
+  );
+  --fc-color-text-subtle: color-mix(
+    in srgb,
+    var(--fc-color-ink) 48%,
+    transparent
+  );
+  --fc-color-text-inverse: var(--fc-color-surface);
+  --fc-color-text-inverse-muted: color-mix(
+    in srgb,
+    var(--fc-color-surface) 68%,
+    transparent
+  );
+  --fc-color-text-inverse-subtle: color-mix(
+    in srgb,
+    var(--fc-color-surface) 46%,
+    transparent
+  );
+  --fc-color-border: color-mix(
+    in srgb,
+    var(--fc-color-ink) 13%,
+    transparent
+  );
+  --fc-color-border-strong: color-mix(
+    in srgb,
+    var(--fc-color-ink) 30%,
+    transparent
+  );
+  --fc-color-border-inverse: color-mix(
+    in srgb,
+    var(--fc-color-surface) 16%,
+    transparent
+  );
+  --fc-color-overlay-inverse: color-mix(
+    in srgb,
+    var(--fc-color-surface) 5%,
+    transparent
+  );
+
+  --background: var(--fc-color-canvas);
+  --foreground: var(--fc-color-text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-canvas: var(--fc-color-canvas);
+  --color-surface: var(--fc-color-surface);
+  --color-surface-muted: var(--fc-color-surface-muted);
+  --color-ink: var(--fc-color-ink);
+  --color-ink-soft: var(--fc-color-ink-soft);
+  --color-brand: var(--fc-color-brand);
+  --color-brand-soft: var(--fc-color-brand-soft);
+  --color-brand-strong: var(--fc-color-brand-strong);
+  --color-brand-ink: var(--fc-color-brand-ink);
+  --color-text-muted: var(--fc-color-text-muted);
+  --color-text-subtle: var(--fc-color-text-subtle);
+  --color-text-inverse: var(--fc-color-text-inverse);
+  --color-text-inverse-muted: var(--fc-color-text-inverse-muted);
+  --color-border-theme: var(--fc-color-border);
+  --color-border-inverse: var(--fc-color-border-inverse);
+  --color-overlay-inverse: var(--fc-color-overlay-inverse);
+  --color-success: var(--fc-color-success);
+  --color-warning: var(--fc-color-warning);
+  --color-danger: var(--fc-color-danger);
+  --color-info: var(--fc-color-info);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -15,7 +97,13 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--fc-color-brand);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--fc-color-ink);
 }
 
 /* Line clamp utilities for consistent card text truncation */

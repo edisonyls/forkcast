@@ -7,14 +7,14 @@ export default function HeaderHome() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="relative z-50 border-b border-white/10 bg-[#181713] text-[#f5f0e6]">
+    <header className="relative z-50 border-b border-border-inverse bg-ink text-text-inverse">
       <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
         <Link
           href="/"
           className="flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.03em]"
           aria-label="ForkCast home"
         >
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-[#d8f45b] text-sm font-black text-[#181713]">
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-brand text-sm font-black text-ink">
             F
           </span>
           ForkCast
@@ -26,25 +26,25 @@ export default function HeaderHome() {
         >
           <Link
             href="#how-it-works"
-            className="text-white/65 transition-colors hover:text-white"
+            className="text-text-inverse-muted transition-colors hover:text-text-inverse"
           >
             How it works
           </Link>
           <Link
             href="/guest"
-            className="text-white/65 transition-colors hover:text-white"
+            className="text-text-inverse-muted transition-colors hover:text-text-inverse"
           >
             For guests
           </Link>
           <Link
             href="/chef/signin"
-            className="rounded-full border border-white/20 px-5 py-2.5 transition-colors hover:border-white/45 hover:bg-white/5"
+            className="rounded-full border border-border-inverse px-5 py-2.5 transition-colors hover:border-text-inverse-muted hover:bg-overlay-inverse"
           >
             Host sign in
           </Link>
           <Link
             href="/chef/signup"
-            className="rounded-full bg-[#f5f0e6] px-5 py-2.5 font-semibold text-[#181713] transition-transform hover:-translate-y-0.5"
+            className="rounded-full bg-surface px-5 py-2.5 font-semibold text-ink transition-transform hover:-translate-y-0.5"
           >
             Create a menu
           </Link>
@@ -53,7 +53,7 @@ export default function HeaderHome() {
         <button
           type="button"
           onClick={() => setIsMenuOpen((open) => !open)}
-          className="grid h-10 w-10 place-items-center rounded-full border border-white/20 md:hidden"
+          className="grid h-10 w-10 place-items-center rounded-full border border-border-inverse md:hidden"
           aria-expanded={isMenuOpen}
           aria-controls="home-mobile-menu"
           aria-label="Toggle navigation"
@@ -72,33 +72,33 @@ export default function HeaderHome() {
       {isMenuOpen && (
         <nav
           id="home-mobile-menu"
-          className="absolute left-0 top-full flex w-full flex-col gap-2 border-t border-white/10 bg-[#181713] p-5 text-sm shadow-2xl md:hidden"
+          className="absolute left-0 top-full flex w-full flex-col gap-2 border-t border-border-inverse bg-ink p-5 text-sm shadow-2xl md:hidden"
           aria-label="Mobile navigation"
         >
           <Link
             href="#how-it-works"
-            className="rounded-xl px-4 py-3 hover:bg-white/5"
+            className="rounded-xl px-4 py-3 hover:bg-overlay-inverse"
             onClick={() => setIsMenuOpen(false)}
           >
             How it works
           </Link>
           <Link
             href="/guest"
-            className="rounded-xl px-4 py-3 hover:bg-white/5"
+            className="rounded-xl px-4 py-3 hover:bg-overlay-inverse"
             onClick={() => setIsMenuOpen(false)}
           >
             For guests
           </Link>
           <Link
             href="/chef/signin"
-            className="rounded-xl px-4 py-3 hover:bg-white/5"
+            className="rounded-xl px-4 py-3 hover:bg-overlay-inverse"
             onClick={() => setIsMenuOpen(false)}
           >
             Host sign in
           </Link>
           <Link
             href="/chef/signup"
-            className="mt-2 rounded-full bg-[#d8f45b] px-5 py-3 text-center font-semibold text-[#181713]"
+            className="mt-2 rounded-full bg-brand px-5 py-3 text-center font-semibold text-ink"
             onClick={() => setIsMenuOpen(false)}
           >
             Create a menu

@@ -28,9 +28,9 @@ const ForkMark = () => (
 );
 
 const menuItems = [
-  { name: "Miso eggplant", votes: 8, width: "88%", tone: "lime" },
-  { name: "Chilli noodles", votes: 6, width: "68%", tone: "coral" },
-  { name: "Sesame greens", votes: 4, width: "46%", tone: "cream" },
+  { name: "Miso eggplant", votes: 8, width: "88%", tone: "brand" },
+  { name: "Chilli noodles", votes: 6, width: "68%", tone: "ink" },
+  { name: "Sesame greens", votes: 4, width: "46%", tone: "muted" },
 ];
 
 const steps = [
@@ -39,21 +39,21 @@ const steps = [
     eyebrow: "Set the table",
     title: "Build the menu you’d love to cook.",
     copy: "Add the dishes, details and event deadline. ForkCast turns it into one beautiful link for your guests.",
-    accent: "coral",
+    accent: "surface",
   },
   {
     number: "02",
     eyebrow: "Pass it around",
     title: "Guests choose. No account, no group-chat chaos.",
     copy: "Friends open the link, pick their favourites and leave dietary notes. Their choices arrive in one place.",
-    accent: "lime",
+    accent: "brandSoft",
   },
   {
     number: "03",
     eyebrow: "Cook the signal",
     title: "See real demand before the first chop.",
     copy: "Know what people want and how much to prepare. Less guessing, less waste, more of the good stuff.",
-    accent: "blue",
+    accent: "muted",
   },
 ];
 
