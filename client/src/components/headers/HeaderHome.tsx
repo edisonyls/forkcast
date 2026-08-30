@@ -6,87 +6,105 @@ import { useState } from "react";
 export default function HeaderHome() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-orange-600">
-            ForkCast
-          </Link>
+    <header className="relative z-50 border-b border-white/10 bg-[#181713] text-[#f5f0e6]">
+      <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
+        <Link
+          href="/"
+          className="flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.03em]"
+          aria-label="ForkCast home"
+        >
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-[#d8f45b] text-sm font-black text-[#181713]">
+            F
+          </span>
+          ForkCast
+        </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/host"
-              className="bg-orange-600 text-white px-5 py-2 rounded-lg hover:bg-orange-700 transition-all font-medium"
-            >
-              For Host
-            </Link>
-            <Link
-              href="/guest"
-              className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-all font-medium"
-            >
-              For Guests
-            </Link>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={toggleMenu}
-            className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            aria-label="Toggle menu"
+        <nav
+          className="hidden items-center gap-8 text-sm md:flex"
+          aria-label="Primary navigation"
+        >
+          <Link
+            href="#how-it-works"
+            className="text-white/65 transition-colors hover:text-white"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
-        </div>
+            How it works
+          </Link>
+          <Link
+            href="/guest"
+            className="text-white/65 transition-colors hover:text-white"
+          >
+            For guests
+          </Link>
+          <Link
+            href="/chef/signin"
+            className="rounded-full border border-white/20 px-5 py-2.5 transition-colors hover:border-white/45 hover:bg-white/5"
+          >
+            Host sign in
+          </Link>
+          <Link
+            href="/chef/signup"
+            className="rounded-full bg-[#f5f0e6] px-5 py-2.5 font-semibold text-[#181713] transition-transform hover:-translate-y-0.5"
+          >
+            Create a menu
+          </Link>
+        </nav>
 
-        {/* Mobile Navigation Menu */}
-        {isMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 border-t border-gray-200">
-            <div className="flex flex-col space-y-3 pt-4">
-              <Link
-                href="/host"
-                className="bg-orange-600 text-white px-5 py-3 rounded-lg hover:bg-orange-700 transition-all font-medium text-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                For Host
-              </Link>
-              <Link
-                href="/guest"
-                className="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700 transition-all font-medium text-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                For Guests
-              </Link>
-            </div>
-          </nav>
-        )}
+        <button
+          type="button"
+          onClick={() => setIsMenuOpen((open) => !open)}
+          className="grid h-10 w-10 place-items-center rounded-full border border-white/20 md:hidden"
+          aria-expanded={isMenuOpen}
+          aria-controls="home-mobile-menu"
+          aria-label="Toggle navigation"
+        >
+          <span className="relative block h-3.5 w-5">
+            <span
+              className={`absolute left-0 top-0 h-px w-5 bg-current transition-transform ${isMenuOpen ? "translate-y-[7px] rotate-45" : ""}`}
+            />
+            <span
+              className={`absolute bottom-0 left-0 h-px w-5 bg-current transition-transform ${isMenuOpen ? "-translate-y-[6px] -rotate-45" : ""}`}
+            />
+          </span>
+        </button>
       </div>
+
+      {isMenuOpen && (
+        <nav
+          id="home-mobile-menu"
+          className="absolute left-0 top-full flex w-full flex-col gap-2 border-t border-white/10 bg-[#181713] p-5 text-sm shadow-2xl md:hidden"
+          aria-label="Mobile navigation"
+        >
+          <Link
+            href="#how-it-works"
+            className="rounded-xl px-4 py-3 hover:bg-white/5"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            How it works
+          </Link>
+          <Link
+            href="/guest"
+            className="rounded-xl px-4 py-3 hover:bg-white/5"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            For guests
+          </Link>
+          <Link
+            href="/chef/signin"
+            className="rounded-xl px-4 py-3 hover:bg-white/5"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Host sign in
+          </Link>
+          <Link
+            href="/chef/signup"
+            className="mt-2 rounded-full bg-[#d8f45b] px-5 py-3 text-center font-semibold text-[#181713]"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Create a menu
+          </Link>
+        </nav>
+      )}
     </header>
   );
 }

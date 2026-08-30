@@ -2,10 +2,11 @@ import type { NextConfig } from "next";
 
 // Replace SERVICES_VM_IP with the actual IP address of your Services VM
 const SERVICES_VM_IP = process.env.SERVICES_VM_IP || "192.168.1.105";
-const API_GATEWAY_URL = process.env.API_GATEWAY_URL || `http://${SERVICES_VM_IP}:3000`;
+const API_GATEWAY_URL =
+  process.env.API_GATEWAY_URL || `http://${SERVICES_VM_IP}:3000`;
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  output: "standalone",
   images: {
     remotePatterns: [
       {
@@ -66,7 +67,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-};
 };
 
 export default nextConfig;
