@@ -143,15 +143,6 @@
   line-height: 1.65;
 }
 
-.heroActions {
-  display: flex;
-  align-items: center;
-  gap: 1.7rem;
-  margin-top: clamp(1.25rem, 2.5svh, 2rem);
-}
-
-.primaryButton,
-.textButton,
 .roleAction,
 .underlinedLink {
   display: inline-flex;
@@ -160,25 +151,93 @@
   font-weight: 650;
 }
 
-.primaryButton {
-  padding: 1rem 1.2rem 1rem 1.4rem;
-  border-radius: 999px;
-  background: var(--fc-color-brand);
-  color: var(--fc-color-ink);
-  box-shadow: 0 12px 36px
-    color-mix(in srgb, var(--fc-color-shadow) 24%, transparent);
+.entryPoint {
+  margin-top: clamp(1.15rem, 2.5svh, 1.8rem);
+}
+
+.entryPrompt {
+  margin: 0 0 0.65rem;
+  color: var(--fc-color-text-inverse-muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.entryChoices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.entryChoiceMotion {
+  display: flex;
+  min-width: 0;
+  will-change: transform, opacity;
+}
+
+.entryChoice {
+  display: grid;
+  width: 100%;
+  min-height: 5.7rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 1.1rem;
   transition:
     transform 180ms ease,
     box-shadow 180ms ease;
 }
 
-.primaryButton:hover {
+.entryChoice:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 44px
-    color-mix(in srgb, var(--fc-color-shadow) 34%, transparent);
 }
 
-.primaryButton svg,
+.hostChoice {
+  background: var(--fc-color-brand);
+  color: var(--fc-color-ink);
+  box-shadow: 0 12px 36px
+    color-mix(in srgb, var(--fc-color-shadow) 22%, transparent);
+}
+
+.guestChoice {
+  border-color: var(--fc-color-border-inverse);
+  background: var(--fc-color-surface);
+  color: var(--fc-color-ink);
+}
+
+.entryChoiceText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.entryLabel {
+  margin-bottom: 0.3rem;
+  color: var(--fc-color-text-subtle);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.54rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.entryChoice strong {
+  font-size: 0.98rem;
+  line-height: 1.1;
+}
+
+.entryChoice small {
+  margin-top: 0.32rem;
+  color: var(--fc-color-text-muted);
+  font-size: 0.66rem;
+  line-height: 1.3;
+}
+
+.entryChoice svg,
 .underlinedLink svg,
 .roleAction svg,
 .ctaCircle svg {
@@ -191,40 +250,18 @@
   stroke-linejoin: round;
 }
 
-.textButton {
-  color: var(--fc-color-text-inverse);
-  font-size: 0.92rem;
-}
-
-.textButton span {
-  transition: transform 180ms ease;
-}
-
-.textButton:hover span {
-  transform: translateX(4px);
-}
-
-.microProof {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem 1.5rem;
-  margin-top: clamp(1rem, 2.5svh, 2rem);
+.returningHost {
+  margin: 0.7rem 0 0;
   color: var(--fc-color-text-inverse-subtle);
-  font-size: 0.73rem;
+  font-size: 0.72rem;
 }
 
-.microProof > span {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.microProof svg {
-  width: 0.8rem;
-  height: 0.8rem;
-  fill: none;
-  stroke: var(--fc-color-brand);
-  stroke-width: 2.5;
+.returningHost a {
+  color: var(--fc-color-text-inverse);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: var(--fc-color-border-inverse);
+  text-underline-offset: 0.25rem;
 }
 
 .menuStage {
@@ -1121,6 +1158,25 @@
   }
 }
 
+@media (min-width: 821px) and (max-height: 749px) {
+  .entryPoint {
+    margin-top: 0.85rem;
+  }
+  .entryPrompt {
+    margin-bottom: 0.45rem;
+  }
+  .entryChoice {
+    min-height: 4.1rem;
+    padding: 0.7rem 0.85rem;
+  }
+  .entryChoice small {
+    display: none;
+  }
+  .returningHost {
+    display: none;
+  }
+}
+
 @media (max-width: 1080px) {
   .heroGrid {
     grid-template-columns: minmax(0, 1fr) minmax(23rem, 0.8fr);
@@ -1397,20 +1453,34 @@
     line-height: 1.5;
   }
 
-  .heroActions {
-    align-items: center;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: 0.65rem;
-    margin-top: 1rem;
+  .entryPoint {
+    margin-top: 0.9rem;
   }
-
-  .primaryButton {
-    padding: 0.85rem 1rem;
-    font-size: 0.9rem;
+  .entryPrompt {
+    margin-bottom: 0.45rem;
   }
-  .textButton {
+  .entryChoices {
+    gap: 0.5rem;
+  }
+  .entryChoice {
+    min-height: 3.75rem;
+    padding: 0.7rem 0.75rem;
+    border-radius: 0.9rem;
+  }
+  .entryLabel,
+  .entryChoice small {
+    display: none;
+  }
+  .entryChoice strong {
     font-size: 0.8rem;
+  }
+  .entryChoice svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .returningHost {
+    margin-top: 0.55rem;
+    font-size: 0.68rem;
   }
   .menuCard {
     top: 0;
@@ -1433,10 +1503,6 @@
     left: 0;
     bottom: -2%;
   }
-  .microProof {
-    display: none;
-  }
-
   .manifestoFooter {
     align-items: flex-start;
     flex-direction: column;
@@ -1492,8 +1558,7 @@
     grid-template-rows: 1fr;
     align-items: center;
   }
-  .heroLead,
-  .microProof {
+  .heroLead {
     display: none;
   }
 

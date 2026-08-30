@@ -24,7 +24,7 @@ export default function ChefsPage() {
     } catch (err) {
       console.error("Failed to fetch chefs:", err);
       setError(
-        "Failed to load chefs. Please check your connection and try again."
+        "Failed to load hosts. Please check your connection and try again."
       );
     } finally {
       setLoading(false);

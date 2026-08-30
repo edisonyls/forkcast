@@ -91,7 +91,7 @@ export default function CustomizationModal({
         rating: item.rating,
         preparationTime: item.preparationTime,
         chefId: item.chefId || "",
-        chefName: item.chefName || "Unknown Chef",
+        chefName: item.chefName || "Unknown Host",
         quantity,
         customizations: allCustomizations,
         specialNotes,

@@ -281,7 +281,7 @@ export default function CartPage() {
               </div>
               <div className="mb-6">
                 <p className="text-sm text-gray-600">
-                  You can check your order status by visiting the chef's event
+                  You can check your order status by visiting the host's event
                   page.
                 </p>
               </div>
@@ -528,7 +528,7 @@ export default function CartPage() {
                 <p className="text-gray-600 text-sm">
                   {cartChef.name} hasn't created any events yet. Orders can only
                   be placed for events. Please check back later or contact the
-                  chef about upcoming events.
+                  host about upcoming events.
                 </p>
               </>
             )}
@@ -562,7 +562,7 @@ export default function CartPage() {
               onClick={() => {
                 if (events.length === 0) {
                   alert(
-                    "No events available from this chef. Orders can only be placed for events."
+                    "No events available from this host. Orders can only be placed for events."
                   );
                   return;
                 }
@@ -630,7 +630,7 @@ export default function CartPage() {
             </div>
             <div className="mb-6">
               <p className="text-sm text-gray-600">
-                You can check your order status by visiting the chef's event
+                You can check your order status by visiting the host's event
                 page.
               </p>
             </div>

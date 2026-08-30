@@ -431,32 +431,43 @@ export default function HomeExperience() {
               Share your menu. Let every guest choose. Cook with a clear count,
               not a hunch.
             </p>
-            <div className={styles.heroActions}>
-              <Link
-                href="/chef/signup"
-                className={styles.primaryButton}
-                data-hero-action
-              >
-                Create your menu <ArrowUpRight />
-              </Link>
-              <Link
-                href="/guest"
-                className={styles.textButton}
-                data-hero-action
-              >
-                I’m joining a table <span>→</span>
-              </Link>
-            </div>
-            <div className={styles.microProof} data-hero-copy>
-              <span>
-                <Check /> Free for hosts
-              </span>
-              <span>
-                <Check /> No guest sign-up
-              </span>
-              <span>
-                <Check /> Ready in minutes
-              </span>
+            <div className={styles.entryPoint}>
+              <p className={styles.entryPrompt} data-hero-copy>
+                What are you here to do?
+              </p>
+              <div className={styles.entryChoices}>
+                <div className={styles.entryChoiceMotion} data-hero-action>
+                  <Link
+                    href="/chef/signup"
+                    className={`${styles.entryChoice} ${styles.hostChoice}`}
+                  >
+                    <span className={styles.entryChoiceText}>
+                      <span className={styles.entryLabel}>Host</span>
+                      <strong>Host a meal</strong>
+                      <small>Create a menu and collect guest choices.</small>
+                    </span>
+                    <ArrowUpRight />
+                  </Link>
+                </div>
+                <div className={styles.entryChoiceMotion} data-hero-action>
+                  <Link
+                    href="/guest"
+                    className={`${styles.entryChoice} ${styles.guestChoice}`}
+                  >
+                    <span className={styles.entryChoiceText}>
+                      <span className={styles.entryLabel}>Guest</span>
+                      <strong>Join as a guest</strong>
+                      <small>
+                        Use your host’s invitation link. No account needed.
+                      </small>
+                    </span>
+                    <ArrowUpRight />
+                  </Link>
+                </div>
+              </div>
+              <p className={styles.returningHost} data-hero-copy>
+                Already hosting? <Link href="/chef/signin">Sign in</Link>
+              </p>
             </div>
           </div>
 
@@ -708,7 +719,7 @@ export default function HomeExperience() {
               href="/chef/signup"
               className={`${styles.roleCard} ${styles.hostRole}`}
             >
-              <span className={styles.roleEyebrow}>I’m cooking</span>
+              <span className={styles.roleEyebrow}>I’m hosting</span>
               <h3>
                 Create the menu.
                 <br />

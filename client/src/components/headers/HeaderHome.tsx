@@ -34,7 +34,7 @@ export default function HeaderHome() {
             href="/guest"
             className="text-text-inverse-muted transition-colors hover:text-text-inverse"
           >
-            For guests
+            Join a meal
           </Link>
           <Link
             href="/chef/signin"
@@ -46,7 +46,7 @@ export default function HeaderHome() {
             href="/chef/signup"
             className="rounded-full bg-surface px-5 py-2.5 font-semibold text-ink transition-transform hover:-translate-y-0.5"
           >
-            Create a menu
+            Host a meal
           </Link>
         </nav>
 
@@ -87,7 +87,7 @@ export default function HeaderHome() {
             className="rounded-xl px-4 py-3 hover:bg-overlay-inverse"
             onClick={() => setIsMenuOpen(false)}
           >
-            For guests
+            Join a meal
           </Link>
           <Link
             href="/chef/signin"
@@ -101,7 +101,7 @@ export default function HeaderHome() {
             className="mt-2 rounded-full bg-brand px-5 py-3 text-center font-semibold text-ink"
             onClick={() => setIsMenuOpen(false)}
           >
-            Create a menu
+            Host a meal
           </Link>
         </nav>
       )}

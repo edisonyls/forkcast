@@ -106,7 +106,7 @@ export default function ChefPage() {
       } catch (err) {
         console.error("Failed to fetch chef:", err);
         setError(
-          "Failed to load chef information. Please check your connection and try again."
+          "Failed to load host information. Please check your connection and try again."
         );
       } finally {
         setLoading(false);
@@ -275,7 +275,7 @@ export default function ChefPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading chef information...</p>
+          <p className="mt-4 text-gray-600">Loading host information...</p>
         </div>
       </div>
     );
@@ -286,10 +286,10 @@ export default function ChefPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
-            {error || "Chef not found"}
+            {error || "Host not found"}
           </h1>
           <p className="text-gray-600 mb-6">
-            {error || "The chef you're looking for doesn't exist."}
+            {error || "The host you're looking for doesn't exist."}
           </p>
           <button
             onClick={() => router.push("/chefs")}
@@ -314,7 +314,7 @@ export default function ChefPage() {
               </h1>
               <p className="text-gray-600 mb-4">{chef.bio}</p>
               <p className="text-green-600 font-medium">
-                🔒 This chef requires a secret to access their menu.
+                🔒 This host requires a secret to access their menu.
               </p>
             </div>
           </div>
@@ -373,7 +373,7 @@ export default function ChefPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">{chef.name}</h1>
           <p className="text-gray-600">
-            This chef hasn't added any menu categories yet.
+            This host hasn't added any menu categories yet.
           </p>
         </div>
       </div>

@@ -6,7 +6,7 @@ export default function GuestHomePage() {
     {
       title: "Discover Amazing Hosts",
       description:
-        "Browse talented local hosts and their unique cooking styles. From home cooks to professional chefs.",
+        "Browse talented local hosts and their unique cooking styles, from home cooks to seasoned professionals.",
       icon: "👨‍🍳",
       color: "bg-green-50",
     },
@@ -84,16 +84,16 @@ export default function GuestHomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Discover Your Next
+              Joining a meal?
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
-                Favorite Meal Experience
+                Your invitation is the way in.
               </span>
             </h1>
             <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Browse amazing local hosts and their delicious menus. Pre-select
-              your favorites and enjoy gatherings where every dish is exactly
-              what you want to eat!
+              Open the menu link your host sent and use their shared secret. No
+              account is required. If you do not have an invitation yet, you
+              can browse available hosts and menus below.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -107,7 +107,7 @@ export default function GuestHomePage() {
                 href="#how-it-works"
                 className="bg-white text-gray-800 px-8 py-4 rounded-lg text-lg font-medium border-2 border-gray-200 hover:border-green-400 hover:bg-green-50 transition-all"
               >
-                How It Works
+                How Guest Access Works
               </Link>
             </div>
 

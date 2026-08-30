@@ -261,7 +261,7 @@ export default function EventOrderModal({
           </h2>
           <p className="text-gray-600">
             Your order for "{event.title}" has been successfully placed. The
-            chef will review and confirm your order. You can see the status
+            host will review and confirm your order. You can see the status
             badges on the menu items.
           </p>
         </div>
@@ -379,7 +379,7 @@ export default function EventOrderModal({
 
             {chefMenuItems.length === 0 ? (
               <p className="text-gray-500">
-                No menu items available for this chef.
+                No menu items available for this host.
               </p>
             ) : (
               <div className="space-y-4 max-h-96 overflow-y-auto">
