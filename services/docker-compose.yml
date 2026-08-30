@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Database
   postgres:
@@ -10,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "15432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -24,7 +22,7 @@ services:
     image: redis:7-alpine
     container_name: forkcast-redis
     ports:
-      - "6379:6379"
+      - "16379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -40,7 +38,7 @@ services:
       dockerfile: ./api-gateway/Dockerfile
     container_name: forkcast-api-gateway
     ports:
-      - "3000:3000"
+      - "13000:3000"
     environment:
       - PORT=3000
       - NODE_ENV=development
@@ -64,7 +62,7 @@ services:
       dockerfile: ./menu-service/Dockerfile
     container_name: forkcast-menu-service
     ports:
-      - "3002:3002"
+      - "13002:3002"
     environment:
       - PORT=3002
       - NODE_ENV=development
@@ -85,7 +83,7 @@ services:
       dockerfile: ./order-service/Dockerfile
     container_name: forkcast-order-service
     ports:
-      - "3003:3003"
+      - "13003:3003"
     environment:
       - PORT=3003
       - NODE_ENV=development
@@ -106,7 +104,7 @@ services:
       dockerfile: ./search-service/Dockerfile
     container_name: forkcast-search-service
     ports:
-      - "3004:3004"
+      - "13004:3004"
     environment:
       - PORT=3004
       - NODE_ENV=development
@@ -127,7 +125,7 @@ services:
       dockerfile: ./notification-service/Dockerfile
     container_name: forkcast-notification-service
     ports:
-      - "3005:3005"
+      - "13005:3005"
     environment:
       - PORT=3005
       - NODE_ENV=development
@@ -152,7 +150,7 @@ services:
       dockerfile: ./upload-service/Dockerfile
     container_name: forkcast-upload-service
     ports:
-      - "3006:3006"
+      - "13006:3006"
     environment:
       - PORT=3006
       - NODE_ENV=development

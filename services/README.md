@@ -1,335 +1,197 @@
-# Forkcast Microservices Backend
+# Forkcast Backend
 
-A comprehensive Node.js microservices architecture for the Forkcast food delivery platform. This backend supports chef discovery, menu management, order processing, search functionality, and notifications.
+Node.js microservices for Forkcast, with an API gateway, PostgreSQL, Redis,
+Prisma, and image uploads.
 
-## 🏗️ Architecture Overview
+This guide covers local development with `docker-compose.yml`.
 
-The Forkcast backend consists of 6 microservices:
+## Architecture
 
-1. **API Gateway** (Port 3000) - Central entry point and request routing
-2. **User Service** (Port 3001) - Authentication and user management
-3. **Menu Service** (Port 3002) - Chefs, menu items, and categories
-4. **Order Service** (Port 3003) - Order processing and management
-5. **Search Service** (Port 3004) - Search functionality for chefs and menu items
-6. **Notification Service** (Port 3005) - Email notifications and messaging
+The frontend should send requests through the API gateway. Service names and
+container ports are used inside the Docker network; host ports are available
+for local access and debugging.
 
-### Supporting Infrastructure
+| Component | Container port | Host port | Purpose |
+| --- | ---: | ---: | --- |
+| API gateway | 3000 | 13000 | Frontend entry point and request routing |
+| Menu service | 3002 | 13002 | Chefs, authentication, menus, categories, and events |
+| Order service | 3003 | 13003 | Order service shell and health check |
+| Search service | 3004 | 13004 | Search service shell and health check |
+| Notification service | 3005 | 13005 | Notification service shell and health check |
+| Upload service | 3006 | 13006 | Image uploads and static files |
+| PostgreSQL | 5432 | 15432 | Application database |
+| Redis | 6379 | 16379 | Cache |
 
-- **PostgreSQL** - Primary database
-- **Redis** - Caching and session storage
-- **Prisma** - Database ORM and migrations
+Order, search, and notification route handlers are not implemented yet. Their
+containers currently provide health checks only.
 
-## 🚀 Quick Start
+## Local Docker setup
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Docker and Docker Compose
-- Git
+- Docker Desktop with Docker Compose
+- Node.js 20 or later
+- npm
 
-### Option 1: Docker Setup (Recommended)
+### 1. Install dependencies
 
-1. **Clone and setup:**
+From the `services` directory:
 
 ```bash
-cd services
-cp .env.example .env  # Configure environment variables
+npm install
 ```
 
-2. **Start all services:**
+The Compose file contains the development configuration for PostgreSQL, Redis,
+JWT authentication, and service discovery. No `.env` files are required.
+
+### 2. Build and start the containers
 
 ```bash
-npm run docker:up
+docker compose up -d --build
+docker compose ps
 ```
 
-3. **Setup database:**
+All services should report `Up` or `healthy`.
+
+### 3. Apply database migrations
+
+Run Prisma from the host against PostgreSQL's mapped port:
 
 ```bash
-# Run database migrations
-docker exec -it forkcast-user-service npx prisma migrate dev
+DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:15432/forkcast?schema=public' \
+  npx prisma migrate deploy --schema shared/prisma/schema.prisma
 ```
 
-4. **Check health:**
+This step is required for a new Docker volume. A healthy PostgreSQL container
+only means that PostgreSQL accepts connections; it does not mean the
+application tables have been created.
 
-- API Gateway: http://localhost:3000/health
-- All services: http://localhost:300X/health (where X is service port)
-
-### Option 2: Local Development
-
-1. **Install dependencies:**
+### 4. Verify the backend
 
 ```bash
-npm run install:all
+curl --fail http://localhost:13000/health
+curl --fail http://localhost:13000/api/chefs
 ```
 
-2. **Setup environment:**
+The first request checks the gateway. The second checks the complete path from
+the gateway through the menu service to PostgreSQL.
 
-```bash
-# Copy and configure environment variables
-cp .env.example .env
+## Connect the frontend
+
+Create `client/.env.local` with:
+
+```env
+API_GATEWAY_URL=http://127.0.0.1:13000
+NEXT_PUBLIC_API_URL=http://localhost:13000
 ```
 
-3. **Start database and Redis:**
+Then restart the frontend so Next.js reloads the environment variables:
 
 ```bash
-docker-compose up postgres redis -d
-```
-
-4. **Setup database:**
-
-```bash
-cd shared && npx prisma migrate dev && cd ..
-```
-
-5. **Start all services:**
-
-```bash
+cd ../client
+npm install
 npm run dev
 ```
 
-## 📋 API Endpoints
+Open the frontend at <http://localhost:3000>. The gateway permits this origin
+in the local Compose configuration.
 
-### Authentication (`/api/auth`)
+## API gateway routes
 
-- `POST /register` - User registration
-- `POST /login` - User login
-- `POST /logout` - User logout
-- `GET /verify` - Token verification
+Base URL: `http://localhost:13000`
 
-### Users (`/api/users`)
+| Route | Service |
+| --- | --- |
+| `/api/chef/*` | Menu service chef authentication and profile routes |
+| `/api/chefs/*` | Menu service public chef routes |
+| `/api/menu/*` | Menu items, categories, and customizations |
+| `/api/categories/*` | Menu categories |
+| `/api/events/*` | Events and event orders |
+| `/api/upload/*` | Image uploads |
+| `/uploads/*` | Uploaded static files |
 
-- `GET /profile` - Get user profile
-- `PUT /profile` - Update user profile
-- `POST /chef/register` - Register as chef
-- `GET /` - Get all users (admin)
-- `PATCH /:userId/activate` - Activate user (admin)
-- `PATCH /:userId/deactivate` - Deactivate user (admin)
+The gateway also reserves `/api/orders`, `/api/search`, and
+`/api/notifications`, but the corresponding service handlers are still TODO.
 
-### Chefs (`/api/chefs`)
+## Common commands
 
-- `GET /` - Get all chefs (with pagination)
-- `GET /:chefId` - Get chef details
-- `PUT /:chefId` - Update chef profile (chef only)
-- `GET /:chefId/menu` - Get chef's menu items
-
-### Menu (`/api/menu`)
-
-- `GET /` - Get all menu items
-- `GET /:itemId` - Get menu item details
-- `POST /` - Create menu item (chef only)
-- `PUT /:itemId` - Update menu item (chef only)
-- `DELETE /:itemId` - Delete menu item (chef only)
-
-### Categories (`/api/categories`)
-
-- `GET /` - Get all categories
-- `POST /` - Create category (admin only)
-
-### Orders (`/api/orders`)
-
-- `GET /` - Get user orders
-- `POST /` - Create new order
-- `GET /:orderId` - Get order details
-- `PATCH /:orderId/status` - Update order status (chef/admin)
-
-### Search (`/api/search`)
-
-- `GET /chefs` - Search chefs
-- `GET /menu` - Search menu items
-
-## 🔧 Environment Variables
-
-Create a `.env` file in the services directory:
-
-```env
-# Database
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/forkcast"
-
-# Redis
-REDIS_URL="redis://localhost:6379"
-
-# JWT
-JWT_SECRET="your-super-secret-jwt-key-here"
-JWT_EXPIRES_IN="7d"
-
-# Service URLs (for API Gateway)
-USER_SERVICE_URL="http://localhost:3001"
-MENU_SERVICE_URL="http://localhost:3002"
-ORDER_SERVICE_URL="http://localhost:3003"
-SEARCH_SERVICE_URL="http://localhost:3004"
-NOTIFICATION_SERVICE_URL="http://localhost:3005"
-
-# Frontend
-FRONTEND_URL="http://localhost:3000"
-
-# Email (for notifications)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USER="your-email@gmail.com"
-SMTP_PASS="your-app-password"
-```
-
-## 🗄️ Database Schema
-
-The application uses PostgreSQL with Prisma ORM. Key models include:
-
-- **User** - User accounts with roles (CUSTOMER, CHEF, ADMIN)
-- **Chef** - Chef profiles linked to users
-- **Category** - Menu item categories
-- **MenuItem** - Individual menu items with customization options
-- **Order** - Customer orders with status tracking
-- **OrderItem** - Items within orders
-- **CustomizationOption** - Menu item customization options
-
-### Database Commands
+Run these from the `services` directory.
 
 ```bash
-# Generate Prisma client
-npx prisma generate
+# Show container status
+docker compose ps
 
-# Run migrations
-npx prisma migrate dev
+# Follow all logs
+docker compose logs -f --tail=200
 
-# Reset database
-npx prisma migrate reset
+# Follow selected logs
+docker compose logs -f api-gateway menu-service postgres
+
+# Rebuild after source or dependency changes
+docker compose up -d --build
+
+# Stop containers while preserving data volumes
+docker compose down
+```
+
+### Prisma commands
+
+```bash
+# Show migration status
+DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:15432/forkcast?schema=public' \
+  npx prisma migrate status --schema shared/prisma/schema.prisma
+
+# Create a migration after changing schema.prisma
+DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:15432/forkcast?schema=public' \
+  npx prisma migrate dev --name describe_the_change \
+  --schema shared/prisma/schema.prisma
 
 # Open Prisma Studio
-npx prisma studio
+DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:15432/forkcast?schema=public' \
+  npx prisma studio --schema shared/prisma/schema.prisma
 ```
 
-## 🛠️ Development
+Commit generated migration files under `shared/prisma/migrations/`. Use
+`migrate deploy` to apply committed migrations and `migrate dev` only when
+creating migrations during development.
 
-### Project Structure
+## Troubleshooting
 
-```
-services/
-├── shared/                 # Shared utilities and types
-│   ├── src/
-│   │   ├── auth/          # JWT and password utilities
-│   │   ├── database/      # Prisma client configuration
-│   │   ├── middleware/    # Express middleware
-│   │   ├── types/         # TypeScript types
-│   │   ├── utils/         # Utility functions
-│   │   └── validation/    # Zod schemas
-│   └── prisma/            # Database schema
-├── api-gateway/           # API Gateway service
-├── user-service/          # User management service
-├── menu-service/          # Menu and chef service
-├── order-service/         # Order processing service
-├── search-service/        # Search functionality service
-├── notification-service/  # Notification service
-└── docker-compose.yml     # Docker configuration
-```
+### `No such container: forkcast-user-service`
 
-### Available Scripts
+There is no `user-service` container in the current architecture. Chef signup,
+signin, and profile handling are implemented by `menu-service`. Run migrations
+from the host using the command in the setup section.
+
+### Containers are healthy, but API requests return database errors
+
+Check migration status and menu service logs:
 
 ```bash
-# Development
-npm run dev                 # Start all services in development
-npm run dev:gateway        # Start only API Gateway
-npm run dev:user           # Start only User Service
-
-# Building
-npm run build:all          # Build all services
-npm run install:all        # Install dependencies for all services
-
-# Docker
-npm run docker:build       # Build all Docker images
-npm run docker:up          # Start all services with Docker
-npm run docker:down        # Stop all Docker services
-npm run docker:logs        # View logs from all services
+DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:15432/forkcast?schema=public' \
+  npx prisma migrate status --schema shared/prisma/schema.prisma
+docker compose logs --tail=200 menu-service postgres
 ```
 
-### Adding New Services
+Errors such as `The table public.chefs does not exist` mean the migrations have
+not been applied to the current PostgreSQL volume.
 
-1. Create new service directory under `services/`
-2. Add package.json with dependencies
-3. Create TypeScript configuration
-4. Import shared utilities from `@forkcast/shared`
-5. Add service to docker-compose.yml
-6. Update API Gateway routing
-7. Add service scripts to root package.json
+### The frontend times out or calls port 3000 for the backend
 
-## 🔐 Authentication
+Port `3000` belongs to the frontend. The local Docker gateway is published on
+port `13000`. Check `client/.env.local`, restart Next.js, and verify
+<http://localhost:13000/health>.
 
-The system uses JWT-based authentication:
+## Project structure
 
-1. Users register/login through User Service
-2. JWT tokens are issued with user ID, email, and role
-3. All protected routes validate JWT tokens
-4. Role-based access control for admin and chef features
-
-### Authentication Flow
-
+```text
+services/
+├── api-gateway/          # Public API entry point
+├── menu-service/         # Chefs, menus, categories, and events
+├── order-service/        # Order service shell
+├── search-service/       # Search service shell
+├── notification-service/ # Notification service shell
+├── upload-service/       # Image uploads
+├── shared/               # Prisma schema and shared TypeScript code
+└── docker-compose.yml    # Local development
 ```
-Client → API Gateway → User Service → JWT Token → Protected Routes
-```
-
-## 📊 Monitoring & Health Checks
-
-Each service provides a health check endpoint:
-
-- API Gateway: `GET /health`
-- All services: `GET /health`
-
-Health checks include:
-
-- Service status
-- Database connectivity
-- Redis connectivity
-- Timestamp information
-
-## 🐳 Docker Support
-
-The entire architecture is containerized with Docker:
-
-- Each service has its own Dockerfile
-- Docker Compose orchestrates all services
-- Automatic service dependencies and health checks
-- Persistent volumes for database and Redis data
-- Network isolation and service discovery
-
-## 🚨 Error Handling
-
-Standardized error responses across all services:
-
-```json
-{
-  "success": false,
-  "error": "Error message",
-  "errors": {
-    "field": ["Validation error messages"]
-  }
-}
-```
-
-## 🔄 Data Validation
-
-All input validation uses Zod schemas defined in the shared package:
-
-- Request body validation
-- Query parameter validation
-- Type-safe validation with TypeScript
-- Consistent error messages
-
-## 📈 Scaling Considerations
-
-This architecture supports horizontal scaling:
-
-- Stateless services can be replicated
-- Database can be scaled with read replicas
-- Redis can be clustered for high availability
-- API Gateway can use load balancing
-- Services can be deployed independently
-
-## 🤝 Contributing
-
-1. Follow TypeScript and ESLint configurations
-2. Add tests for new features
-3. Update documentation for API changes
-4. Use conventional commit messages
-5. Ensure Docker compatibility
-
-## 📝 License
-
-This project is licensed under the MIT License.

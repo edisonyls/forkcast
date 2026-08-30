@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
-// Replace SERVICES_VM_IP with the actual IP address of your Services VM
-const SERVICES_VM_IP = process.env.SERVICES_VM_IP || "192.168.1.105"; // Set your actual Services VM IP as fallback
+const SERVICES_VM_IP = process.env.SERVICES_VM_IP || "127.0.0.1";
+const SERVICES_VM_PORT = process.env.SERVICES_VM_PORT || "13000";
 
 const nextConfig: NextConfig = {
   images: {
@@ -21,25 +21,13 @@ const nextConfig: NextConfig = {
       {
         protocol: "http",
         hostname: SERVICES_VM_IP,
-        port: "3000",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: SERVICES_VM_IP,
-        port: "3006",
+        port: SERVICES_VM_PORT,
         pathname: "/uploads/**",
       },
       {
         protocol: "http",
         hostname: "localhost",
-        port: "3000",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "3006",
+        port: SERVICES_VM_PORT,
         pathname: "/uploads/**",
       },
     ],
@@ -48,7 +36,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: `http://${SERVICES_VM_IP}:3000/api/:path*`,
+        destination: `http://${SERVICES_VM_IP}:${SERVICES_VM_PORT}/api/:path*`,
       },
     ];
   },

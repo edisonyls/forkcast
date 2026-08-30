@@ -10,19 +10,27 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === "production";
+const frontendUrl = process.env.FRONTEND_URL;
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
+const allowedOrigins = [
+  frontendUrl || "http://localhost:3001",
+  ...(isProduction ? [] : ["http://localhost:3001"]),
+];
 
 // Security middleware
 app.use(helmet());
 app.use(
   cors({
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:3001",
-      "http://localhost:3001",
-    ],
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-  })
+  }),
 );
 
 // Rate limiting
@@ -48,16 +56,16 @@ app.get("/health", (req, res) => {
 app.options("*", (req, res) => {
   res.header(
     "Access-Control-Allow-Origin",
-    req.headers.origin || "http://localhost:3001"
+    req.headers.origin || frontendUrl || "http://localhost:3001",
   );
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
   );
   res.header(
     "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, Cookie"
+    "Content-Type, Authorization, Cookie",
   );
   res.sendStatus(200);
 });
@@ -81,7 +89,7 @@ app.use(
     pathRewrite: {
       "^/api/auth": "/api/auth",
     },
-  })
+  }),
 );
 
 app.use(
@@ -92,7 +100,7 @@ app.use(
     pathRewrite: {
       "^/api/users": "/api/users",
     },
-  })
+  }),
 );
 
 app.use(
@@ -121,7 +129,7 @@ app.use(
         res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
       }
     },
-  })
+  }),
 );
 
 app.use(
@@ -132,7 +140,7 @@ app.use(
     pathRewrite: {
       "^/api/chefs": "/api/chefs",
     },
-  })
+  }),
 );
 
 app.use(
@@ -161,7 +169,7 @@ app.use(
         res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
       }
     },
-  })
+  }),
 );
 
 app.use(
@@ -190,7 +198,7 @@ app.use(
         res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
       }
     },
-  })
+  }),
 );
 
 app.use(
@@ -219,7 +227,7 @@ app.use(
         res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
       }
     },
-  })
+  }),
 );
 
 app.use(
@@ -230,7 +238,7 @@ app.use(
     pathRewrite: {
       "^/api/orders": "/api/orders",
     },
-  })
+  }),
 );
 
 app.use(
@@ -241,7 +249,7 @@ app.use(
     pathRewrite: {
       "^/api/search": "/api/search",
     },
-  })
+  }),
 );
 
 app.use(
@@ -252,7 +260,7 @@ app.use(
     pathRewrite: {
       "^/api/notifications": "/api/notifications",
     },
-  })
+  }),
 );
 
 // Upload service proxy (for file uploads)
@@ -293,7 +301,7 @@ app.use(
         res.setHeader("set-cookie", proxyRes.headers["set-cookie"]);
       }
     },
-  })
+  }),
 );
 
 // Static file serving proxy for uploaded images
@@ -319,7 +327,7 @@ app.use(
       res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
       res.setHeader(
         "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, Cookie"
+        "Content-Type, Authorization, Cookie",
       );
 
       // Ensure Cross-Origin-Resource-Policy is set correctly
@@ -330,7 +338,7 @@ app.use(
         res.setHeader("Cache-Control", "public, max-age=31536000"); // 1 year
       }
     },
-  })
+  }),
 );
 
 // Error handling middleware
@@ -339,7 +347,7 @@ app.use(
     error: any,
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    next: express.NextFunction,
   ) => {
     console.error("API Gateway Error:", error);
     res.status(500).json({
@@ -347,7 +355,7 @@ app.use(
       error: "Internal server error",
       message: "Something went wrong in the API Gateway",
     });
-  }
+  },
 );
 
 // 404 handler
