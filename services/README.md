@@ -30,7 +30,7 @@ containers currently provide health checks only.
 ### Prerequisites
 
 - Docker Desktop with Docker Compose
-- Node.js 20 or later
+- Node.js 24
 - npm
 
 ### 1. Install dependencies
