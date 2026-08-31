@@ -1240,10 +1240,7 @@ export default function MenuManagement() {
                                       imageUrl.startsWith("http") ||
                                       imageUrl.startsWith("data:")
                                         ? imageUrl
-                                        : `${
-                                            process.env.NEXT_PUBLIC_API_URL ||
-                                            "http://localhost:3000"
-                                          }${imageUrl}`
+                                        : `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`
                                     }
                                     alt={`${item.name} ${index + 1}`}
                                     className={`w-full object-cover rounded-md ${

@@ -1,4 +1,10 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error(
+    "Missing required environment variable: NEXT_PUBLIC_API_URL. See .env.example.",
+  );
+}
 
 interface Chef {
   id: string;
@@ -50,7 +56,7 @@ interface ApiResponse<T> {
 class ApiService {
   private async fetchApi<T>(
     endpoint: string,
-    options?: RequestInit
+    options?: RequestInit,
   ): Promise<T> {
     const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
       headers: {
@@ -110,7 +116,7 @@ class ApiService {
       limit?: number;
       category?: string;
       search?: string;
-    }
+    },
   ) {
     const queryParams = new URLSearchParams();
     queryParams.append("chefId", chefId);
@@ -141,7 +147,7 @@ class ApiService {
 
     const query = queryParams.toString();
     return this.fetchApi<{ categories: Category[] }>(
-      `/categories${query ? `?${query}` : ""}`
+      `/categories${query ? `?${query}` : ""}`,
     );
   }
 

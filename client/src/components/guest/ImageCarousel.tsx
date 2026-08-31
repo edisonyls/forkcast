@@ -20,13 +20,13 @@ export default function ImageCarousel({
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1,
     );
   };
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1,
     );
   };
 
@@ -69,9 +69,7 @@ export default function ImageCarousel({
             images[currentIndex].startsWith("http") ||
             images[currentIndex].startsWith("data:")
               ? images[currentIndex]
-              : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${
-                  images[currentIndex]
-                }`
+              : `${process.env.NEXT_PUBLIC_API_URL}${images[currentIndex]}`
           }
           alt={`${itemName} - Image ${currentIndex + 1}`}
           className="w-full h-full object-contain"

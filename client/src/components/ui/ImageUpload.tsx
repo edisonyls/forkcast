@@ -135,9 +135,7 @@ export default function ImageUpload({
               src={
                 previewUrl.startsWith("http") || previewUrl.startsWith("data:")
                   ? previewUrl
-                  : `${
-                      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-                    }${previewUrl}`
+                  : `${process.env.NEXT_PUBLIC_API_URL}${previewUrl}`
               }
               alt="Profile preview"
               fill

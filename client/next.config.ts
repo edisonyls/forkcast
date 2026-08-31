@@ -1,13 +1,29 @@
 import type { NextConfig } from "next";
 
-// Replace SERVICES_VM_IP with the actual IP address of your Services VM
-const SERVICES_VM_IP = process.env.SERVICES_VM_IP || "192.168.1.105";
-const API_GATEWAY_URL =
-  process.env.API_GATEWAY_URL || `http://${SERVICES_VM_IP}:3000`;
+function requireEnvironmentVariable(name: string) {
+  const value = process.env[name];
+
+  if (!value) {
+    throw new Error(
+      `Missing required environment variable: ${name}. See .env.example.`,
+    );
+  }
+
+  return value.replace(/\/+$/, "");
+}
+
+const API_GATEWAY_URL = requireEnvironmentVariable("API_GATEWAY_URL");
+const PUBLIC_API_URL = new URL(
+  requireEnvironmentVariable("NEXT_PUBLIC_API_URL"),
+);
+const ALLOW_LOCAL_IMAGE_OPTIMIZATION = ["localhost", "127.0.0.1"].includes(
+  PUBLIC_API_URL.hostname,
+);
 
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
+    dangerouslyAllowLocalIP: ALLOW_LOCAL_IMAGE_OPTIMIZATION,
     remotePatterns: [
       {
         protocol: "https",
@@ -16,45 +32,9 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
-        protocol: "https",
-        hostname: "forkcast.edisonyls.com",
-        port: "",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: SERVICES_VM_IP,
-        port: "3000",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: SERVICES_VM_IP,
-        port: "3006",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "3000",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "3006",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: "api-gateway",
-        port: "3000",
-        pathname: "/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: "upload-service",
-        port: "3006",
+        protocol: PUBLIC_API_URL.protocol.slice(0, -1) as "http" | "https",
+        hostname: PUBLIC_API_URL.hostname,
+        port: PUBLIC_API_URL.port,
         pathname: "/uploads/**",
       },
     ],

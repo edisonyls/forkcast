@@ -163,9 +163,7 @@ export default function ChefMenu({
                 !chef.image.startsWith("http") &&
                 !chef.image.startsWith("/user.png") &&
                 !chef.image.startsWith("data:")
-                  ? `${
-                      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-                    }${chef.image}`
+                  ? `${process.env.NEXT_PUBLIC_API_URL}${chef.image}`
                   : chef.image || "/user.png"
               }
               alt={chef.name}

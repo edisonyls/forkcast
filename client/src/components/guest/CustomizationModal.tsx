@@ -83,9 +83,7 @@ export default function CustomizationModal({
             ? item.images[0].startsWith("http") ||
               item.images[0].startsWith("data:")
               ? item.images[0]
-              : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${
-                  item.images[0]
-                }`
+              : `${process.env.NEXT_PUBLIC_API_URL}${item.images[0]}`
             : "/food-placeholder.jpg",
         description: item.description,
         rating: item.rating,

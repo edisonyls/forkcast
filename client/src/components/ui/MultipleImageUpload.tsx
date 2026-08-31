@@ -190,10 +190,7 @@ export default function MultipleImageUpload({
                   src={
                     imageUrl.startsWith("http") || imageUrl.startsWith("data:")
                       ? imageUrl
-                      : `${
-                          process.env.NEXT_PUBLIC_API_URL ||
-                          "http://localhost:3000"
-                        }${imageUrl}`
+                      : `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`
                   }
                   alt={`Menu item image ${index + 1}`}
                   fill
