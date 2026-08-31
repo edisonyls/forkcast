@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import ChefCard from "@/components/ChefCard";
+import ChefCard from "@/components/guest/ChefCard";
 import { apiService, type Chef } from "@/lib/api";
 
 export default function ChefsPage() {

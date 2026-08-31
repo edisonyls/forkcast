@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import MultipleImageUpload from "@/components/MultipleImageUpload";
+import MultipleImageUpload from "@/components/ui/MultipleImageUpload";
 
 interface ImageData {
   file: File;

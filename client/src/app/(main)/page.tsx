@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import HomeExperience from "@/components/HomeExperience";
+import HomeExperience from "@/components/home/HomeExperience";
 
 export const metadata: Metadata = {
   title: "ForkCast | Know What They Want Before You Cook",

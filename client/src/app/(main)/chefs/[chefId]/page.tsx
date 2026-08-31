@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import ChefMenu from "@/components/ChefMenu";
+import ChefMenu from "@/components/guest/ChefMenu";
 
-import ChefSecretModal from "@/components/ChefSecretModal";
-import ChefSwitchModal from "@/components/ChefSwitchModal";
+import ChefSecretModal from "@/components/guest/ChefSecretModal";
+import ChefSwitchModal from "@/components/guest/ChefSwitchModal";
 import { apiService } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
 

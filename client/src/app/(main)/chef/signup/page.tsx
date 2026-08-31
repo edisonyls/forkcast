@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import ImageUpload from "@/components/ImageUpload";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 export default function ChefSignUp() {
   const router = useRouter();

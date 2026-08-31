@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import Image from "next/image";
 import Link from "next/link";
-import ConfirmationModal from "@/components/ConfirmationModal";
-import OrderPlacementModal from "@/components/OrderPlacementModal";
+import ConfirmationModal from "@/components/cart/ConfirmationModal";
+import OrderPlacementModal from "@/components/cart/OrderPlacementModal";
 
 interface Event {
   id: string;

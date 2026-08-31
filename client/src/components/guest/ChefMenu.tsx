@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import CustomizationModal from "./CustomisationModal";
+import CustomizationModal from "./CustomizationModal";
 import ImageCarousel from "./ImageCarousel";
 
 interface Chef {
@@ -27,7 +27,7 @@ interface MenuItem {
   preparationTime: number;
   categoryId: string | number;
   chefId: string | number;
-  customizableOptions: any[]; // You may want to import the CustomizationOption interface from CustomisationModal
+  customizableOptions: any[]; // You may want to import the CustomizationOption interface from CustomizationModal
 }
 
 interface EventOrderItem {

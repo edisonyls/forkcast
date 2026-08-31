@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import ImageUpload from "@/components/ImageUpload";
-import Toast from "@/components/Toast";
+import ImageUpload from "@/components/ui/ImageUpload";
+import Toast from "@/components/ui/Toast";
 
 interface Chef {
   id: string;

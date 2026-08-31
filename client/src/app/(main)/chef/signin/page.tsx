@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Toast from "@/components/Toast";
+import Toast from "@/components/ui/Toast";
 
 export default function ChefSignIn() {
   const router = useRouter();

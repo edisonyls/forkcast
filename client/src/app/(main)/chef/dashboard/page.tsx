@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import Toast from "@/components/Toast";
-import OnboardingChecklist from "@/components/OnboardingChecklist";
+import OnboardingChecklist from "@/components/chef/OnboardingChecklist";
+import Toast from "@/components/ui/Toast";
 
 interface Chef {
   id: string;
