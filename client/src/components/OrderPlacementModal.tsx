@@ -67,13 +67,23 @@ export default function OrderPlacementModal({
   const selectedEventInfo = events.find((e) => e.id === selectedEvent);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+      <div
+        className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="order-placement-title"
+      >
         <div className="flex justify-between items-start mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Place Your Order</h2>
+          <h2
+            id="order-placement-title"
+            className="min-w-0 pr-3 text-xl font-bold text-gray-900"
+          >
+            Place Your Order
+          </h2>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="fc-touch-target flex shrink-0 items-center justify-center text-gray-500 hover:text-gray-700"
           >
             ✕
           </button>
@@ -92,7 +102,7 @@ export default function OrderPlacementModal({
                   weekday: "long",
                   month: "long",
                   day: "numeric",
-                }
+                },
               )}
             </p>
           </div>
@@ -126,18 +136,18 @@ export default function OrderPlacementModal({
             </div>
           )}
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+              className="fc-touch-target flex-1 px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !customerName.trim()}
-              className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              className="fc-touch-target flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               {isSubmitting ? "Placing Order..." : "Place Order"}
             </button>

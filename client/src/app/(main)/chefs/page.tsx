@@ -24,7 +24,7 @@ export default function ChefsPage() {
     } catch (err) {
       console.error("Failed to fetch chefs:", err);
       setError(
-        "Failed to load hosts. Please check your connection and try again."
+        "Failed to load hosts. Please check your connection and try again.",
       );
     } finally {
       setLoading(false);
@@ -38,7 +38,7 @@ export default function ChefsPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="fc-shell py-6 sm:py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
           Our Hosts
         </h1>
@@ -52,7 +52,7 @@ export default function ChefsPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="fc-shell py-6 sm:py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
           Our Hosts
         </h1>
@@ -74,7 +74,7 @@ export default function ChefsPage() {
 
   if (!chefs || chefs.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="fc-shell py-6 sm:py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
           Our Hosts
         </h1>
@@ -108,8 +108,8 @@ export default function ChefsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+    <div className="fc-shell py-6 sm:py-8">
+      <h1 className="mb-6 text-center text-2xl font-bold text-gray-800 sm:mb-8 sm:text-3xl">
         Our Hosts
       </h1>
 
@@ -127,7 +127,7 @@ export default function ChefsPage() {
             />
             <button
               type="submit"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-600"
+              className="fc-touch-target absolute right-0 top-1/2 flex -translate-y-1/2 items-center justify-center text-gray-400 hover:text-green-600"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

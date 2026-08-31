@@ -28,7 +28,7 @@ export default function HeaderUser() {
         {
           method: "POST",
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
@@ -45,12 +45,14 @@ export default function HeaderUser() {
 
   return (
     <header className="relative z-50 border-b border-border-inverse bg-ink text-text-inverse">
-      <div className="mx-auto min-h-[72px] max-w-[1440px] px-5 sm:px-8 lg:px-12">
-        <div className="flex min-h-[72px] items-center justify-between">
+      <div className="fc-shell min-h-[var(--fc-header-height)]">
+        <div className="flex min-h-[var(--fc-header-height)] items-center justify-between">
           <Link
             href={isChefDashboard ? "/chef/dashboard" : "/"}
-            className="flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.03em]"
-            aria-label={isChefDashboard ? "ForkCast dashboard" : "ForkCast home"}
+            className="fc-touch-target flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.03em]"
+            aria-label={
+              isChefDashboard ? "ForkCast dashboard" : "ForkCast home"
+            }
           >
             <span className="grid h-8 w-8 place-items-center rounded-full bg-brand text-sm font-black text-ink">
               F
@@ -59,7 +61,7 @@ export default function HeaderUser() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-6">
             {/* Show cart only for guest pages and general pages (not host or chef dashboard) */}
             {!isChefDashboard && (
               <Link
@@ -114,12 +116,12 @@ export default function HeaderUser() {
           </nav>
 
           {/* Mobile Menu Button and Cart Icon */}
-          <div className="md:hidden flex items-center space-x-4">
+          <div className="flex items-center space-x-4 lg:hidden">
             {/* Show cart only for guest pages and general pages (not host or chef dashboard) */}
             {!isChefDashboard && (
               <Link
                 href="/cart"
-                className="relative flex items-center p-2 text-text-inverse-muted transition-colors hover:text-brand"
+                className="fc-touch-target relative flex items-center justify-center text-text-inverse-muted transition-colors hover:text-brand"
               >
                 <svg
                   className="w-6 h-6"
@@ -144,8 +146,10 @@ export default function HeaderUser() {
 
             <button
               onClick={toggleMenu}
-              className="rounded-md p-2 text-text-inverse-muted transition-colors hover:bg-overlay-inverse hover:text-text-inverse focus:outline-none"
+              className="fc-touch-target rounded-md p-2 text-text-inverse-muted transition-colors hover:bg-overlay-inverse hover:text-text-inverse focus:outline-none"
               aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
+              aria-controls="user-mobile-menu"
             >
               <svg
                 className="w-6 h-6"
@@ -175,7 +179,10 @@ export default function HeaderUser() {
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <nav className="mt-4 border-t border-border-inverse pb-4 md:hidden">
+          <nav
+            id="user-mobile-menu"
+            className="border-t border-border-inverse pb-4 lg:hidden"
+          >
             <div className="flex flex-col space-y-3 pt-4">
               {isChefDashboard ? (
                 <button

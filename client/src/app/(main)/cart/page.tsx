@@ -58,7 +58,7 @@ export default function CartPage() {
       if (response.ok) {
         const data = await response.json();
         const availableEvents = (data.data.events || []).filter(
-          (event: Event) => event.status === "OPEN"
+          (event: Event) => event.status === "OPEN",
         );
         setEvents(availableEvents);
 
@@ -118,7 +118,7 @@ export default function CartPage() {
                     existing.customizationBreakdown.get(customizationKey) || 0;
                   existing.customizationBreakdown.set(
                     customizationKey,
-                    currentCount + item.quantity
+                    currentCount + item.quantity,
                   );
                 } else {
                   // New item, add to map
@@ -138,7 +138,7 @@ export default function CartPage() {
               return Array.from(aggregatedItems.values()).map((item) => {
                 // Build detailed breakdown notes
                 const breakdownEntries = Array.from(
-                  item.customizationBreakdown.entries()
+                  item.customizationBreakdown.entries(),
                 );
 
                 if (
@@ -172,13 +172,13 @@ export default function CartPage() {
               });
             })(),
           }),
-        }
+        },
       );
 
       if (response.ok) {
         const eventInfo = events.find((e) => e.id === selectedEvent);
         setCelebrationMessage(
-          `Order placed successfully for: ${eventInfo?.title}!`
+          `Order placed successfully for: ${eventInfo?.title}!`,
         );
         setShowCelebration(true);
         // Don't clear cart immediately - wait for celebration modal to be dismissed
@@ -220,7 +220,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <>
-        <div className="container mx-auto px-4 py-8">
+        <div className="fc-shell py-6 sm:py-8">
           <div className="text-center py-16">
             <div className="mb-6">
               <svg
@@ -270,8 +270,12 @@ export default function CartPage() {
 
         {/* Celebration Modal */}
         {showCelebration && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+          <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+            <div
+              className="fc-dialog max-w-md rounded-lg bg-white p-5 text-center sm:p-8"
+              role="dialog"
+              aria-modal="true"
+            >
               <div className="mb-6">
                 <div className="text-6xl mb-4">🎉</div>
                 <h2 className="text-2xl font-bold text-green-600 mb-2">
@@ -303,11 +307,13 @@ export default function CartPage() {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
+      <div className="fc-shell py-6 sm:py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Your Order</h1>
+        <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">
+              Your Order
+            </h1>
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
               <p className="text-gray-600">
                 {getTotalItems()} {getTotalItems() === 1 ? "item" : "items"} in
@@ -325,7 +331,7 @@ export default function CartPage() {
           </div>
           <button
             onClick={() => setShowClearConfirmation(true)}
-            className="text-red-600 hover:text-red-700 font-medium flex items-center gap-2"
+            className="fc-touch-target flex items-center gap-2 self-start text-red-600 hover:text-red-700 font-medium"
           >
             <svg
               className="w-4 h-4"
@@ -347,10 +353,13 @@ export default function CartPage() {
         {/* Cart Items */}
         <div className="space-y-6">
           {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-md p-6">
+            <div
+              key={item.id}
+              className="rounded-lg bg-white p-4 shadow-md sm:p-6"
+            >
               <div className="flex flex-col md:flex-row gap-4">
                 {/* Item Image */}
-                <div className="relative w-full md:w-32 h-32 flex-shrink-0">
+                <div className="relative h-44 w-full flex-shrink-0 sm:h-52 md:h-32 md:w-32">
                   <Image
                     src={item.image}
                     alt={item.name}
@@ -360,7 +369,7 @@ export default function CartPage() {
                 </div>
 
                 {/* Item Details */}
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-lg font-bold text-gray-800">
@@ -414,7 +423,7 @@ export default function CartPage() {
                   )}
 
                   {/* Item Meta */}
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                  <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <span className="text-yellow-500">★</span>
                       <span>{item.rating}</span>
@@ -438,8 +447,8 @@ export default function CartPage() {
                   </div>
 
                   {/* Quantity Controls */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="text-sm font-medium text-gray-700">
                         Quantity:
                       </span>
@@ -448,7 +457,7 @@ export default function CartPage() {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity - 1)
                           }
-                          className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-l transition-colors"
+                          className="fc-touch-target bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-l transition-colors"
                         >
                           -
                         </button>
@@ -459,7 +468,7 @@ export default function CartPage() {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-r transition-colors"
+                          className="fc-touch-target bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-r transition-colors"
                         >
                           +
                         </button>
@@ -477,7 +486,7 @@ export default function CartPage() {
 
         {/* Event Selection or No Events Message */}
         {cartChef && (
-          <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+          <div className="mt-8 rounded-lg bg-white p-4 shadow-md sm:p-6">
             {events.length > 0 ? (
               <>
                 <h3 className="text-lg font-bold text-gray-800 mb-4">
@@ -536,10 +545,10 @@ export default function CartPage() {
         )}
 
         {/* Cart Actions */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href={getContinueShoppingLink()}
-            className="text-green-600 hover:text-green-700 font-medium flex items-center gap-2"
+            className="fc-touch-target flex w-full items-center justify-center gap-2 text-green-600 hover:text-green-700 font-medium sm:w-auto sm:justify-start"
           >
             <svg
               className="w-5 h-5"
@@ -557,12 +566,12 @@ export default function CartPage() {
             {getContinueShoppingText()}
           </Link>
 
-          <div className="flex gap-4">
+          <div className="flex w-full gap-4 sm:w-auto">
             <button
               onClick={() => {
                 if (events.length === 0) {
                   alert(
-                    "No events available from this host. Orders can only be placed for events."
+                    "No events available from this host. Orders can only be placed for events.",
                   );
                   return;
                 }
@@ -573,7 +582,7 @@ export default function CartPage() {
                 setShowOrderModal(true);
               }}
               disabled={events.length === 0 || !selectedEvent}
-              className="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed sm:w-auto sm:px-8"
             >
               {events.length === 0 ? (
                 <>No Events Available</>
@@ -619,8 +628,12 @@ export default function CartPage() {
 
       {/* Celebration Modal */}
       {showCelebration && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+        <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+          <div
+            className="fc-dialog max-w-md rounded-lg bg-white p-5 text-center sm:p-8"
+            role="dialog"
+            aria-modal="true"
+          >
             <div className="mb-6">
               <div className="text-6xl mb-4">🎉</div>
               <h2 className="text-2xl font-bold text-green-600 mb-2">

@@ -49,10 +49,10 @@ export default function FAQ() {
   ];
 
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="bg-white py-12 sm:py-20">
+      <div className="fc-shell">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="mb-8 text-center sm:mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
               Frequently Asked Questions
             </h2>
@@ -71,7 +71,7 @@ export default function FAQ() {
                   onClick={() =>
                     setOpenIndex(openIndex === index ? null : index)
                   }
-                  className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                  className="flex min-h-[var(--fc-touch-target)] w-full items-center justify-between px-4 py-4 text-left transition-colors hover:bg-gray-50 sm:px-6"
                 >
                   <h3 className="font-semibold text-gray-900 pr-4">
                     {faq.question}
@@ -93,7 +93,7 @@ export default function FAQ() {
                   </svg>
                 </button>
                 {openIndex === index && (
-                  <div className="px-6 py-4 border-t border-gray-100">
+                  <div className="border-t border-gray-100 px-4 py-4 sm:px-6">
                     <p className="text-gray-700 leading-relaxed">
                       {faq.answer}
                     </p>
@@ -103,7 +103,7 @@ export default function FAQ() {
             ))}
           </div>
 
-          <div className="mt-12 text-center bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-8">
+          <div className="mt-8 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 p-5 text-center sm:mt-12 sm:p-8">
             <h3 className="text-xl font-semibold mb-3 text-gray-900">
               Still have questions?
             </h3>

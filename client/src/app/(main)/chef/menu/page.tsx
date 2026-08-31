@@ -57,7 +57,7 @@ export default function MenuManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
 
@@ -126,7 +126,7 @@ export default function MenuManagement() {
         setMenuItemForm((prev) => ({ ...prev, images: [] }));
       }
     },
-    []
+    [],
   );
 
   const handleImageError = (error: string) => {
@@ -145,7 +145,7 @@ export default function MenuManagement() {
         {
           method: "GET",
           credentials: "include", // Include cookies in the request
-        }
+        },
       );
 
       if (response.ok) {
@@ -196,7 +196,7 @@ export default function MenuManagement() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/categories?chefId=${chefId}`,
         {
           credentials: "include",
-        }
+        },
       );
       if (response.ok) {
         const data = await response.json();
@@ -217,7 +217,7 @@ export default function MenuManagement() {
         }/api/menu/items?chefId=${chefId}&secret=${secret || chef?.secret}`,
         {
           credentials: "include",
-        }
+        },
       );
       if (response.ok) {
         const data = await response.json();
@@ -226,7 +226,7 @@ export default function MenuManagement() {
         console.error(
           "Failed to fetch menu items:",
           response.status,
-          await response.text()
+          await response.text(),
         );
       }
     } catch (error) {
@@ -254,7 +254,7 @@ export default function MenuManagement() {
             name: categoryForm.name.trim(),
             chefId: chef.id,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -319,7 +319,7 @@ export default function MenuManagement() {
           },
           credentials: "include",
           body: JSON.stringify(requestBody),
-        }
+        },
       );
 
       if (response.ok) {
@@ -341,7 +341,7 @@ export default function MenuManagement() {
                 method: "POST",
                 credentials: "include",
                 body: imageFormData,
-              }
+              },
             );
 
             if (imageResponse.ok) {
@@ -350,7 +350,7 @@ export default function MenuManagement() {
             } else {
               console.warn(
                 "Failed to upload images:",
-                await imageResponse.text()
+                await imageResponse.text(),
               );
             }
           } catch (imageError) {
@@ -374,7 +374,7 @@ export default function MenuManagement() {
                   ...requestBody,
                   images: finalImageUrls,
                 }),
-              }
+              },
             );
 
             if (updateResponse.ok) {
@@ -383,18 +383,18 @@ export default function MenuManagement() {
               const updateErrorData = await updateResponse.json();
               console.error(
                 "Failed to update menu item with images:",
-                updateErrorData
+                updateErrorData,
               );
               setError(
                 `Failed to save image URLs: ${
                   updateErrorData.error || "Unknown error"
-                }`
+                }`,
               );
             }
           } catch (updateError) {
             console.error(
               "Failed to update menu item with image URLs:",
-              updateError
+              updateError,
             );
             setError("Failed to save image URLs to menu item");
           }
@@ -403,7 +403,7 @@ export default function MenuManagement() {
         // Create customization options if any
         if (menuItemForm.customizationOptions.length > 0) {
           const validOptions = menuItemForm.customizationOptions.filter((opt) =>
-            opt.name.trim()
+            opt.name.trim(),
           );
 
           for (const option of validOptions) {
@@ -419,29 +419,29 @@ export default function MenuManagement() {
                   body: JSON.stringify({
                     name: option.name.trim(),
                   }),
-                }
+                },
               );
 
               if (!optionResponse.ok) {
                 const errorData = await optionResponse.json();
                 console.error(
                   "Failed to create customization option:",
-                  errorData
+                  errorData,
                 );
                 setError(
                   `Failed to create customization option "${option.name}": ${
                     errorData.error || "Unknown error"
-                  }`
+                  }`,
                 );
               } else {
                 console.log(
-                  `Successfully created customization option: ${option.name}`
+                  `Successfully created customization option: ${option.name}`,
                 );
               }
             } catch (error) {
               console.error("Failed to create customization option:", error);
               setError(
-                `Failed to create customization option "${option.name}"`
+                `Failed to create customization option "${option.name}"`,
               );
             }
           }
@@ -468,7 +468,7 @@ export default function MenuManagement() {
           const errorMessages = Object.entries(errorData.errors)
             .map(
               ([field, messages]: [string, any]) =>
-                `${field}: ${messages.join(", ")}`
+                `${field}: ${messages.join(", ")}`,
             )
             .join("; ");
           setError(`Validation errors: ${errorMessages}`);
@@ -486,7 +486,7 @@ export default function MenuManagement() {
   const handleMenuItemInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setMenuItemForm({
@@ -540,7 +540,7 @@ export default function MenuManagement() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/menu/${item.id}/customizations`,
         {
           credentials: "include",
-        }
+        },
       );
       if (response.ok) {
         const data = await response.json();
@@ -601,7 +601,7 @@ export default function MenuManagement() {
               method: "POST",
               credentials: "include",
               body: imageFormData,
-            }
+            },
           );
 
           if (imageResponse.ok) {
@@ -614,7 +614,7 @@ export default function MenuManagement() {
           } else {
             console.warn(
               "Failed to upload images:",
-              await imageResponse.text()
+              await imageResponse.text(),
             );
             // Continue with update even if image upload fails
             finalImageUrls = menuItemForm.images; // Keep existing images
@@ -646,7 +646,7 @@ export default function MenuManagement() {
           },
           credentials: "include",
           body: JSON.stringify(requestBody),
-        }
+        },
       );
 
       if (response.ok) {
@@ -660,7 +660,7 @@ export default function MenuManagement() {
             `${process.env.NEXT_PUBLIC_API_URL}/api/menu/${menuItemForm.id}/customizations`,
             {
               credentials: "include",
-            }
+            },
           );
           const existingData = existingResponse.ok
             ? await existingResponse.json()
@@ -675,7 +675,7 @@ export default function MenuManagement() {
                 {
                   method: "DELETE",
                   credentials: "include",
-                }
+                },
               );
             } catch (error) {
               console.error("Failed to delete customization option:", error);
@@ -684,7 +684,7 @@ export default function MenuManagement() {
 
           // Create new options
           const validOptions = menuItemForm.customizationOptions.filter((opt) =>
-            opt.name.trim()
+            opt.name.trim(),
           );
           for (const option of validOptions) {
             try {
@@ -699,25 +699,25 @@ export default function MenuManagement() {
                   body: JSON.stringify({
                     name: option.name.trim(),
                   }),
-                }
+                },
               );
 
               if (!optionResponse.ok) {
                 const errorData = await optionResponse.json();
                 console.error(
                   "Failed to create customization option:",
-                  errorData
+                  errorData,
                 );
                 setError(
                   `Failed to create customization option "${option.name}": ${
                     errorData.error || "Unknown error"
-                  }`
+                  }`,
                 );
               }
             } catch (error) {
               console.error("Failed to create customization option:", error);
               setError(
-                `Failed to create customization option "${option.name}"`
+                `Failed to create customization option "${option.name}"`,
               );
             }
           }
@@ -747,7 +747,7 @@ export default function MenuManagement() {
           const errorMessages = Object.entries(errorData.errors)
             .map(
               ([field, messages]: [string, any]) =>
-                `${field}: ${messages.join(", ")}`
+                `${field}: ${messages.join(", ")}`,
             )
             .join("; ");
           setError(`Validation errors: ${errorMessages}`);
@@ -773,7 +773,7 @@ export default function MenuManagement() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
@@ -820,7 +820,7 @@ export default function MenuManagement() {
           body: JSON.stringify({
             name: categoryForm.name.trim(),
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -830,8 +830,8 @@ export default function MenuManagement() {
         // Update the category in the state
         setCategories(
           categories.map((category) =>
-            category.id === updatedCategory.id ? updatedCategory : category
-          )
+            category.id === updatedCategory.id ? updatedCategory : category,
+          ),
         );
 
         setCategoryForm({ id: "", name: "" });
@@ -851,12 +851,12 @@ export default function MenuManagement() {
   const handleDeleteCategory = async (categoryId: string) => {
     // Check if category has menu items
     const categoryHasItems = menuItems.some(
-      (item) => item.categoryId === categoryId
+      (item) => item.categoryId === categoryId,
     );
 
     if (categoryHasItems) {
       setError(
-        "Cannot delete category that contains menu items. Please delete all items first."
+        "Cannot delete category that contains menu items. Please delete all items first.",
       );
       return;
     }
@@ -871,22 +871,22 @@ export default function MenuManagement() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
         // Remove the category from the state
         setCategories(
-          categories.filter((category) => category.id !== categoryId)
+          categories.filter((category) => category.id !== categoryId),
         );
 
         // If this was the selected category, select another one or null
         if (selectedCategoryId === categoryId) {
           const remainingCategories = categories.filter(
-            (category) => category.id !== categoryId
+            (category) => category.id !== categoryId,
           );
           setSelectedCategoryId(
-            remainingCategories.length > 0 ? remainingCategories[0].id : null
+            remainingCategories.length > 0 ? remainingCategories[0].id : null,
           );
         }
       } else {
@@ -899,7 +899,7 @@ export default function MenuManagement() {
   };
 
   const selectedCategory = categories.find(
-    (cat) => cat.id === selectedCategoryId
+    (cat) => cat.id === selectedCategoryId,
   );
   const filteredMenuItems = selectedCategoryId
     ? menuItems.filter((item) => item.categoryId === selectedCategoryId)
@@ -982,7 +982,7 @@ export default function MenuManagement() {
                     {categories.map((category) => {
                       const isSelected = selectedCategoryId === category.id;
                       const itemCount = menuItems.filter(
-                        (item) => item.categoryId === category.id
+                        (item) => item.categoryId === category.id,
                       ).length;
                       return (
                         <div
@@ -1013,7 +1013,7 @@ export default function MenuManagement() {
                                   setOpenCategoryDropdown(
                                     openCategoryDropdown === category.id
                                       ? null
-                                      : category.id
+                                      : category.id,
                                   )
                                 }
                                 className="p-1.5 bg-white bg-opacity-90 backdrop-blur-sm text-gray-600 hover:text-gray-800 hover:bg-white rounded-full shadow-md transition-all"
@@ -1110,7 +1110,7 @@ export default function MenuManagement() {
                     <option value="">Select a category</option>
                     {categories.map((category) => {
                       const itemCount = menuItems.filter(
-                        (item) => item.categoryId === category.id
+                        (item) => item.categoryId === category.id,
                       ).length;
                       return (
                         <option key={category.id} value={category.id}>
@@ -1300,7 +1300,7 @@ export default function MenuManagement() {
                               <button
                                 onClick={() =>
                                   setOpenDropdownId(
-                                    openDropdownId === item.id ? null : item.id
+                                    openDropdownId === item.id ? null : item.id,
                                   )
                                 }
                                 className="p-1.5 bg-white bg-opacity-90 backdrop-blur-sm text-gray-600 hover:text-gray-800 hover:bg-white rounded-full shadow-md transition-all"
@@ -1380,8 +1380,12 @@ export default function MenuManagement() {
 
       {/* Category Modal */}
       {showCategoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
+        <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+          <div
+            className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+            role="dialog"
+            aria-modal="true"
+          >
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {isEditingCategory ? "Edit Category" : "Add New Category"}
             </h3>
@@ -1421,8 +1425,8 @@ export default function MenuManagement() {
                       ? "Updating..."
                       : "Creating..."
                     : isEditingCategory
-                    ? "Update Category"
-                    : "Create Category"}
+                      ? "Update Category"
+                      : "Create Category"}
                 </button>
                 <button
                   type="button"
@@ -1444,8 +1448,12 @@ export default function MenuManagement() {
 
       {/* Menu Item Modal */}
       {showMenuItemModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+          <div
+            className="fc-dialog max-w-2xl rounded-lg bg-white p-4 sm:p-6"
+            role="dialog"
+            aria-modal="true"
+          >
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {isEditingMenuItem ? "Edit Menu Item" : "Add New Menu Item"}
             </h3>
@@ -1589,7 +1597,7 @@ export default function MenuManagement() {
                         onClick={() => {
                           const updatedOptions =
                             menuItemForm.customizationOptions.filter(
-                              (_, i) => i !== index
+                              (_, i) => i !== index,
                             );
                           setMenuItemForm({
                             ...menuItemForm,
@@ -1631,8 +1639,8 @@ export default function MenuManagement() {
                       ? "Updating..."
                       : "Creating..."
                     : isEditingMenuItem
-                    ? "Update Menu Item"
-                    : "Create Menu Item"}
+                      ? "Update Menu Item"
+                      : "Create Menu Item"}
                 </button>
                 <button
                   type="button"

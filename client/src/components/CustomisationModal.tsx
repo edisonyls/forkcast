@@ -35,7 +35,7 @@ export default function CustomizationModal({
 }: CustomizationModalProps) {
   const { addToCart } = useCart();
   const [selectedOptions, setSelectedOptions] = useState<CustomizationOption[]>(
-    []
+    [],
   );
   const [customOptions, setCustomOptions] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
@@ -45,7 +45,7 @@ export default function CustomizationModal({
     setSelectedOptions((prev) =>
       prev.find((opt) => opt.id === option.id)
         ? prev.filter((opt) => opt.id !== option.id)
-        : [...prev, option]
+        : [...prev, option],
     );
   };
 
@@ -117,13 +117,23 @@ export default function CustomizationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+      <div
+        className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="customisation-title"
+      >
         <div className="flex justify-between items-start mb-4">
-          <h2 className="text-xl font-bold">{item.name}</h2>
+          <h2
+            id="customisation-title"
+            className="min-w-0 pr-3 text-xl font-bold"
+          >
+            {item.name}
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="fc-touch-target flex shrink-0 items-center justify-center text-gray-500 hover:text-gray-700"
           >
             ✕
           </button>
@@ -154,14 +164,14 @@ export default function CustomizationModal({
             {item.customizableOptions.map((option) => (
               <label
                 key={option.id}
-                className="flex items-center justify-between py-2 border-b cursor-pointer hover:bg-gray-50"
+                className="flex min-h-[var(--fc-touch-target)] items-center justify-between py-2 border-b cursor-pointer hover:bg-gray-50"
               >
                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     className="mr-2 text-green-600 focus:ring-green-500"
                     checked={selectedOptions.some(
-                      (opt) => opt.id === option.id
+                      (opt) => opt.id === option.id,
                     )}
                     onChange={() => toggleOption(option)}
                   />
@@ -193,7 +203,7 @@ export default function CustomizationModal({
           <div className="flex items-center">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="bg-gray-200 px-3 py-1 rounded-l hover:bg-gray-300 transition-colors"
+              className="fc-touch-target bg-gray-200 px-3 py-1 rounded-l hover:bg-gray-300 transition-colors"
             >
               -
             </button>
@@ -202,7 +212,7 @@ export default function CustomizationModal({
             </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="bg-gray-200 px-3 py-1 rounded-r hover:bg-gray-300 transition-colors"
+              className="fc-touch-target bg-gray-200 px-3 py-1 rounded-r hover:bg-gray-300 transition-colors"
             >
               +
             </button>

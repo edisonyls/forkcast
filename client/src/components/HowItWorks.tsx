@@ -60,8 +60,8 @@ export default function HowItWorks() {
 
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">
+      <div className="fc-shell">
+        <h2 className="mb-10 text-center text-3xl font-bold text-gray-900 sm:mb-16 md:text-4xl">
           How It Works
         </h2>
 
@@ -151,7 +151,7 @@ export default function HowItWorks() {
 
         {/* Call to Action */}
         <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-8 max-w-2xl mx-auto">
+          <div className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 p-5 sm:p-8">
             <h3 className="text-2xl font-bold mb-4 text-gray-900">
               Ready to simplify your next gathering?
             </h3>
@@ -161,7 +161,7 @@ export default function HowItWorks() {
             </p>
             <a
               href="/chef/signup"
-              className="inline-block bg-gradient-to-r from-orange-600 to-amber-600 text-white px-8 py-3 rounded-lg font-medium hover:from-orange-700 hover:to-amber-700 transition-all"
+              className="inline-block w-full rounded-lg bg-gradient-to-r from-orange-600 to-amber-600 px-6 py-3 text-white font-medium transition-all hover:from-orange-700 hover:to-amber-700 sm:w-auto sm:px-8"
             >
               Start Creating Your Menu
             </a>

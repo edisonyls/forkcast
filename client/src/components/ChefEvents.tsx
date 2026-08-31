@@ -101,7 +101,7 @@ export default function ChefEvents({
   };
 
   const openEventsOnly = events.filter(
-    (event) => event.status === "OPEN" && new Date(event.deadline) > new Date()
+    (event) => event.status === "OPEN" && new Date(event.deadline) > new Date(),
   );
 
   if (events.length === 0) {
@@ -146,14 +146,14 @@ export default function ChefEvents({
                   key={event.id}
                   className="bg-white rounded-lg shadow-md overflow-hidden"
                 >
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between gap-3 mb-4">
                       <h3 className="text-xl font-bold text-gray-900 flex-1">
                         {event.title}
                       </h3>
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                          event.status
+                          event.status,
                         )}`}
                       >
                         {event.status}
@@ -172,7 +172,7 @@ export default function ChefEvents({
                               weekday: "long",
                               month: "long",
                               day: "numeric",
-                            }
+                            },
                           )}
                         </span>
                       </div>
@@ -186,7 +186,7 @@ export default function ChefEvents({
                             {
                               month: "short",
                               day: "numeric",
-                            }
+                            },
                           )}{" "}
                           at{" "}
                           {new Date(event.deadline).toLocaleTimeString(
@@ -194,7 +194,7 @@ export default function ChefEvents({
                             {
                               hour: "numeric",
                               minute: "2-digit",
-                            }
+                            },
                           )}
                         </span>
                       </div>
@@ -216,7 +216,7 @@ export default function ChefEvents({
                             setSelectedEvent(event);
                             setIsModalOpen(true);
                           }}
-                          className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+                          className="fc-touch-target w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
                         >
                           Place Order for This Event
                         </button>

@@ -91,7 +91,7 @@ export default function ChefPage() {
               // If loading fails, fall back to showing secret modal
               console.warn(
                 "Failed to load with stored secret, showing secret modal:",
-                err
+                err,
               );
               setShowSecretModal(true);
             }
@@ -106,7 +106,7 @@ export default function ChefPage() {
       } catch (err) {
         console.error("Failed to fetch chef:", err);
         setError(
-          "Failed to load host information. Please check your connection and try again."
+          "Failed to load host information. Please check your connection and try again.",
         );
       } finally {
         setLoading(false);
@@ -149,7 +149,7 @@ export default function ChefPage() {
             // If loading fails, fall back to showing secret modal
             console.warn(
               "Failed to load with stored secret, showing secret modal:",
-              err
+              err,
             );
             setShowSecretModal(true);
           }
@@ -190,7 +190,7 @@ export default function ChefPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/events?chefId=${chefId}&secret=${secret}`,
         {
           credentials: "include",
-        }
+        },
       );
       if (response.ok) {
         const data = await response.json();
@@ -228,7 +228,7 @@ export default function ChefPage() {
       // Verify the secret and get chef with menu
       const { chef: verifiedChef } = await apiService.verifyChefSecret(
         chefId,
-        secret
+        secret,
       );
       setChef(verifiedChef);
 
@@ -242,7 +242,7 @@ export default function ChefPage() {
           name: verifiedChef.name,
           hasAccess: true,
         },
-        secret
+        secret,
       );
 
       setStoredSecret(secret);
@@ -257,7 +257,7 @@ export default function ChefPage() {
         setSecretError("Invalid secret. Please try again.");
       } else {
         setSecretError(
-          "Failed to verify secret. Please check your connection and try again."
+          "Failed to verify secret. Please check your connection and try again.",
         );
       }
     } finally {
@@ -272,7 +272,7 @@ export default function ChefPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="fc-shell py-6 sm:py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading host information...</p>
@@ -283,7 +283,7 @@ export default function ChefPage() {
 
   if (error || !chef) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="fc-shell py-6 sm:py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             {error || "Host not found"}
@@ -306,9 +306,9 @@ export default function ChefPage() {
   if (!isMenuAccessible) {
     return (
       <>
-        <div className="container mx-auto px-4 py-8">
+        <div className="fc-shell py-6 sm:py-8">
           <div className="text-center">
-            <div className="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
+            <div className="mx-auto max-w-md rounded-lg bg-white p-5 shadow-md sm:p-8">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">
                 {chef.name}
               </h1>
@@ -346,7 +346,7 @@ export default function ChefPage() {
 
   if (availableCategories.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="fc-shell py-6 sm:py-8">
         {/* Back Button */}
         <div className="mb-6">
           <button
@@ -381,7 +381,7 @@ export default function ChefPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="fc-shell py-6 sm:py-8">
       {/* Back Button */}
       <div className="mb-6">
         <button

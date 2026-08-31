@@ -36,13 +36,20 @@ export default function ChefSecretModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+      <div
+        className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="chef-secret-title"
+      >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Access {chefName}'s Menu</h2>
+          <h2 id="chef-secret-title" className="min-w-0 pr-3 text-xl font-bold">
+            Access {chefName}'s Menu
+          </h2>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="fc-touch-target flex shrink-0 items-center justify-center text-gray-500 hover:text-gray-700"
             disabled={isLoading}
           >
             ✕
@@ -82,18 +89,18 @@ export default function ChefSecretModal({
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+              className="fc-touch-target flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+              className="fc-touch-target flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
               disabled={isLoading || !secret.trim()}
             >
               {isLoading ? "Verifying..." : "Access Menu"}

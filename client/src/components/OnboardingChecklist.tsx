@@ -39,7 +39,7 @@ export default function OnboardingChecklist({
       // Check for menu items
       const menuResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/menu/items?chefId=${chef.id}&secret=${chef.secret}`,
-        { credentials: "include" }
+        { credentials: "include" },
       );
       const menuData = menuResponse.ok ? await menuResponse.json() : null;
       const hasMenuItems = menuData?.data?.menuItems?.length > 0;
@@ -47,7 +47,7 @@ export default function OnboardingChecklist({
       // Check for events
       const eventsResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/events?chefId=${chef.id}&secret=${chef.secret}`,
-        { credentials: "include" }
+        { credentials: "include" },
       );
       const eventsData = eventsResponse.ok ? await eventsResponse.json() : null;
       const hasEvents = eventsData?.data?.events?.length > 0;
@@ -57,8 +57,8 @@ export default function OnboardingChecklist({
         eventsData?.data?.events?.some((event: any) =>
           event.eventOrders?.some(
             (order: any) =>
-              order.status === "CONFIRMED" || order.status === "CANCELLED"
-          )
+              order.status === "CONFIRMED" || order.status === "CANCELLED",
+          ),
         ) || false;
 
       const checklistTasks: ChecklistTask[] = [
@@ -130,17 +130,17 @@ export default function OnboardingChecklist({
         {tasks.map((task) => (
           <div
             key={task.id}
-            className={`flex items-center justify-between p-3 rounded-lg border ${
+            className={`flex flex-col items-stretch gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between ${
               task.completed
                 ? "border-green-200 bg-green-50"
                 : "border-orange-200 bg-orange-50"
             }`}
           >
-            <div className="flex items-center space-x-3">
+            <div className="flex min-w-0 items-center space-x-3">
               <span className="text-lg">
                 {task.completed ? "✅" : task.icon}
               </span>
-              <div>
+              <div className="min-w-0">
                 <h4
                   className={`text-sm font-medium ${
                     task.completed ? "text-green-800" : "text-gray-900"
@@ -161,14 +161,14 @@ export default function OnboardingChecklist({
             {task.actionButton && !task.completed && (
               <Link
                 href={task.actionButton.href}
-                className="bg-orange-600 text-white px-3 py-1.5 text-xs rounded-md hover:bg-orange-700 transition-colors font-medium"
+                className="fc-touch-target flex items-center justify-center bg-orange-600 text-white px-3 py-1.5 text-xs rounded-md hover:bg-orange-700 transition-colors font-medium"
               >
                 {task.actionButton.text}
               </Link>
             )}
 
             {task.completed && (
-              <span className="text-green-600 text-xs font-medium">
+              <span className="self-start text-green-600 text-xs font-medium sm:self-auto">
                 Complete
               </span>
             )}

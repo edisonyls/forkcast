@@ -43,7 +43,7 @@ export default function ChefDashboard() {
         {
           method: "GET",
           credentials: "include", // Include cookies in the request
-        }
+        },
       );
 
       if (response.ok) {
@@ -70,7 +70,7 @@ export default function ChefDashboard() {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
@@ -81,7 +81,7 @@ export default function ChefDashboard() {
           return (
             count +
             (event.eventOrders?.filter(
-              (order: any) => order.status === "PENDING"
+              (order: any) => order.status === "PENDING",
             ).length || 0)
           );
         }, 0);
@@ -122,7 +122,7 @@ export default function ChefDashboard() {
   }
 
   return (
-    <div className="bg-gray-50 py-8">
+    <div className="bg-gray-50 py-4 sm:py-8">
       {/* Toast Notification */}
       {toast && (
         <Toast
@@ -132,7 +132,7 @@ export default function ChefDashboard() {
         />
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="fc-shell">
         {/* Pending Orders Alert */}
         {pendingOrdersCount > 0 && (
           <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -171,8 +171,8 @@ export default function ChefDashboard() {
         )}
 
         {/* Header */}
-        <div className="bg-white shadow rounded-lg p-6 mb-8">
-          <div className="flex items-start space-x-6">
+        <div className="mb-6 rounded-lg bg-white p-4 shadow sm:mb-8 sm:p-6">
+          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
             <div className="flex-shrink-0">
               <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-gray-200">
                 <Image
@@ -194,8 +194,8 @@ export default function ChefDashboard() {
                 />
               </div>
             </div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
                 Welcome, {chef.name}!
               </h1>
               <p className="text-gray-600 mt-2">@{chef.username}</p>
@@ -218,8 +218,8 @@ export default function ChefDashboard() {
                 <h3 className="text-sm font-medium text-gray-500">
                   Menu Access Secret
                 </h3>
-                <div className="mt-1 flex items-center space-x-2">
-                  <p className="text-sm text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <p className="max-w-full break-all rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-900">
                     {chef.secret}
                   </p>
                   <button
@@ -237,7 +237,7 @@ export default function ChefDashboard() {
                         });
                       }
                     }}
-                    className="text-blue-600 hover:text-blue-800 text-xs"
+                    className="fc-touch-target px-2 text-xs text-blue-600 hover:text-blue-800"
                   >
                     Copy
                   </button>
@@ -262,7 +262,7 @@ export default function ChefDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link
             href="/chef/menu"
-            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -283,7 +283,7 @@ export default function ChefDashboard() {
 
           <Link
             href="/chef/events"
-            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -302,7 +302,7 @@ export default function ChefDashboard() {
 
           <Link
             href="/chef/settings"
-            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-md transition-shadow"
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">

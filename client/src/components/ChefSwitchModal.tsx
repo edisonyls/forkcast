@@ -25,8 +25,13 @@ export default function ChefSwitchModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+      <div
+        className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="chef-switch-title"
+      >
         <div className="flex items-center mb-4">
           <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
             <svg
@@ -43,7 +48,12 @@ export default function ChefSwitchModal({
               />
             </svg>
           </div>
-          <h2 className="text-lg font-bold text-gray-800">Switch Host?</h2>
+          <h2
+            id="chef-switch-title"
+            className="text-lg font-bold text-gray-800"
+          >
+            Switch Host?
+          </h2>
         </div>
 
         <div className="mb-6">
@@ -85,16 +95,16 @@ export default function ChefSwitchModal({
           </div>
         </div>
 
-        <div className="flex gap-3 justify-end">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+            className="fc-touch-target px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
           >
             Keep Current Cart
           </button>
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors"
+            className="fc-touch-target px-4 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors"
           >
             Clear Cart & Continue
           </button>

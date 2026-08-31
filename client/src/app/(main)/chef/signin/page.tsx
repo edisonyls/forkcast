@@ -31,7 +31,7 @@ export default function ChefSignIn() {
         {
           method: "GET",
           credentials: "include", // Include cookies in the request
-        }
+        },
       );
 
       if (response.ok) {
@@ -71,7 +71,7 @@ export default function ChefSignIn() {
           },
           credentials: "include", // Include cookies in the request
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (response.ok) {
@@ -99,7 +99,7 @@ export default function ChefSignIn() {
   // Show loading state while checking authentication
   if (checkingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center bg-gray-50 px-[var(--fc-page-gutter)]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Checking authentication...</p>
@@ -116,7 +116,7 @@ export default function ChefSignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center bg-gray-50 px-[var(--fc-page-gutter)] py-8 sm:py-12">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -177,7 +177,7 @@ export default function ChefSignIn() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="fc-touch-target group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>

@@ -79,7 +79,7 @@ export default function MultipleImageUpload({
       onImageError?.(
         `Maximum ${maxImages} images allowed. You can only add ${
           maxImages - previewImages.length - displayImages.length
-        } more image(s).`
+        } more image(s).`,
       );
       return;
     }
@@ -94,11 +94,11 @@ export default function MultipleImageUpload({
     files.forEach((file) => {
       // Validate file type
       const isValidType = Object.keys(ACCEPTED_IMAGE_FORMATS).includes(
-        file.type
+        file.type,
       );
       if (!isValidType) {
         errors.push(
-          `"${file.name}" is not a supported image format. Accepted formats: ${ACCEPTED_EXTENSIONS}`
+          `"${file.name}" is not a supported image format. Accepted formats: ${ACCEPTED_EXTENSIONS}`,
         );
         return;
       }
@@ -107,7 +107,7 @@ export default function MultipleImageUpload({
       if (file.size > MAX_FILE_SIZE) {
         const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
         errors.push(
-          `"${file.name}" is too large (${sizeMB}MB). Maximum size per image is 5MB.`
+          `"${file.name}" is too large (${sizeMB}MB). Maximum size per image is 5MB.`,
         );
         return;
       }
@@ -116,7 +116,7 @@ export default function MultipleImageUpload({
       totalSize += file.size;
       if (totalSize > MAX_TOTAL_SIZE) {
         errors.push(
-          `Total size of all images exceeds 50MB limit. Please select fewer or smaller images.`
+          `Total size of all images exceeds 50MB limit. Please select fewer or smaller images.`,
         );
         return;
       }
@@ -181,7 +181,7 @@ export default function MultipleImageUpload({
     <div className="space-y-4">
       {/* Current/Preview Images Grid */}
       {(displayImages.length > 0 || previewImages.length > 0) && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           {/* Display existing images */}
           {displayImages.map((imageUrl, index) => (
             <div key={`display-${index}`} className="relative group">
@@ -204,7 +204,7 @@ export default function MultipleImageUpload({
                   <button
                     type="button"
                     onClick={() => removeDisplayImage(index)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-md"
+                    className="fc-touch-target absolute right-1 top-1 flex items-center justify-center rounded-full bg-red-500 text-sm text-white shadow-md transition-colors hover:bg-red-600 sm:right-2 sm:top-2"
                     aria-label="Remove image"
                   >
                     ×
@@ -229,7 +229,7 @@ export default function MultipleImageUpload({
                   <button
                     type="button"
                     onClick={() => removePreviewImage(imageData.id)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-md"
+                    className="fc-touch-target absolute right-1 top-1 flex items-center justify-center rounded-full bg-red-500 text-sm text-white shadow-md transition-colors hover:bg-red-600 sm:right-2 sm:top-2"
                     aria-label="Remove image"
                   >
                     ×
@@ -247,7 +247,7 @@ export default function MultipleImageUpload({
 
       {/* Upload Button */}
       {canAddMore && (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+        <div className="rounded-lg border-2 border-dashed border-gray-300 p-4 text-center transition-colors hover:border-gray-400 sm:p-6">
           <input
             ref={fileInputRef}
             type="file"
@@ -281,8 +281,8 @@ export default function MultipleImageUpload({
               {uploading
                 ? "Uploading..."
                 : totalImages === 0
-                ? "Add Images"
-                : `Add More Images (${totalImages}/${maxImages})`}
+                  ? "Add Images"
+                  : `Add More Images (${totalImages}/${maxImages})`}
             </span>
             <span className="text-xs text-gray-500 mt-1">
               Click or drag to select multiple images

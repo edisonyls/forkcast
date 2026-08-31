@@ -74,20 +74,20 @@ export default function EventOrderModal({
 
   // Filter menu items that belong to this chef
   const chefMenuItems = menuItems.filter(
-    (item) => item.chefId.toString() === chef.id.toString()
+    (item) => item.chefId.toString() === chef.id.toString(),
   );
 
   const addItem = (menuItemId: string | number) => {
     const existingItem = orderItems.find(
-      (item) => item.menuItemId === menuItemId
+      (item) => item.menuItemId === menuItemId,
     );
     if (existingItem) {
       setOrderItems(
         orderItems.map((item) =>
           item.menuItemId === menuItemId
             ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
+            : item,
+        ),
       );
     } else {
       setOrderItems([
@@ -112,33 +112,33 @@ export default function EventOrderModal({
     } else {
       setOrderItems(
         orderItems.map((item) =>
-          item.menuItemId === menuItemId ? { ...item, quantity } : item
-        )
+          item.menuItemId === menuItemId ? { ...item, quantity } : item,
+        ),
       );
     }
   };
 
   const updateSpecialNotes = (
     menuItemId: string | number,
-    specialNotes: string
+    specialNotes: string,
   ) => {
     setOrderItems(
       orderItems.map((item) =>
-        item.menuItemId === menuItemId ? { ...item, specialNotes } : item
-      )
+        item.menuItemId === menuItemId ? { ...item, specialNotes } : item,
+      ),
     );
   };
 
   const toggleCustomization = (
     menuItemId: string | number,
-    customization: { id: string | number; name: string }
+    customization: { id: string | number; name: string },
   ) => {
     setOrderItems(
       orderItems.map((item) => {
         if (item.menuItemId === menuItemId) {
           const currentCustomizations = item.selectedCustomizations || [];
           const isSelected = currentCustomizations.some(
-            (c) => c.id === customization.id
+            (c) => c.id === customization.id,
           );
 
           const updatedCustomizations = isSelected
@@ -151,7 +151,7 @@ export default function EventOrderModal({
           };
         }
         return item;
-      })
+      }),
     );
   };
 
@@ -212,7 +212,7 @@ export default function EventOrderModal({
               };
             }),
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -253,10 +253,18 @@ export default function EventOrderModal({
 
   if (success) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg p-8 max-w-md w-full text-center">
+      <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+        <div
+          className="fc-dialog max-w-md rounded-lg bg-white p-5 text-center sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="event-order-success-title"
+        >
           <div className="text-green-600 text-6xl mb-4">✓</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2
+            id="event-order-success-title"
+            className="text-2xl font-bold text-gray-900 mb-2"
+          >
             Order Placed!
           </h2>
           <p className="text-gray-600">
@@ -270,12 +278,20 @@ export default function EventOrderModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
+    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+      <div
+        className="fc-dialog max-w-4xl rounded-lg bg-white"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="event-order-title"
+      >
+        <div className="border-b border-gray-200 p-4 sm:p-6">
           <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="min-w-0 pr-3">
+              <h2
+                id="event-order-title"
+                className="text-xl font-bold text-gray-900 sm:text-2xl"
+              >
                 Order for {event.title}
               </h2>
               <p className="text-gray-600 mt-1">
@@ -290,7 +306,7 @@ export default function EventOrderModal({
             <button
               onClick={handleClose}
               disabled={loading}
-              className="text-gray-400 hover:text-gray-600"
+              className="fc-touch-target flex shrink-0 items-center justify-center text-gray-400 hover:text-gray-600"
             >
               <svg
                 className="w-6 h-6"
@@ -309,7 +325,7 @@ export default function EventOrderModal({
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
               {error}
@@ -382,19 +398,19 @@ export default function EventOrderModal({
                 No menu items available for this host.
               </p>
             ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="max-h-[45dvh] space-y-4 overflow-y-auto overscroll-contain pr-1">
                 {chefMenuItems.map((item) => {
                   const orderItem = orderItems.find(
-                    (orderItem) => orderItem.menuItemId === item.id
+                    (orderItem) => orderItem.menuItemId === item.id,
                   );
                   const quantity = orderItem?.quantity || 0;
 
                   return (
                     <div
                       key={item.id}
-                      className="border border-gray-200 rounded-lg p-4"
+                      className="border border-gray-200 rounded-lg p-3 sm:p-4"
                     >
-                      <div className="flex justify-between items-start mb-2">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900">
                             {item.name}
@@ -407,14 +423,14 @@ export default function EventOrderModal({
                           </p>
                         </div>
 
-                        <div className="flex items-center space-x-2 ml-4">
+                        <div className="flex items-center space-x-2 sm:ml-4">
                           <button
                             type="button"
                             onClick={() =>
                               updateQuantity(item.id, quantity - 1)
                             }
                             disabled={quantity === 0}
-                            className="bg-gray-200 text-gray-600 w-8 h-8 rounded-full hover:bg-gray-300 disabled:opacity-50"
+                            className="fc-touch-target rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50"
                           >
                             -
                           </button>
@@ -424,7 +440,7 @@ export default function EventOrderModal({
                           <button
                             type="button"
                             onClick={() => addItem(item.id)}
-                            className="bg-green-600 text-white w-8 h-8 rounded-full hover:bg-green-700"
+                            className="fc-touch-target rounded-full bg-green-600 text-white hover:bg-green-700"
                           >
                             +
                           </button>
@@ -443,13 +459,13 @@ export default function EventOrderModal({
                               {item.customizableOptions.map((option) => {
                                 const isSelected =
                                   orderItem?.selectedCustomizations?.some(
-                                    (c) => c.id === option.id
+                                    (c) => c.id === option.id,
                                   ) || false;
 
                                 return (
                                   <label
                                     key={option.id}
-                                    className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded"
+                                    className="flex min-h-[var(--fc-touch-target)] items-center cursor-pointer hover:bg-gray-50 p-1 rounded"
                                   >
                                     <input
                                       type="checkbox"
@@ -503,7 +519,7 @@ export default function EventOrderModal({
                                   >
                                     {customization.name}
                                   </span>
-                                )
+                                ),
                               )}
                             </div>
                           </div>
@@ -526,19 +542,19 @@ export default function EventOrderModal({
           )}
 
           {/* Submit Button */}
-          <div className="flex space-x-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <button
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-400 disabled:opacity-50"
+              className="fc-touch-target flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-400 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || orderItems.length === 0}
-              className="flex-1 bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
+              className="fc-touch-target flex-1 bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
             >
               {loading
                 ? "Placing Order..."

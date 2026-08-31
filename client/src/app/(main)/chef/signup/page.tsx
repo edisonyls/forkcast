@@ -104,7 +104,7 @@ export default function ChefSignUp() {
             bio: formData.bio,
             secret: formData.secret,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -120,7 +120,7 @@ export default function ChefSignUp() {
                 method: "POST",
                 credentials: "include",
                 body: imageFormData,
-              }
+              },
             );
 
             if (uploadResponse.ok) {
@@ -140,7 +140,7 @@ export default function ChefSignUp() {
                   },
                   credentials: "include",
                   body: JSON.stringify({ image: imageUrl }),
-                }
+                },
               );
 
               if (!profileResponse.ok) {
@@ -149,7 +149,7 @@ export default function ChefSignUp() {
             } else {
               console.warn(
                 "Failed to upload profile image:",
-                await uploadResponse.text()
+                await uploadResponse.text(),
               );
             }
           } catch (imageError) {
@@ -179,7 +179,7 @@ export default function ChefSignUp() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData({
@@ -197,7 +197,7 @@ export default function ChefSignUp() {
   };
 
   const handleImageChange = (
-    imageData: { file: File; previewUrl: string } | string | null
+    imageData: { file: File; previewUrl: string } | string | null,
   ) => {
     if (imageData && typeof imageData === "object" && "file" in imageData) {
       // New file selected - store file for later upload and preview URL for display
@@ -239,7 +239,7 @@ export default function ChefSignUp() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center bg-gray-50 px-[var(--fc-page-gutter)] py-8 sm:py-12">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -457,7 +457,7 @@ export default function ChefSignUp() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="fc-touch-target group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creating Account..." : "Create Host Account"}
             </button>

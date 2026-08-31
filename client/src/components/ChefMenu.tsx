@@ -70,7 +70,7 @@ export default function ChefMenu({
   events = [],
 }: ChefMenuProps) {
   const [selectedCategory, setSelectedCategory] = useState(
-    categories.length > 0 ? categories[0].id : null
+    categories.length > 0 ? categories[0].id : null,
   );
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,7 +80,7 @@ export default function ChefMenu({
   const filteredItems = selectedCategory
     ? menuItems.filter(
         (item: MenuItem) =>
-          item.categoryId === selectedCategory && item.chefId === chef.id
+          item.categoryId === selectedCategory && item.chefId === chef.id,
       )
     : [];
 
@@ -154,7 +154,7 @@ export default function ChefMenu({
     <React.Fragment>
       {/* Left Side - Categories and Event Orders */}
       <div className="w-full md:w-1/4">
-        <div className="sticky top-4 space-y-4">
+        <div className="space-y-4 md:sticky md:top-4">
           {/* Chef Info */}
           <div className="bg-white rounded-lg shadow-md p-3">
             <Image
@@ -199,7 +199,7 @@ export default function ChefMenu({
                 </p>
                 <button
                   onClick={() => setShowEventsTab(true)}
-                  className="text-xs px-2 py-1 border border-green-300 rounded text-green-700 bg-white hover:bg-green-50 transition-colors"
+                  className="fc-touch-target border border-green-300 bg-white px-2 py-1 text-xs text-green-700 rounded hover:bg-green-50 transition-colors"
                 >
                   🗓️ View Orders
                 </button>
@@ -247,7 +247,7 @@ export default function ChefMenu({
                       <li key={category.id}>
                         <button
                           onClick={() => setSelectedCategory(category.id)}
-                          className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                          className={`min-h-[var(--fc-touch-target)] w-full text-left px-3 py-2 rounded-md transition-colors ${
                             selectedCategory === category.id
                               ? "bg-green-100 text-green-700"
                               : "hover:bg-gray-100"
@@ -296,8 +296,8 @@ export default function ChefMenu({
                                 event.status === "OPEN"
                                   ? "bg-green-100 text-green-800"
                                   : event.status === "CLOSED"
-                                  ? "bg-gray-100 text-gray-800"
-                                  : "bg-red-100 text-red-800"
+                                    ? "bg-gray-100 text-gray-800"
+                                    : "bg-red-100 text-red-800"
                               }`}
                             >
                               {event.status || "OPEN"}
@@ -367,7 +367,7 @@ export default function ChefMenu({
                         setSelectedItem(item);
                         setIsModalOpen(true);
                       }}
-                      className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition-colors"
+                      className="fc-touch-target w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition-colors"
                     >
                       Add to Order
                     </button>
@@ -380,7 +380,7 @@ export default function ChefMenu({
           // Show Event Order Details for Selected Event
           <div className="space-y-6">
             {!selectedEventId ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <div className="bg-white rounded-lg shadow-md p-5 text-center sm:p-8">
                 <h2 className="text-2xl font-bold text-gray-700 mb-4">
                   🗓️ Event Orders Overview
                 </h2>
@@ -391,12 +391,12 @@ export default function ChefMenu({
             ) : (
               (() => {
                 const selectedEvent = availableEvents.find(
-                  (e) => e.id === selectedEventId
+                  (e) => e.id === selectedEventId,
                 );
                 if (!selectedEvent) return null;
 
                 return (
-                  <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                     <div className="border-l-4 border-green-500 pl-4 mb-6">
                       <h2 className="text-2xl font-bold text-gray-900">
                         {selectedEvent.title}
@@ -409,7 +409,7 @@ export default function ChefMenu({
                             weekday: "long",
                             month: "long",
                             day: "numeric",
-                          }
+                          },
                         )}
                       </p>
                       <p className="text-sm text-gray-500 mt-2">

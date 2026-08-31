@@ -6,7 +6,7 @@ import Image from "next/image";
 interface ImageUploadProps {
   currentImage?: string;
   onImageChange: (
-    imageData: { file: File; previewUrl: string } | string | null
+    imageData: { file: File; previewUrl: string } | string | null,
   ) => void;
   onImageError?: (error: string) => void;
   disabled?: boolean;
@@ -176,7 +176,8 @@ export default function ImageUpload({
               e.stopPropagation();
               handleRemoveImage();
             }}
-            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+            className="fc-touch-target absolute -right-3 -top-3 flex items-center justify-center rounded-full bg-red-500 text-sm text-white transition-colors hover:bg-red-600"
+            aria-label="Remove image"
           >
             ×
           </button>
@@ -197,13 +198,13 @@ export default function ImageUpload({
           type="button"
           onClick={handleClick}
           disabled={disabled || uploading}
-          className="text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="fc-touch-target px-3 text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
         >
           {uploading
             ? "Uploading..."
             : previewUrl
-            ? "Change Image"
-            : "Add Image"}
+              ? "Change Image"
+              : "Add Image"}
         </button>
         <p className="text-xs text-gray-500 mt-1">
           {allowDelete

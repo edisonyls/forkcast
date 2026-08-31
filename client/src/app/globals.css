@@ -65,6 +65,29 @@
 
   --background: var(--fc-color-canvas);
   --foreground: var(--fc-color-text);
+
+  /* Responsive layout source of truth. Keep the Tailwind breakpoints below in
+     sync with these values when the product's device strategy changes. */
+  --fc-screen-phone: 35rem; /* 560px */
+  --fc-screen-tablet: 51.25rem; /* 820px */
+  --fc-screen-desktop: 67.5rem; /* 1080px */
+  --fc-screen-wide: 80rem; /* 1280px */
+  --fc-page-max: 90rem;
+  --fc-page-gutter: clamp(1rem, 4vw, 3rem);
+  --fc-section-space: clamp(2rem, 6vw, 5rem);
+  --fc-header-height: 4.5rem;
+  --fc-touch-target: 2.75rem;
+  --fc-dialog-gutter: clamp(0.75rem, 3vw, 1.5rem);
+}
+
+/* Tailwind's responsive prefixes now share the same app-wide device scale as
+   the CSS modules used by the marketing pages. */
+@theme {
+  --breakpoint-sm: 35rem;
+  --breakpoint-md: 51.25rem;
+  --breakpoint-lg: 67.5rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 100rem;
 }
 
 @theme inline {
@@ -94,10 +117,95 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
+  min-height: 100svh;
+  margin: 0;
+  overflow-x: clip;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"] {
+  touch-action: manipulation;
+}
+
+:where(h1, h2, h3, h4, p, a, button, label, dd, dt, li) {
+  overflow-wrap: anywhere;
+}
+
+/* Shared responsive primitives for routes and reusable components. */
+.fc-shell {
+  width: min(100%, var(--fc-page-max));
+  margin-inline: auto;
+  padding-inline: var(--fc-page-gutter);
+}
+
+.fc-section {
+  padding-block: var(--fc-section-space);
+}
+
+.fc-touch-target {
+  min-width: var(--fc-touch-target);
+  min-height: var(--fc-touch-target);
+}
+
+.fc-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding:
+    max(var(--fc-dialog-gutter), env(safe-area-inset-top))
+    max(var(--fc-dialog-gutter), env(safe-area-inset-right))
+    max(var(--fc-dialog-gutter), env(safe-area-inset-bottom))
+    max(var(--fc-dialog-gutter), env(safe-area-inset-left));
+  overscroll-behavior: contain;
+}
+
+.fc-dialog {
+  width: 100%;
+  max-height: calc(100dvh - (2 * var(--fc-dialog-gutter)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 35rem) {
+  /* Prevent iOS from zooming the page when a form control receives focus. */
+  :where(input, select, textarea) {
+    font-size: 1rem;
+  }
+
+  .fc-mobile-full {
+    width: 100%;
+  }
 }
 
 :where(a, button, input, select, textarea):focus-visible {

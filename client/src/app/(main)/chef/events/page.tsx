@@ -101,7 +101,7 @@ export default function EventsManagement() {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
@@ -174,7 +174,7 @@ export default function EventsManagement() {
             eventDate: eventDate,
             deadline: deadline.toISOString(),
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -204,7 +204,7 @@ export default function EventsManagement() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
@@ -386,7 +386,7 @@ export default function EventsManagement() {
                 .sort(
                   (a, b) =>
                     new Date(a.eventDate).getTime() -
-                    new Date(b.eventDate).getTime()
+                    new Date(b.eventDate).getTime(),
                 );
 
               return (
@@ -411,7 +411,7 @@ export default function EventsManagement() {
                       {upcomingEvents.map((event) => {
                         const pendingOrdersCount =
                           event.eventOrders?.filter(
-                            (order) => order.status === "PENDING"
+                            (order) => order.status === "PENDING",
                           ).length || 0;
 
                         return (
@@ -432,7 +432,7 @@ export default function EventsManagement() {
                                   <div className="flex flex-wrap items-center gap-2">
                                     <span
                                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                                        event.status
+                                        event.status,
                                       )}`}
                                     >
                                       {event.status}
@@ -470,7 +470,7 @@ export default function EventsManagement() {
                                       }
                                     >
                                       {new Date(
-                                        event.eventDate
+                                        event.eventDate,
                                       ).toLocaleDateString()}
                                     </span>
                                   </div>
@@ -490,10 +490,10 @@ export default function EventsManagement() {
                                         const confirmedItems = event.eventOrders
                                           .filter(
                                             (order) =>
-                                              order.status === "CONFIRMED"
+                                              order.status === "CONFIRMED",
                                           )
                                           .flatMap(
-                                            (order) => order.eventOrderItems
+                                            (order) => order.eventOrderItems,
                                           );
 
                                         if (confirmedItems.length === 0)
@@ -528,7 +528,7 @@ export default function EventsManagement() {
                                                 totalQuantity: number;
                                                 notes?: string;
                                               }
-                                            >
+                                            >,
                                           );
 
                                         return (
@@ -554,7 +554,7 @@ export default function EventsManagement() {
                                                             Note:{" "}
                                                             {item.notes.replace(
                                                               /^Customizations:\s*/,
-                                                              ""
+                                                              "",
                                                             )}
                                                           </div>
                                                         )}
@@ -564,7 +564,7 @@ export default function EventsManagement() {
                                                       </div>
                                                     </div>
                                                   </div>
-                                                )
+                                                ),
                                               )}
                                             </div>
                                           </div>
@@ -580,7 +580,7 @@ export default function EventsManagement() {
                                     setOpenDropdownId(
                                       openDropdownId === event.id
                                         ? null
-                                        : event.id
+                                        : event.id,
                                     )
                                   }
                                   className="bg-white rounded-md p-2.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 shadow-md"
@@ -673,7 +673,7 @@ export default function EventsManagement() {
                 .sort(
                   (a, b) =>
                     new Date(b.eventDate).getTime() -
-                    new Date(a.eventDate).getTime()
+                    new Date(a.eventDate).getTime(),
                 );
 
               return (
@@ -705,7 +705,7 @@ export default function EventsManagement() {
                                 </h3>
                                 <span
                                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                                    event.status
+                                    event.status,
                                   )} self-start sm:self-auto`}
                                 >
                                   {event.status}
@@ -731,7 +731,7 @@ export default function EventsManagement() {
                                   <br />
                                   <span className="text-red-600">
                                     {new Date(
-                                      event.eventDate
+                                      event.eventDate,
                                     ).toLocaleDateString()}
                                   </span>
                                 </div>
@@ -751,10 +751,10 @@ export default function EventsManagement() {
                                       const confirmedItems = event.eventOrders
                                         .filter(
                                           (order) =>
-                                            order.status === "CONFIRMED"
+                                            order.status === "CONFIRMED",
                                         )
                                         .flatMap(
-                                          (order) => order.eventOrderItems
+                                          (order) => order.eventOrderItems,
                                         );
 
                                       if (confirmedItems.length === 0)
@@ -787,7 +787,7 @@ export default function EventsManagement() {
                                               totalQuantity: number;
                                               notes?: string;
                                             }
-                                          >
+                                          >,
                                         );
 
                                       return (
@@ -813,7 +813,7 @@ export default function EventsManagement() {
                                                           Note:{" "}
                                                           {item.notes.replace(
                                                             /^Customizations:\s*/,
-                                                            ""
+                                                            "",
                                                           )}
                                                         </div>
                                                       )}
@@ -823,7 +823,7 @@ export default function EventsManagement() {
                                                     </div>
                                                   </div>
                                                 </div>
-                                              )
+                                              ),
                                             )}
                                           </div>
                                         </div>
@@ -839,7 +839,7 @@ export default function EventsManagement() {
                                   setOpenDropdownId(
                                     openDropdownId === event.id
                                       ? null
-                                      : event.id
+                                      : event.id,
                                   )
                                 }
                                 className="bg-white rounded-md p-2.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 shadow-md"
@@ -921,8 +921,12 @@ export default function EventsManagement() {
 
         {/* Create Event Modal */}
         {showEventModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md">
+          <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+            <div
+              className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+              role="dialog"
+              aria-modal="true"
+            >
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Create New Event
               </h3>

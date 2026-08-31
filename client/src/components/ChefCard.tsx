@@ -17,7 +17,7 @@ export default function ChefCard({ chef }: ChefCardProps) {
   return (
     <Link href={`/chefs/${chef.id}`}>
       <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-green-200 overflow-hidden group">
-        <div className="p-6 text-center">
+        <div className="p-4 text-center sm:p-6">
           {/* Round Chef Image */}
           <div className="relative mx-auto mb-4 w-24 h-24">
             <Image

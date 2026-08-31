@@ -25,7 +25,7 @@ export default function Search() {
         />
         <button
           type="submit"
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-600"
+          className="fc-touch-target absolute right-0 top-1/2 flex -translate-y-1/2 items-center justify-center text-gray-400 hover:text-orange-600"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
