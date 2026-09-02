@@ -63,7 +63,7 @@ export default function ChefsPage() {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
+            className="fc-button fc-button-primary"
           >
             Try Again
           </button>
@@ -88,7 +88,7 @@ export default function ChefsPage() {
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
+            className="fc-button fc-button-primary"
           >
             Refresh
           </button>
@@ -121,13 +121,14 @@ export default function ChefsPage() {
             <input
               type="text"
               placeholder="Search by name, username, or bio..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="fc-control px-4 py-3 pr-12"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button
               type="submit"
-              className="fc-touch-target absolute right-0 top-1/2 flex -translate-y-1/2 items-center justify-center text-gray-400 hover:text-green-600"
+              className="fc-icon-button fc-icon-button-ghost absolute right-1 top-1/2 -translate-y-1/2"
+              aria-label="Search hosts"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -161,7 +162,7 @@ export default function ChefsPage() {
               {searchTerm && (
                 <button
                   onClick={handleClearSearch}
-                  className="ml-2 text-green-600 hover:text-green-700 underline"
+                  className="fc-button fc-button-ghost ml-2 px-3 text-sm underline"
                 >
                   Clear search
                 </button>

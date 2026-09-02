@@ -293,7 +293,7 @@ export default function ChefPage() {
           </p>
           <button
             onClick={() => router.push("/chefs")}
-            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
+            className="fc-button fc-button-primary"
           >
             Back to Hosts
           </button>
@@ -313,7 +313,7 @@ export default function ChefPage() {
                 {chef.name}
               </h1>
               <p className="text-gray-600 mb-4">{chef.bio}</p>
-              <p className="text-green-600 font-medium">
+              <p className="text-brand-ink font-medium">
                 🔒 This host requires a secret to access their menu.
               </p>
             </div>
@@ -351,7 +351,7 @@ export default function ChefPage() {
         <div className="mb-6">
           <button
             onClick={() => router.push("/chefs")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="fc-button fc-button-ghost"
           >
             <svg
               className="w-5 h-5"
@@ -386,7 +386,7 @@ export default function ChefPage() {
       <div className="mb-6">
         <button
           onClick={() => router.push("/chefs")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="fc-button fc-button-ghost"
         >
           <svg
             className="w-5 h-5"

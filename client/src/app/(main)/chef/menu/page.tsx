@@ -933,7 +933,7 @@ export default function MenuManagement() {
             </div>
             <Link
               href="/chef/dashboard"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-center sm:text-left whitespace-nowrap"
+              className="fc-button fc-button-neutral whitespace-nowrap"
             >
               ← Back to Dashboard
             </Link>
@@ -944,7 +944,7 @@ export default function MenuManagement() {
       {/* Error Message */}
       {error && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="fc-feedback fc-feedback-danger">
             {error}
           </div>
         </div>
@@ -963,7 +963,7 @@ export default function MenuManagement() {
                   </h2>
                   <button
                     onClick={() => setShowCategoryModal(true)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                    className="fc-button fc-button-primary px-3 text-sm"
                   >
                     + Add
                   </button>
@@ -989,14 +989,16 @@ export default function MenuManagement() {
                           key={category.id}
                           className={`relative rounded-md transition-colors ${
                             isSelected
-                              ? "bg-blue-50 border border-blue-200"
+                              ? "bg-brand-soft border border-brand-strong"
                               : "border border-transparent"
                           }`}
                         >
                           <button
                             onClick={() => setSelectedCategoryId(category.id)}
-                            className={`w-full text-left p-3 pr-10 ${
-                              isSelected ? "text-blue-700" : "hover:bg-gray-50"
+                            className={`min-h-[var(--fc-touch-target)] w-full rounded-md p-3 pr-10 text-left transition-colors ${
+                              isSelected
+                                ? "text-brand-ink"
+                                : "hover:bg-brand-soft"
                             }`}
                           >
                             <div className="font-medium">{category.name}</div>
@@ -1009,6 +1011,7 @@ export default function MenuManagement() {
                           <div className="absolute top-2 right-2">
                             <div className="relative dropdown-container">
                               <button
+                                type="button"
                                 onClick={() =>
                                   setOpenCategoryDropdown(
                                     openCategoryDropdown === category.id
@@ -1016,7 +1019,12 @@ export default function MenuManagement() {
                                       : category.id,
                                   )
                                 }
-                                className="p-1.5 bg-white bg-opacity-90 backdrop-blur-sm text-gray-600 hover:text-gray-800 hover:bg-white rounded-full shadow-md transition-all"
+                                className="fc-menu-trigger"
+                                aria-label={`Open actions for ${category.name}`}
+                                aria-haspopup="menu"
+                                aria-expanded={
+                                  openCategoryDropdown === category.id
+                                }
                               >
                                 <svg
                                   className="w-5 h-5"
@@ -1029,14 +1037,18 @@ export default function MenuManagement() {
 
                               {/* Dropdown menu */}
                               {openCategoryDropdown === category.id && (
-                                <div className="absolute right-0 top-6 w-32 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+                                <div
+                                  className="fc-menu-panel absolute right-0 top-12 w-40 z-10"
+                                  role="menu"
+                                >
                                   <div className="py-1">
                                     <button
                                       onClick={() => {
                                         openEditCategoryModal(category);
                                         setOpenCategoryDropdown(null);
                                       }}
-                                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                                      className="fc-menu-item"
+                                      role="menuitem"
                                     >
                                       <svg
                                         className="w-4 h-4 mr-2"
@@ -1058,7 +1070,8 @@ export default function MenuManagement() {
                                         handleDeleteCategory(category.id);
                                         setOpenCategoryDropdown(null);
                                       }}
-                                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                                      className="fc-menu-item fc-menu-item-danger"
+                                      role="menuitem"
                                     >
                                       <svg
                                         className="w-4 h-4 mr-2"
@@ -1105,7 +1118,7 @@ export default function MenuManagement() {
                     id="mobile-category-select"
                     value={selectedCategoryId || ""}
                     onChange={(e) => setSelectedCategoryId(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="fc-control flex-1 px-3 py-2"
                   >
                     <option value="">Select a category</option>
                     {categories.map((category) => {
@@ -1121,7 +1134,7 @@ export default function MenuManagement() {
                   </select>
                   <button
                     onClick={() => setShowCategoryModal(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 whitespace-nowrap"
+                    className="fc-button fc-button-primary whitespace-nowrap"
                   >
                     + Add
                   </button>
@@ -1132,7 +1145,7 @@ export default function MenuManagement() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => openEditCategoryModal(selectedCategory)}
-                      className="flex-1 bg-yellow-100 text-yellow-800 border border-yellow-300 px-4 py-2 rounded-md hover:bg-yellow-200 font-medium text-sm flex items-center justify-center"
+                      className="fc-button fc-button-warning flex-1 text-sm"
                     >
                       <svg
                         className="w-4 h-4 mr-2"
@@ -1151,7 +1164,7 @@ export default function MenuManagement() {
                     </button>
                     <button
                       onClick={() => handleDeleteCategory(selectedCategory.id)}
-                      className="flex-1 bg-red-100 text-red-800 border border-red-300 px-4 py-2 rounded-md hover:bg-red-200 font-medium text-sm flex items-center justify-center"
+                      className="fc-button fc-button-danger flex-1 text-sm"
                     >
                       <svg
                         className="w-4 h-4 mr-2"
@@ -1184,7 +1197,7 @@ export default function MenuManagement() {
                 </p>
                 <button
                   onClick={() => setShowCategoryModal(true)}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium"
+                  className="fc-button fc-button-primary"
                 >
                   Create Your First Category
                 </button>
@@ -1203,7 +1216,7 @@ export default function MenuManagement() {
                     </div>
                     <button
                       onClick={() => openMenuItemModal(selectedCategory.id)}
-                      className="bg-green-600 text-white px-4 py-3 sm:py-2 rounded-md hover:bg-green-700 text-center font-medium"
+                      className="fc-button fc-button-primary"
                     >
                       + Add Item
                     </button>
@@ -1217,7 +1230,7 @@ export default function MenuManagement() {
                       </p>
                       <button
                         onClick={() => openMenuItemModal(selectedCategory.id)}
-                        className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 font-medium"
+                        className="fc-button fc-button-primary"
                       >
                         Add Your First Item
                       </button>
@@ -1295,12 +1308,16 @@ export default function MenuManagement() {
                           <div className="absolute top-2 right-2">
                             <div className="relative dropdown-container">
                               <button
+                                type="button"
                                 onClick={() =>
                                   setOpenDropdownId(
                                     openDropdownId === item.id ? null : item.id,
                                   )
                                 }
-                                className="p-1.5 bg-white bg-opacity-90 backdrop-blur-sm text-gray-600 hover:text-gray-800 hover:bg-white rounded-full shadow-md transition-all"
+                                className="fc-menu-trigger"
+                                aria-label={`Open actions for ${item.name}`}
+                                aria-haspopup="menu"
+                                aria-expanded={openDropdownId === item.id}
                               >
                                 <svg
                                   className="w-5 h-5"
@@ -1313,14 +1330,18 @@ export default function MenuManagement() {
 
                               {/* Dropdown menu */}
                               {openDropdownId === item.id && (
-                                <div className="absolute right-0 top-8 w-32 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+                                <div
+                                  className="fc-menu-panel absolute right-0 top-12 w-40 z-10"
+                                  role="menu"
+                                >
                                   <div className="py-1">
                                     <button
                                       onClick={() => {
                                         openEditMenuItemModal(item);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                                      className="fc-menu-item"
+                                      role="menuitem"
                                     >
                                       <svg
                                         className="w-4 h-4 mr-2"
@@ -1342,7 +1363,8 @@ export default function MenuManagement() {
                                         handleDeleteMenuItem(item.id);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                                      className="fc-menu-item fc-menu-item-danger"
+                                      role="menuitem"
                                     >
                                       <svg
                                         className="w-4 h-4 mr-2"
@@ -1405,7 +1427,7 @@ export default function MenuManagement() {
                   onChange={(e) =>
                     setCategoryForm({ ...categoryForm, name: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="fc-control px-3 py-2"
                   placeholder="e.g., Appetizers, Main Courses, Desserts"
                   autoFocus
                   required
@@ -1415,7 +1437,7 @@ export default function MenuManagement() {
                 <button
                   type="submit"
                   disabled={categoryLoading}
-                  className="flex-1 bg-blue-600 text-white py-3 sm:py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 font-medium"
+                  className="fc-button fc-button-primary flex-1"
                 >
                   {categoryLoading
                     ? isEditingCategory
@@ -1433,7 +1455,7 @@ export default function MenuManagement() {
                     setIsEditingCategory(false);
                     setError("");
                   }}
-                  className="flex-1 bg-gray-300 text-gray-700 py-3 sm:py-2 rounded-md hover:bg-gray-400 font-medium"
+                  className="fc-button fc-button-secondary flex-1"
                 >
                   Cancel
                 </button>
@@ -1473,7 +1495,7 @@ export default function MenuManagement() {
                     name="name"
                     value={menuItemForm.name}
                     onChange={handleMenuItemInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="fc-control px-3 py-2"
                     placeholder="e.g., Grilled Salmon"
                     autoFocus
                     required
@@ -1491,7 +1513,7 @@ export default function MenuManagement() {
                     name="categoryId"
                     value={menuItemForm.categoryId}
                     onChange={handleMenuItemInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="fc-control px-3 py-2"
                     required
                   >
                     <option value="">Select a category</option>
@@ -1517,7 +1539,7 @@ export default function MenuManagement() {
                     onChange={handleMenuItemInputChange}
                     min="5"
                     max="480"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="fc-control px-3 py-2"
                     required
                   />
                 </div>
@@ -1528,7 +1550,7 @@ export default function MenuManagement() {
 
                   {/* Error display for image uploads */}
                   {error && (
-                    <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+                    <div className="fc-feedback fc-feedback-danger mb-4 text-sm">
                       {error}
                     </div>
                   )}
@@ -1556,7 +1578,7 @@ export default function MenuManagement() {
                   rows={3}
                   value={menuItemForm.description}
                   onChange={handleMenuItemInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="fc-control px-3 py-2"
                   placeholder="Describe your dish, ingredients, and what makes it special..."
                   required
                 />
@@ -1586,7 +1608,7 @@ export default function MenuManagement() {
                             customizationOptions: updatedOptions,
                           });
                         }}
-                        className="w-full sm:flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="fc-control px-3 py-2 sm:flex-1"
                         placeholder="e.g., Extra cheese, No onions, Spice level"
                       />
                       <button
@@ -1601,7 +1623,7 @@ export default function MenuManagement() {
                             customizationOptions: updatedOptions,
                           });
                         }}
-                        className="text-red-600 hover:text-red-800 px-3 py-2 sm:px-2 sm:py-1 text-sm font-medium rounded self-start sm:self-auto"
+                        className="fc-button fc-button-danger-ghost self-start text-sm sm:px-3"
                       >
                         Remove
                       </button>
@@ -1618,7 +1640,7 @@ export default function MenuManagement() {
                         ],
                       });
                     }}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="fc-button fc-button-secondary text-sm"
                   >
                     + Add Customization Option
                   </button>
@@ -1629,7 +1651,7 @@ export default function MenuManagement() {
                 <button
                   type="submit"
                   disabled={menuItemLoading}
-                  className="flex-1 bg-green-600 text-white py-3 sm:py-2 rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
+                  className="fc-button fc-button-primary flex-1"
                 >
                   {menuItemLoading
                     ? isEditingMenuItem
@@ -1655,7 +1677,7 @@ export default function MenuManagement() {
                     setIsEditingMenuItem(false);
                     setError("");
                   }}
-                  className="flex-1 bg-gray-300 text-gray-700 py-3 sm:py-2 rounded-md hover:bg-gray-400 font-medium"
+                  className="fc-button fc-button-secondary flex-1"
                 >
                   Cancel
                 </button>

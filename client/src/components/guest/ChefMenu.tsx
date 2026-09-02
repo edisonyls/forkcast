@@ -185,19 +185,19 @@ export default function ChefMenu({
           </div>
 
           {/* Information Panel for Finding Orders */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div className="fc-feedback fc-feedback-info">
             <div className="flex items-start space-x-2">
               <div className="flex-shrink-0">
-                <span className="text-green-600 text-sm">📋</span>
+                <span className="text-sm">📋</span>
               </div>
               <div className="flex-1">
-                <p className="text-xs text-green-700 mb-2">
+                <p className="text-xs mb-2">
                   <strong>Have placed an order?</strong> Check the Events tab to
                   review and track your orders!
                 </p>
                 <button
                   onClick={() => setShowEventsTab(true)}
-                  className="fc-touch-target border border-green-300 bg-white px-2 py-1 text-xs text-green-700 rounded hover:bg-green-50 transition-colors"
+                  className="fc-button fc-button-secondary text-xs"
                 >
                   🗓️ View Orders
                 </button>
@@ -212,7 +212,7 @@ export default function ChefMenu({
                 onClick={() => setShowEventsTab(false)}
                 className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
                   !showEventsTab
-                    ? "bg-green-50 text-green-700 border-b-2 border-green-500"
+                    ? "bg-brand-soft text-brand-ink border-b-2 border-brand-strong"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -222,13 +222,13 @@ export default function ChefMenu({
                 onClick={() => setShowEventsTab(true)}
                 className={`flex-1 py-3 px-4 text-sm font-medium transition-colors relative ${
                   showEventsTab
-                    ? "bg-green-50 text-green-700 border-b-2 border-green-500"
+                    ? "bg-brand-soft text-brand-ink border-b-2 border-brand-strong"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Events
                 {availableEvents.length > 0 && (
-                  <span className="ml-1 bg-green-100 text-green-800 text-xs px-1.5 py-0.5 rounded-full">
+                  <span className="fc-badge fc-badge-brand ml-1">
                     {availableEvents.length}
                   </span>
                 )}
@@ -247,7 +247,7 @@ export default function ChefMenu({
                           onClick={() => setSelectedCategory(category.id)}
                           className={`min-h-[var(--fc-touch-target)] w-full text-left px-3 py-2 rounded-md transition-colors ${
                             selectedCategory === category.id
-                              ? "bg-green-100 text-green-700"
+                              ? "bg-brand-soft text-brand-ink"
                               : "hover:bg-gray-100"
                           }`}
                         >
@@ -260,7 +260,7 @@ export default function ChefMenu({
               ) : (
                 // Events Tab
                 <>
-                  <h3 className="font-bold mb-4 text-green-700">
+                  <h3 className="font-bold mb-4 text-brand-ink">
                     🗓️ Available Events
                   </h3>
 
@@ -279,28 +279,28 @@ export default function ChefMenu({
                         <div
                           key={event.id}
                           onClick={() => setSelectedEventId(event.id)}
-                          className={`border rounded-lg p-3 hover:bg-green-100 transition-colors cursor-pointer ${
+                          className={`rounded-lg border p-3 transition-colors cursor-pointer hover:bg-brand-soft ${
                             selectedEventId === event.id
-                              ? "bg-green-100 border-green-300"
-                              : "bg-green-50 border-green-200"
+                              ? "bg-brand-soft border-brand-strong"
+                              : "bg-surface border-border-theme"
                           }`}
                         >
-                          <h4 className="font-medium text-sm text-green-900 mb-2">
+                          <h4 className="font-medium text-sm text-ink mb-2">
                             {event.title}
                           </h4>
                           <div className="flex justify-between items-center">
                             <span
-                              className={`text-xs px-2 py-1 rounded-full ${
+                              className={`fc-badge ${
                                 event.status === "OPEN"
-                                  ? "bg-green-100 text-green-800"
+                                  ? "fc-badge-success"
                                   : event.status === "CLOSED"
-                                    ? "bg-gray-100 text-gray-800"
-                                    : "bg-red-100 text-red-800"
+                                    ? "fc-badge-neutral"
+                                    : "fc-badge-danger"
                               }`}
                             >
                               {event.status || "OPEN"}
                             </span>
-                            <span className="text-xs text-green-600">
+                            <span className="text-xs text-brand-ink">
                               {event.eventOrders?.length || 0} orders
                             </span>
                           </div>
@@ -347,7 +347,7 @@ export default function ChefMenu({
                       <h3 className="text-lg font-bold flex-1 mr-2 line-clamp-2 leading-tight">
                         {item.name}
                       </h3>
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm flex-shrink-0">
+                      <span className="fc-badge fc-badge-brand flex-shrink-0">
                         {item.preparationTime} mins
                       </span>
                     </div>
@@ -365,7 +365,7 @@ export default function ChefMenu({
                         setSelectedItem(item);
                         setIsModalOpen(true);
                       }}
-                      className="fc-touch-target w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition-colors"
+                      className="fc-button fc-button-primary w-full"
                     >
                       Add to Order
                     </button>
@@ -433,18 +433,24 @@ export default function ChefMenu({
                             switch (status) {
                               case "PENDING":
                                 return {
-                                  bg: "bg-yellow-500",
+                                  variant: "fc-badge-warning",
                                   text: "⏳ Pending",
                                 };
                               case "CONFIRMED":
                                 return {
-                                  bg: "bg-green-500",
+                                  variant: "fc-badge-success",
                                   text: "✓ Confirmed",
                                 };
                               case "CANCELLED":
-                                return { bg: "bg-red-500", text: "✗ Rejected" };
+                                return {
+                                  variant: "fc-badge-danger",
+                                  text: "✗ Rejected",
+                                };
                               default:
-                                return { bg: "bg-gray-500", text: "Unknown" };
+                                return {
+                                  variant: "fc-badge-neutral",
+                                  text: "Unknown",
+                                };
                             }
                           };
 
@@ -457,7 +463,7 @@ export default function ChefMenu({
                             >
                               {/* Status Badge */}
                               <div
-                                className={`absolute top-2 right-2 ${statusBadge.bg} text-white text-xs px-2 py-1 rounded-full font-medium`}
+                                className={`fc-badge absolute top-2 right-2 ${statusBadge.variant}`}
                               >
                                 {statusBadge.text}
                               </div>
@@ -475,7 +481,7 @@ export default function ChefMenu({
                                       <span className="text-gray-700 font-medium text-sm">
                                         {item.menuItem.name}
                                       </span>
-                                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                                      <span className="fc-badge fc-badge-brand">
                                         {item.quantity}x
                                       </span>
                                     </div>

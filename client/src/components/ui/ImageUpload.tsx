@@ -174,7 +174,7 @@ export default function ImageUpload({
               e.stopPropagation();
               handleRemoveImage();
             }}
-            className="fc-touch-target absolute -right-3 -top-3 flex items-center justify-center rounded-full bg-red-500 text-sm text-white transition-colors hover:bg-red-600"
+            className="fc-icon-button fc-icon-button-danger absolute -right-3 -top-3 text-sm"
             aria-label="Remove image"
           >
             ×
@@ -196,7 +196,7 @@ export default function ImageUpload({
           type="button"
           onClick={handleClick}
           disabled={disabled || uploading}
-          className="fc-touch-target px-3 text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="fc-button fc-button-secondary px-3 text-sm"
         >
           {uploading
             ? "Uploading..."

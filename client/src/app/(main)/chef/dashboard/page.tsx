@@ -108,7 +108,7 @@ export default function ChefDashboard() {
           <div className="text-red-600 mb-4">{error}</div>
           <button
             onClick={() => router.push("/chef/signin")}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="fc-button fc-button-primary"
           >
             Go to Sign In
           </button>
@@ -135,11 +135,11 @@ export default function ChefDashboard() {
       <div className="fc-shell">
         {/* Pending Orders Alert */}
         {pendingOrdersCount > 0 && (
-          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="fc-feedback fc-feedback-warning mb-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-yellow-400"
+                  className="h-5 w-5"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -151,10 +151,10 @@ export default function ChefDashboard() {
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-800">
+                <h3 className="text-sm font-medium">
                   Pending Orders Awaiting Your Confirmation
                 </h3>
-                <div className="mt-1 text-sm text-yellow-700">
+                <div className="mt-1 text-sm">
                   You have <strong>{pendingOrdersCount}</strong> pending order
                   {pendingOrdersCount === 1 ? "" : "s"} that need
                   {pendingOrdersCount === 1 ? "s" : ""} your attention.
@@ -234,7 +234,7 @@ export default function ChefDashboard() {
                         });
                       }
                     }}
-                    className="fc-touch-target px-2 text-xs text-blue-600 hover:text-blue-800"
+                    className="fc-button fc-button-secondary px-3 text-xs"
                   >
                     Copy
                   </button>
@@ -263,7 +263,7 @@ export default function ChefDashboard() {
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-ink">
                   <span className="text-white text-sm font-medium">📋</span>
                 </div>
               </div>
@@ -284,7 +284,7 @@ export default function ChefDashboard() {
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-ink">
                   <span className="text-white text-sm font-medium">🗓️</span>
                 </div>
               </div>
@@ -303,7 +303,7 @@ export default function ChefDashboard() {
           >
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-ink">
                   <span className="text-white text-sm font-medium">⚙️</span>
                 </div>
               </div>

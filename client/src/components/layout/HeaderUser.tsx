@@ -73,7 +73,7 @@ export default function HeaderUser() {
             {!isChefDashboard && (
               <Link
                 href="/cart"
-                className="relative flex items-center text-text-inverse-muted transition-colors hover:text-brand"
+                className="fc-touch-target relative flex items-center justify-center text-text-inverse-muted transition-colors hover:text-brand"
               >
                 <svg
                   className="w-6 h-6"
@@ -108,7 +108,7 @@ export default function HeaderUser() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`transition-colors ${
+                      className={`fc-touch-target inline-flex items-center transition-colors ${
                         isActive
                           ? "text-brand"
                           : "text-text-inverse-muted hover:text-text-inverse"
@@ -120,7 +120,7 @@ export default function HeaderUser() {
                 })}
                 <button
                   onClick={handleSignOut}
-                  className="rounded-full border border-border-inverse px-4 py-2 text-text-inverse-muted transition-colors hover:border-text-inverse-muted hover:bg-overlay-inverse hover:text-text-inverse"
+                  className="fc-touch-target rounded-full border border-border-inverse px-4 text-text-inverse-muted transition-colors hover:border-text-inverse-muted hover:bg-overlay-inverse hover:text-text-inverse"
                 >
                   Sign out
                 </button>
@@ -129,7 +129,7 @@ export default function HeaderUser() {
               // Guest page navigation: Browse Hosts
               <Link
                 href="/chefs"
-                className="rounded-full bg-brand px-4 py-2 text-ink transition-colors hover:bg-brand-strong"
+                className="fc-touch-target inline-flex items-center rounded-full bg-brand px-4 text-ink transition-colors hover:bg-brand-strong"
               >
                 Browse Hosts
               </Link>
@@ -137,7 +137,7 @@ export default function HeaderUser() {
               // Default navigation: Become a Host
               <Link
                 href="/chef/signup"
-                className="rounded-full bg-brand px-4 py-2 text-ink transition-colors hover:bg-brand-strong"
+                className="fc-touch-target inline-flex items-center rounded-full bg-brand px-4 text-ink transition-colors hover:bg-brand-strong"
               >
                 Become a Host
               </Link>
@@ -225,7 +225,7 @@ export default function HeaderUser() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`rounded-xl px-4 py-3 text-center font-medium transition-colors ${
+                        className={`fc-touch-target rounded-xl px-4 py-3 text-center font-medium transition-colors ${
                           isActive
                             ? "bg-brand text-ink"
                             : "text-text-inverse-muted hover:bg-overlay-inverse hover:text-text-inverse"
@@ -241,7 +241,7 @@ export default function HeaderUser() {
                       handleSignOut();
                       setIsMenuOpen(false);
                     }}
-                    className="rounded-full border border-border-inverse px-4 py-3 text-center font-medium text-text-inverse-muted transition-colors hover:bg-overlay-inverse hover:text-text-inverse"
+                    className="fc-touch-target rounded-full border border-border-inverse px-4 py-3 text-center font-medium text-text-inverse-muted transition-colors hover:bg-overlay-inverse hover:text-text-inverse"
                   >
                     Sign out
                   </button>
@@ -250,7 +250,7 @@ export default function HeaderUser() {
                 // Guest page mobile navigation
                 <Link
                   href="/chefs"
-                  className="rounded-full bg-brand px-4 py-3 text-center font-medium text-ink transition-colors hover:bg-brand-strong"
+                  className="fc-touch-target rounded-full bg-brand px-4 py-3 text-center font-medium text-ink transition-colors hover:bg-brand-strong"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Browse Hosts
@@ -259,7 +259,7 @@ export default function HeaderUser() {
                 // Default mobile navigation
                 <Link
                   href="/chef/signup"
-                  className="rounded-full bg-brand px-4 py-3 text-center font-medium text-ink transition-colors hover:bg-brand-strong"
+                  className="fc-touch-target rounded-full bg-brand px-4 py-3 text-center font-medium text-ink transition-colors hover:bg-brand-strong"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Become a Host

@@ -90,11 +90,11 @@ export default function OrderPlacementModal({
         </div>
 
         {selectedEventInfo && (
-          <div className="mb-4 p-3 bg-green-50 rounded-md">
-            <p className="text-sm text-green-700">
+          <div className="fc-feedback fc-feedback-success mb-4">
+            <p className="text-sm">
               <strong>Event:</strong> {selectedEventInfo.title}
             </p>
-            <p className="text-sm text-green-600">
+            <p className="text-sm">
               📅{" "}
               {new Date(selectedEventInfo.eventDate).toLocaleDateString(
                 "en-US",
@@ -108,8 +108,8 @@ export default function OrderPlacementModal({
           </div>
         )}
 
-        <div className="mb-4 p-3 bg-green-50 rounded-md">
-          <p className="text-sm text-green-700">
+        <div className="fc-feedback fc-feedback-success mb-4">
+          <p className="text-sm">
             <strong>Order Summary:</strong> {totalItems}{" "}
             {totalItems === 1 ? "item" : "items"}
           </p>
@@ -124,15 +124,15 @@ export default function OrderPlacementModal({
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="fc-control px-3 py-2 text-sm"
               placeholder="Enter your full name"
               required
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="fc-feedback fc-feedback-danger">
+              <p className="text-sm">{error}</p>
             </div>
           )}
 
@@ -140,14 +140,14 @@ export default function OrderPlacementModal({
             <button
               type="button"
               onClick={handleClose}
-              className="fc-touch-target flex-1 px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+              className="fc-button fc-button-secondary flex-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !customerName.trim()}
-              className="fc-touch-target flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              className="fc-button fc-button-primary flex-1"
             >
               {isSubmitting ? "Placing Order..." : "Place Order"}
             </button>

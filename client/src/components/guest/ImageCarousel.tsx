@@ -80,7 +80,7 @@ export default function ImageCarousel({
           <>
             <button
               onClick={goToPrevious}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200 z-10 touch-manipulation"
+              className="fc-icon-button fc-icon-button-inverse absolute left-2 top-1/2 z-10 -translate-y-1/2 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100"
               aria-label="Previous image"
             >
               <svg
@@ -99,7 +99,7 @@ export default function ImageCarousel({
             </button>
             <button
               onClick={goToNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-200 z-10 touch-manipulation"
+              className="fc-icon-button fc-icon-button-inverse absolute right-2 top-1/2 z-10 -translate-y-1/2 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100"
               aria-label="Next image"
             >
               <svg
@@ -122,14 +122,13 @@ export default function ImageCarousel({
 
       {/* Dots Indicator - Only show if multiple images */}
       {hasMultipleImages && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2">
           {images.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 md:w-2 md:h-2 rounded-full transition-colors touch-manipulation ${
-                index === currentIndex ? "bg-white" : "bg-white bg-opacity-50"
-              }`}
+              className="fc-carousel-dot"
+              data-active={index === currentIndex}
               aria-label={`Go to image ${index + 1}`}
             />
           ))}

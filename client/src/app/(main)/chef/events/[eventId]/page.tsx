@@ -140,30 +140,30 @@ export default function EventDetailsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "OPEN":
-        return "bg-green-100 text-green-800";
+        return "fc-badge-success";
       case "CLOSED":
-        return "bg-gray-100 text-gray-800";
+        return "fc-badge-neutral";
       case "CANCELLED":
-        return "bg-red-100 text-red-800";
+        return "fc-badge-danger";
       case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
+        return "fc-badge-warning";
       case "CONFIRMED":
-        return "bg-blue-100 text-blue-800";
+        return "fc-badge-success";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "fc-badge-neutral";
     }
   };
 
   const getOrderStatusColor = (status: string) => {
     switch (status) {
       case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
+        return "fc-badge-warning";
       case "CONFIRMED":
-        return "bg-green-100 text-green-800";
+        return "fc-badge-success";
       case "CANCELLED":
-        return "bg-red-100 text-red-800";
+        return "fc-badge-danger";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "fc-badge-neutral";
     }
   };
 
@@ -197,7 +197,7 @@ export default function EventDetailsPage() {
           <div className="text-red-600 mb-4">{error || "Event not found"}</div>
           <Link
             href="/chef/events"
-            className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
+            className="fc-button fc-button-primary"
           >
             Back to Events
           </Link>
@@ -215,7 +215,7 @@ export default function EventDetailsPage() {
             <div>
               <Link
                 href="/chef/events"
-                className="text-orange-600 hover:text-orange-700 text-sm font-medium mb-2 inline-block"
+                className="mb-2 inline-block text-sm font-medium text-brand-ink hover:text-ink"
               >
                 ← Back to Events
               </Link>
@@ -224,7 +224,7 @@ export default function EventDetailsPage() {
               </h1>
               <div className="flex items-center space-x-2 mt-2">
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                  className={`fc-badge ${getStatusColor(
                     event.status,
                   )}`}
                 >
@@ -306,7 +306,7 @@ export default function EventDetailsPage() {
                           {order.customerName}
                         </h3>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderStatusColor(
+                          className={`fc-badge ${getOrderStatusColor(
                             order.status,
                           )}`}
                         >
@@ -341,7 +341,7 @@ export default function EventDetailsPage() {
                               updateOrderStatus(order.id, "CONFIRMED")
                             }
                             disabled={statusUpdating === order.id}
-                            className="fc-touch-target bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 disabled:opacity-50"
+                            className="fc-button fc-button-primary text-sm"
                           >
                             {statusUpdating === order.id ? "..." : "Confirm"}
                           </button>
@@ -353,7 +353,7 @@ export default function EventDetailsPage() {
                               updateOrderStatus(order.id, "CANCELLED")
                             }
                             disabled={statusUpdating === order.id}
-                            className="fc-touch-target bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 disabled:opacity-50"
+                            className="fc-button fc-button-danger text-sm"
                           >
                             {statusUpdating === order.id ? "..." : "Reject"}
                           </button>
@@ -364,7 +364,7 @@ export default function EventDetailsPage() {
                               updateOrderStatus(order.id, "CONFIRMED")
                             }
                             disabled={statusUpdating === order.id}
-                            className="fc-touch-target bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 disabled:opacity-50"
+                            className="fc-button fc-button-primary text-sm"
                           >
                             {statusUpdating === order.id ? "..." : "Confirm"}
                           </button>

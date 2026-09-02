@@ -201,7 +201,7 @@ export default function MultipleImageUpload({
                   <button
                     type="button"
                     onClick={() => removeDisplayImage(index)}
-                    className="fc-touch-target absolute right-1 top-1 flex items-center justify-center rounded-full bg-red-500 text-sm text-white shadow-md transition-colors hover:bg-red-600 sm:right-2 sm:top-2"
+                    className="fc-icon-button fc-icon-button-danger absolute right-1 top-1 text-sm sm:right-2 sm:top-2"
                     aria-label="Remove image"
                   >
                     ×
@@ -226,14 +226,14 @@ export default function MultipleImageUpload({
                   <button
                     type="button"
                     onClick={() => removePreviewImage(imageData.id)}
-                    className="fc-touch-target absolute right-1 top-1 flex items-center justify-center rounded-full bg-red-500 text-sm text-white shadow-md transition-colors hover:bg-red-600 sm:right-2 sm:top-2"
+                    className="fc-icon-button fc-icon-button-danger absolute right-1 top-1 text-sm sm:right-2 sm:top-2"
                     aria-label="Remove image"
                   >
                     ×
                   </button>
                 )}
                 {/* New image indicator */}
-                <div className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                <div className="fc-badge fc-badge-brand absolute bottom-2 left-2">
                   New
                 </div>
               </div>
@@ -259,7 +259,7 @@ export default function MultipleImageUpload({
             type="button"
             onClick={handleClick}
             disabled={disabled || uploading}
-            className="flex flex-col items-center justify-center w-full text-gray-600 hover:text-gray-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+            className="fc-touch-target flex w-full flex-col items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-brand-soft hover:text-ink disabled:cursor-not-allowed disabled:text-gray-400"
           >
             <svg
               className="w-12 h-12 mb-3"
@@ -297,7 +297,7 @@ export default function MultipleImageUpload({
           <p>
             {totalImages} of {maxImages} images selected
             {previewImages.length > 0 && uploadMode === "deferred" && (
-              <span className="text-blue-600 ml-2">
+              <span className="text-brand-ink ml-2">
                 • Changes will be saved when you save the menu item
               </span>
             )}

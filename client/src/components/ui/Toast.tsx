@@ -33,12 +33,12 @@ export default function Toast({
   const getToastStyles = () => {
     switch (type) {
       case "success":
-        return "bg-green-500 text-white";
+        return "fc-feedback-success";
       case "error":
-        return "bg-red-500 text-white";
+        return "fc-feedback-danger";
       case "info":
       default:
-        return "bg-blue-500 text-white";
+        return "fc-feedback-info";
     }
   };
 
@@ -56,7 +56,7 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed left-4 right-4 top-[max(1rem,env(safe-area-inset-top))] z-50 flex min-w-0 items-center space-x-2 rounded-lg px-4 py-3 shadow-lg transition-all duration-300 transform sm:left-auto sm:max-w-md ${
+      className={`fc-feedback fixed left-4 right-4 top-[max(1rem,env(safe-area-inset-top))] z-50 flex min-w-0 items-center space-x-2 shadow-lg transition-all duration-300 transform sm:left-auto sm:max-w-md ${
         isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       } ${getToastStyles()}`}
     >
@@ -67,7 +67,8 @@ export default function Toast({
           setIsVisible(false);
           setTimeout(onClose, 300);
         }}
-        className="fc-touch-target ml-2 flex shrink-0 items-center justify-center text-white hover:text-gray-200 font-bold text-lg leading-none"
+        className="fc-icon-button fc-icon-button-ghost ml-2 shrink-0 font-bold text-lg leading-none"
+        aria-label="Dismiss notification"
       >
         ×
       </button>

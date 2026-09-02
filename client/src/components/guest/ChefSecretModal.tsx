@@ -76,7 +76,7 @@ export default function ChefSecretModal({
               id="secret"
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="fc-control px-3 py-2"
               placeholder="Enter host's secret"
               disabled={isLoading}
               autoFocus
@@ -84,8 +84,8 @@ export default function ChefSecretModal({
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-600 text-sm">{error}</p>
+            <div className="fc-feedback fc-feedback-danger mb-4">
+              <p className="text-sm">{error}</p>
             </div>
           )}
 
@@ -93,14 +93,14 @@ export default function ChefSecretModal({
             <button
               type="button"
               onClick={handleClose}
-              className="fc-touch-target flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+              className="fc-button fc-button-secondary flex-1"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="fc-touch-target flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+              className="fc-button fc-button-primary flex-1"
               disabled={isLoading || !secret.trim()}
             >
               {isLoading ? "Verifying..." : "Access Menu"}

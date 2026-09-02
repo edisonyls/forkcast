@@ -83,18 +83,13 @@ export default function ConfirmationModal({
         <p className="text-gray-600 mb-6 leading-relaxed">{message}</p>
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button
-            onClick={onClose}
-            className="fc-touch-target px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
-          >
+          <button onClick={onClose} className="fc-button fc-button-secondary">
             {cancelText}
           </button>
           <button
             onClick={handleConfirm}
-            className={`fc-touch-target px-4 py-2 rounded-md font-medium transition-colors ${
-              isDestructive
-                ? "bg-red-600 text-white hover:bg-red-700"
-                : "bg-green-600 text-white hover:bg-green-700"
+            className={`fc-button ${
+              isDestructive ? "fc-button-danger" : "fc-button-primary"
             }`}
           >
             {confirmText}

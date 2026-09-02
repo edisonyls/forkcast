@@ -252,7 +252,7 @@ export default function ChefSignUp() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {errors.general && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="fc-feedback fc-feedback-danger">
               {errors.general}
             </div>
           )}
@@ -272,9 +272,10 @@ export default function ChefSignUp() {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
+                  errors.email ? "fc-control-error" : ""
+                }`}
+                aria-invalid={Boolean(errors.email)}
                 placeholder="Enter your email"
               />
               {errors.email && (
@@ -296,9 +297,10 @@ export default function ChefSignUp() {
                 required
                 value={formData.username}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.username ? "border-red-500" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
+                  errors.username ? "fc-control-error" : ""
+                }`}
+                aria-invalid={Boolean(errors.username)}
                 placeholder="Choose a username"
               />
               {errors.username && (
@@ -320,9 +322,10 @@ export default function ChefSignUp() {
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.name ? "border-red-500" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
+                  errors.name ? "fc-control-error" : ""
+                }`}
+                aria-invalid={Boolean(errors.name)}
                 placeholder="Enter your full name"
               />
               {errors.name && (
@@ -361,9 +364,10 @@ export default function ChefSignUp() {
                 rows={3}
                 value={formData.bio}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.bio ? "border-red-500" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
+                  errors.bio ? "fc-control-error" : ""
+                }`}
+                aria-invalid={Boolean(errors.bio)}
                 placeholder="Tell us about yourself and your cooking style"
               />
               {errors.bio && (
@@ -385,9 +389,10 @@ export default function ChefSignUp() {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
+                  errors.password ? "fc-control-error" : ""
+                }`}
+                aria-invalid={Boolean(errors.password)}
                 placeholder="8-32 characters with letters and numbers"
               />
               {errors.password && (
@@ -413,9 +418,10 @@ export default function ChefSignUp() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.confirmPassword ? "border-red-500" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
+                  errors.confirmPassword ? "fc-control-error" : ""
+                }`}
+                aria-invalid={Boolean(errors.confirmPassword)}
                 placeholder="Confirm your password"
               />
               {errors.confirmPassword && (
@@ -439,9 +445,10 @@ export default function ChefSignUp() {
                 required
                 value={formData.secret}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.secret ? "border-red-500" : "border-gray-300"
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
+                  errors.secret ? "fc-control-error" : ""
+                }`}
+                aria-invalid={Boolean(errors.secret)}
                 placeholder="A unique code guests will use to access your menu"
               />
               {errors.secret && (
@@ -457,7 +464,7 @@ export default function ChefSignUp() {
             <button
               type="submit"
               disabled={loading}
-              className="fc-touch-target group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="fc-button fc-button-primary w-full text-sm"
             >
               {loading ? "Creating Account..." : "Create Host Account"}
             </button>
@@ -468,7 +475,7 @@ export default function ChefSignUp() {
               Already have an account?{" "}
               <Link
                 href="/chef/signin"
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="font-medium text-brand-ink hover:text-ink"
               >
                 Sign in here
               </Link>

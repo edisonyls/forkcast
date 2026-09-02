@@ -149,8 +149,8 @@ export default function CustomizationModal({
 
         {/* Chef info */}
         {item.chefName && (
-          <div className="mb-4 p-3 bg-green-50 rounded-md">
-            <p className="text-sm text-green-700">
+          <div className="fc-feedback fc-feedback-info mb-4">
+            <p className="text-sm">
               By <span className="font-semibold">{item.chefName}</span>
             </p>
           </div>
@@ -191,7 +191,7 @@ export default function CustomizationModal({
             value={customOptions}
             onChange={(e) => setCustomOptions(e.target.value)}
             placeholder="e.g., extra spicy, no onions, gluten-free bread"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+            className="fc-control px-3 py-2 text-sm resize-none"
             rows={3}
           />
         </div>
@@ -220,7 +220,7 @@ export default function CustomizationModal({
         <button
           onClick={handleAddToCart}
           disabled={isAdding}
-          className="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          className="fc-button fc-button-primary w-full"
         >
           {isAdding ? "Adding to Cart..." : "Add to Cart"}
         </button>

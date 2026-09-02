@@ -261,7 +261,7 @@ export default function ChefSettings() {
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={fetchChefProfile}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="fc-button fc-button-primary"
           >
             Try Again
           </button>
@@ -297,7 +297,7 @@ export default function ChefSettings() {
             </div>
             <Link
               href="/chef/dashboard"
-              className="bg-gray-600 text-white px-4 py-3 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-center font-medium"
+              className="fc-button fc-button-neutral"
             >
               Back to Dashboard
             </Link>
@@ -317,7 +317,7 @@ export default function ChefSettings() {
 
           <div className="p-4 sm:p-6">
             {error && (
-              <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              <div className="fc-feedback fc-feedback-danger mb-6">
                 {error}
               </div>
             )}
@@ -335,7 +335,7 @@ export default function ChefSettings() {
                       type="email"
                       value={chef.email}
                       disabled
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                      className="fc-control mt-1 px-3 py-2 text-gray-500 cursor-not-allowed"
                     />
                     <p className="mt-1 text-xs text-gray-500">
                       Email cannot be changed
@@ -351,7 +351,7 @@ export default function ChefSettings() {
                       type="text"
                       value={chef.username}
                       disabled
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                      className="fc-control mt-1 px-3 py-2 text-gray-500 cursor-not-allowed"
                     />
                     <p className="mt-1 text-xs text-gray-500">
                       Username cannot be changed
@@ -372,9 +372,10 @@ export default function ChefSettings() {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        formErrors.name ? "border-red-500" : "border-gray-300"
+                      className={`fc-control mt-1 px-3 py-2 ${
+                        formErrors.name ? "fc-control-error" : ""
                       }`}
+                      aria-invalid={Boolean(formErrors.name)}
                       placeholder="Enter your full name"
                     />
                     {formErrors.name && (
@@ -398,9 +399,10 @@ export default function ChefSettings() {
                       rows={4}
                       value={formData.bio}
                       onChange={handleInputChange}
-                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        formErrors.bio ? "border-red-500" : "border-gray-300"
+                      className={`fc-control mt-1 px-3 py-2 ${
+                        formErrors.bio ? "fc-control-error" : ""
                       }`}
+                      aria-invalid={Boolean(formErrors.bio)}
                       placeholder="Tell customers about yourself and your cooking style..."
                     />
                     {formErrors.bio && (
@@ -419,32 +421,31 @@ export default function ChefSettings() {
                       Menu Access Secret *
                     </label>
                     <div className="mt-1">
-                      <div className="sm:flex sm:space-x-0">
+                      <div className="sm:flex sm:gap-2">
                         <input
                           type="text"
                           id="secret"
                           name="secret"
                           value={formData.secret}
                           onChange={handleInputChange}
-                          className={`w-full px-3 py-2 border rounded-md sm:rounded-l-md sm:rounded-r-none shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm sm:flex-1 ${
-                            formErrors.secret
-                              ? "border-red-500"
-                              : "border-gray-300"
+                          className={`fc-control px-3 py-2 font-mono text-sm sm:flex-1 ${
+                            formErrors.secret ? "fc-control-error" : ""
                           }`}
+                          aria-invalid={Boolean(formErrors.secret)}
                           placeholder="Enter menu access secret"
                         />
-                        <div className="flex space-x-2 sm:space-x-0 mt-2 sm:mt-0">
+                        <div className="flex gap-2 mt-2 sm:mt-0">
                           <button
                             type="button"
                             onClick={copySecret}
-                            className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 sm:border-l-0 bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 rounded-md sm:rounded-none font-medium"
+                            className="fc-button fc-button-secondary flex-1 sm:flex-none text-sm"
                           >
                             Copy
                           </button>
                           <button
                             type="button"
                             onClick={generateNewSecret}
-                            className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 sm:border-l-0 rounded-md sm:rounded-l-none sm:rounded-r-md bg-blue-100 hover:bg-blue-200 text-sm text-blue-700 font-medium"
+                            className="fc-button fc-button-primary flex-1 sm:flex-none text-sm"
                           >
                             Generate
                           </button>
@@ -548,7 +549,7 @@ export default function ChefSettings() {
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                   <div>
                     {hasChanges() && (
-                      <p className="text-sm text-orange-600">
+                      <p className="text-sm text-warning">
                         You have unsaved changes
                       </p>
                     )}
@@ -556,7 +557,7 @@ export default function ChefSettings() {
                   <button
                     type="submit"
                     disabled={updatingProfile || !hasChanges()}
-                    className="bg-blue-600 text-white px-6 py-3 sm:py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-center"
+                    className="fc-button fc-button-primary"
                   >
                     {updatingProfile ? "Saving..." : "Save Changes"}
                   </button>

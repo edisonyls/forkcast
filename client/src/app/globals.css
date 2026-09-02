@@ -74,7 +74,9 @@
   --fc-header-height: 4.5rem;
   --fc-touch-target: 2.75rem;
   --fc-dialog-gutter: clamp(0.75rem, 3vw, 1.5rem);
+  --fc-radius-control: 0.75rem;
   --fc-radius-card: 1rem;
+  --fc-radius-pill: 999px;
   --fc-shadow-card: 0 1rem 3rem
     color-mix(in srgb, var(--fc-color-shadow) 10%, transparent);
 }
@@ -112,6 +114,42 @@
   --color-warning: var(--fc-color-warning);
   --color-danger: var(--fc-color-danger);
   --color-info: var(--fc-color-info);
+  --color-red-50: color-mix(in srgb, var(--fc-color-danger) 8%, var(--fc-color-surface));
+  --color-red-100: color-mix(in srgb, var(--fc-color-danger) 14%, var(--fc-color-surface));
+  --color-red-200: color-mix(in srgb, var(--fc-color-danger) 24%, var(--fc-color-surface));
+  --color-red-300: color-mix(in srgb, var(--fc-color-danger) 42%, var(--fc-color-surface));
+  --color-red-400: color-mix(in srgb, var(--fc-color-danger) 72%, var(--fc-color-surface));
+  --color-red-500: var(--fc-color-danger);
+  --color-red-600: color-mix(in srgb, var(--fc-color-danger) 88%, var(--fc-color-ink));
+  --color-red-700: color-mix(in srgb, var(--fc-color-danger) 74%, var(--fc-color-ink));
+  --color-red-800: color-mix(in srgb, var(--fc-color-danger) 58%, var(--fc-color-ink));
+  --color-yellow-50: color-mix(in srgb, var(--fc-color-warning) 8%, var(--fc-color-surface));
+  --color-yellow-100: color-mix(in srgb, var(--fc-color-warning) 14%, var(--fc-color-surface));
+  --color-yellow-200: color-mix(in srgb, var(--fc-color-warning) 24%, var(--fc-color-surface));
+  --color-yellow-300: color-mix(in srgb, var(--fc-color-warning) 42%, var(--fc-color-surface));
+  --color-yellow-400: color-mix(in srgb, var(--fc-color-warning) 72%, var(--fc-color-surface));
+  --color-yellow-500: var(--fc-color-warning);
+  --color-yellow-600: color-mix(in srgb, var(--fc-color-warning) 88%, var(--fc-color-ink));
+  --color-yellow-700: color-mix(in srgb, var(--fc-color-warning) 74%, var(--fc-color-ink));
+  --color-yellow-800: color-mix(in srgb, var(--fc-color-warning) 58%, var(--fc-color-ink));
+  --color-amber-50: var(--color-yellow-50);
+  --color-amber-100: var(--color-yellow-100);
+  --color-amber-200: var(--color-yellow-200);
+  --color-amber-300: var(--color-yellow-300);
+  --color-amber-400: var(--color-yellow-400);
+  --color-amber-500: var(--color-yellow-500);
+  --color-amber-600: var(--color-yellow-600);
+  --color-amber-700: var(--color-yellow-700);
+  --color-amber-800: var(--color-yellow-800);
+  --color-orange-50: var(--color-yellow-50);
+  --color-orange-100: var(--color-yellow-100);
+  --color-orange-200: var(--color-yellow-200);
+  --color-orange-300: var(--color-yellow-300);
+  --color-orange-400: var(--color-yellow-400);
+  --color-orange-500: var(--color-yellow-500);
+  --color-orange-600: var(--color-yellow-600);
+  --color-orange-700: var(--color-yellow-700);
+  --color-orange-800: var(--color-yellow-800);
 
   /* Bridge legacy Tailwind utilities to the ForkCast visual language. This
      keeps every route on the same warm-neutral palette while the JSX moves
@@ -234,9 +272,36 @@ body {
 
 .fc-app-main
   :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: var(--fc-touch-target);
   border-color: var(--fc-color-border-strong);
+  border-radius: var(--fc-radius-control);
   background-color: var(--fc-color-surface);
   color: var(--fc-color-ink);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.fc-app-main
+  :where(
+    input:not([type="checkbox"]):not([type="radio"]):disabled,
+    select:disabled,
+    textarea:disabled
+  ) {
+  background: color-mix(
+    in srgb,
+    var(--fc-color-surface-muted) 48%,
+    var(--fc-color-surface)
+  );
+  color: var(--fc-color-text-subtle);
+  cursor: not-allowed;
+}
+
+.fc-app-main :where(input[type="checkbox"], input[type="radio"]) {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--fc-color-brand-ink);
 }
 
 .fc-auth-page {
@@ -294,6 +359,370 @@ input[type="submit"] {
   min-height: var(--fc-touch-target);
 }
 
+/* Shared component patterns. Layout utilities may be composed alongside these
+   classes, while color, radius, interaction, and sizing stay consistent. */
+.fc-button {
+  display: inline-flex;
+  min-height: var(--fc-touch-target);
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--fc-radius-control);
+  padding: 0.625rem 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.fc-button:hover:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(-1px);
+}
+
+.fc-button:disabled,
+.fc-button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.fc-button-primary {
+  background: var(--fc-color-brand);
+  color: var(--fc-color-ink);
+}
+
+.fc-button-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--fc-color-brand-strong);
+}
+
+.fc-button-secondary {
+  border-color: var(--fc-color-border-strong);
+  background: var(--fc-color-surface);
+  color: var(--fc-color-ink-soft);
+}
+
+.fc-button-secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--fc-color-brand-ink);
+  background: var(--fc-color-brand-soft);
+  color: var(--fc-color-ink);
+}
+
+.fc-button-neutral {
+  background: var(--fc-color-ink-soft);
+  color: var(--fc-color-text-inverse);
+}
+
+.fc-button-neutral:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--fc-color-ink);
+}
+
+.fc-button-danger {
+  background: var(--fc-color-danger);
+  color: var(--fc-color-text-inverse);
+}
+
+.fc-button-danger:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: color-mix(
+    in srgb,
+    var(--fc-color-danger) 82%,
+    var(--fc-color-ink)
+  );
+}
+
+.fc-button-danger-ghost {
+  border-color: color-mix(in srgb, var(--fc-color-danger) 32%, transparent);
+  background: transparent;
+  color: var(--fc-color-danger);
+}
+
+.fc-button-danger-ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: color-mix(
+    in srgb,
+    var(--fc-color-danger) 10%,
+    var(--fc-color-surface)
+  );
+  color: color-mix(in srgb, var(--fc-color-danger) 82%, var(--fc-color-ink));
+}
+
+.fc-button-warning {
+  background: var(--fc-color-warning);
+  color: var(--fc-color-text-inverse);
+}
+
+.fc-button-warning:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: color-mix(
+    in srgb,
+    var(--fc-color-warning) 82%,
+    var(--fc-color-ink)
+  );
+}
+
+.fc-button-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--fc-color-text-muted);
+}
+
+.fc-button-ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: color-mix(
+    in srgb,
+    var(--fc-color-surface-muted) 55%,
+    transparent
+  );
+  color: var(--fc-color-ink);
+}
+
+.fc-icon-button,
+.fc-menu-trigger {
+  display: inline-flex;
+  width: var(--fc-touch-target);
+  min-width: var(--fc-touch-target);
+  height: var(--fc-touch-target);
+  min-height: var(--fc-touch-target);
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-pill);
+  background: var(--fc-color-surface);
+  color: var(--fc-color-text-muted);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.fc-icon-button:hover,
+.fc-menu-trigger:hover,
+.fc-menu-trigger[aria-expanded="true"] {
+  border-color: var(--fc-color-brand-ink);
+  background: var(--fc-color-brand-soft);
+  color: var(--fc-color-ink);
+}
+
+.fc-icon-button-ghost {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.fc-icon-button-primary {
+  border-color: transparent;
+  background: var(--fc-color-brand);
+  color: var(--fc-color-ink);
+}
+
+.fc-icon-button-primary:hover {
+  background: var(--fc-color-brand-strong);
+}
+
+.fc-icon-button-danger {
+  border-color: transparent;
+  background: var(--fc-color-danger);
+  color: var(--fc-color-text-inverse);
+}
+
+.fc-icon-button-danger:hover {
+  background: color-mix(in srgb, var(--fc-color-danger) 82%, var(--fc-color-ink));
+}
+
+.fc-icon-button-inverse {
+  border-color: var(--fc-color-border-inverse);
+  background: color-mix(in srgb, var(--fc-color-ink) 64%, transparent);
+  color: var(--fc-color-text-inverse);
+  backdrop-filter: blur(0.5rem);
+}
+
+.fc-icon-button-inverse:hover {
+  background: color-mix(in srgb, var(--fc-color-ink) 82%, transparent);
+}
+
+.fc-carousel-dot {
+  position: relative;
+  width: var(--fc-touch-target);
+  min-width: var(--fc-touch-target);
+  height: var(--fc-touch-target);
+  min-height: var(--fc-touch-target);
+  background: transparent;
+  touch-action: manipulation;
+}
+
+.fc-carousel-dot::after {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--fc-radius-pill);
+  background: color-mix(in srgb, var(--fc-color-surface) 58%, transparent);
+  content: "";
+  transform: translate(-50%, -50%);
+  transition:
+    width 160ms ease,
+    height 160ms ease,
+    background-color 160ms ease;
+}
+
+.fc-carousel-dot[data-active="true"]::after {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--fc-color-brand);
+}
+
+.fc-control {
+  width: 100%;
+  min-height: var(--fc-touch-target);
+  border: 1px solid var(--fc-color-border-strong);
+  border-radius: var(--fc-radius-control);
+  background: var(--fc-color-surface);
+  color: var(--fc-color-ink);
+}
+
+.fc-control-error {
+  border-color: var(--fc-color-danger);
+}
+
+.fc-menu-panel {
+  min-width: 10rem;
+  overflow: hidden;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-control);
+  background: var(--fc-color-surface);
+  box-shadow: var(--fc-shadow-card);
+  padding-block: 0.25rem;
+}
+
+.fc-menu-item {
+  display: flex;
+  width: 100%;
+  min-height: var(--fc-touch-target);
+  align-items: center;
+  padding: 0.625rem 1rem;
+  color: var(--fc-color-ink-soft);
+  font-size: 0.875rem;
+  text-align: left;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.fc-menu-item:hover {
+  background: var(--fc-color-brand-soft);
+  color: var(--fc-color-ink);
+}
+
+.fc-menu-item-danger {
+  color: var(--fc-color-danger);
+}
+
+.fc-menu-item-danger:hover {
+  background: color-mix(
+    in srgb,
+    var(--fc-color-danger) 10%,
+    var(--fc-color-surface)
+  );
+  color: color-mix(in srgb, var(--fc-color-danger) 82%, var(--fc-color-ink));
+}
+
+.fc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--fc-radius-pill);
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.fc-badge-brand {
+  border-color: color-mix(in srgb, var(--fc-color-brand-ink) 18%, transparent);
+  background: var(--fc-color-brand-soft);
+  color: var(--fc-color-brand-ink);
+}
+
+.fc-badge-success {
+  border-color: color-mix(in srgb, var(--fc-color-success) 24%, transparent);
+  background: color-mix(in srgb, var(--fc-color-success) 14%, var(--fc-color-surface));
+  color: color-mix(in srgb, var(--fc-color-success) 82%, var(--fc-color-ink));
+}
+
+.fc-badge-warning {
+  border-color: color-mix(in srgb, var(--fc-color-warning) 24%, transparent);
+  background: color-mix(in srgb, var(--fc-color-warning) 14%, var(--fc-color-surface));
+  color: color-mix(in srgb, var(--fc-color-warning) 82%, var(--fc-color-ink));
+}
+
+.fc-badge-danger {
+  border-color: color-mix(in srgb, var(--fc-color-danger) 24%, transparent);
+  background: color-mix(in srgb, var(--fc-color-danger) 12%, var(--fc-color-surface));
+  color: color-mix(in srgb, var(--fc-color-danger) 82%, var(--fc-color-ink));
+}
+
+.fc-badge-neutral {
+  border-color: var(--fc-color-border);
+  background: color-mix(in srgb, var(--fc-color-surface-muted) 48%, var(--fc-color-surface));
+  color: var(--fc-color-text-muted);
+}
+
+.fc-feedback {
+  border: 1px solid currentColor;
+  border-radius: var(--fc-radius-control);
+  padding: 0.75rem 1rem;
+}
+
+.fc-feedback-success {
+  border-color: color-mix(in srgb, var(--fc-color-success) 32%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--fc-color-success) 14%,
+    var(--fc-color-surface)
+  );
+  color: color-mix(in srgb, var(--fc-color-success) 82%, var(--fc-color-ink));
+}
+
+.fc-feedback-warning {
+  border-color: color-mix(in srgb, var(--fc-color-warning) 32%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--fc-color-warning) 14%,
+    var(--fc-color-surface)
+  );
+  color: color-mix(in srgb, var(--fc-color-warning) 82%, var(--fc-color-ink));
+}
+
+.fc-feedback-danger {
+  border-color: color-mix(in srgb, var(--fc-color-danger) 32%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--fc-color-danger) 12%,
+    var(--fc-color-surface)
+  );
+  color: color-mix(in srgb, var(--fc-color-danger) 82%, var(--fc-color-ink));
+}
+
+.fc-feedback-info {
+  border-color: color-mix(in srgb, var(--fc-color-info) 32%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--fc-color-info) 12%,
+    var(--fc-color-surface)
+  );
+  color: color-mix(in srgb, var(--fc-color-info) 82%, var(--fc-color-ink));
+}
+
+.fc-feedback .fc-icon-button {
+  color: currentColor;
+}
+
 .fc-dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -302,6 +731,8 @@ input[type="submit"] {
   align-items: center;
   justify-content: center;
   overflow-y: auto;
+  background: color-mix(in srgb, var(--fc-color-ink) 58%, transparent);
+  backdrop-filter: blur(0.25rem);
   padding: max(var(--fc-dialog-gutter), env(safe-area-inset-top))
     max(var(--fc-dialog-gutter), env(safe-area-inset-right))
     max(var(--fc-dialog-gutter), env(safe-area-inset-bottom))
@@ -313,6 +744,10 @@ input[type="submit"] {
   width: 100%;
   max-height: calc(100dvh - (2 * var(--fc-dialog-gutter)));
   overflow-y: auto;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-card);
+  background: var(--fc-color-surface);
+  box-shadow: var(--fc-shadow-card);
   overscroll-behavior: contain;
 }
 

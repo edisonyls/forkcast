@@ -130,10 +130,10 @@ export default function OnboardingChecklist({
         {tasks.map((task) => (
           <div
             key={task.id}
-            className={`flex flex-col items-stretch gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between ${
+            className={`fc-feedback flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between ${
               task.completed
-                ? "border-green-200 bg-green-50"
-                : "border-orange-200 bg-orange-50"
+                ? "fc-feedback-success"
+                : "fc-feedback-warning"
             }`}
           >
             <div className="flex min-w-0 items-center space-x-3">
@@ -143,14 +143,14 @@ export default function OnboardingChecklist({
               <div className="min-w-0">
                 <h4
                   className={`text-sm font-medium ${
-                    task.completed ? "text-green-800" : "text-gray-900"
+                    task.completed ? "text-success" : "text-gray-900"
                   }`}
                 >
                   {task.title}
                 </h4>
                 <p
                   className={`text-xs ${
-                    task.completed ? "text-green-700" : "text-gray-600"
+                    task.completed ? "text-success" : "text-gray-600"
                   }`}
                 >
                   {task.description}
@@ -161,14 +161,14 @@ export default function OnboardingChecklist({
             {task.actionButton && !task.completed && (
               <Link
                 href={task.actionButton.href}
-                className="fc-touch-target flex items-center justify-center bg-orange-600 text-white px-3 py-1.5 text-xs rounded-md hover:bg-orange-700 transition-colors font-medium"
+                className="fc-button fc-button-primary text-xs"
               >
                 {task.actionButton.text}
               </Link>
             )}
 
             {task.completed && (
-              <span className="self-start text-green-600 text-xs font-medium sm:self-auto">
+              <span className="self-start text-success text-xs font-medium sm:self-auto">
                 Complete
               </span>
             )}

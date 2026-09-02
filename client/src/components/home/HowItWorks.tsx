@@ -75,7 +75,7 @@ export default function HowItWorks() {
               <div key={index} className="relative h-full">
                 <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-lg font-bold text-ink">
                       {step.step}
                     </div>
                     <span className="text-3xl">{step.icon}</span>
@@ -117,7 +117,7 @@ export default function HowItWorks() {
               <div key={index} className="relative h-full">
                 <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 bg-amber-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-lg font-bold text-ink">
                       {step.step}
                     </div>
                     <span className="text-3xl">{step.icon}</span>
@@ -161,7 +161,7 @@ export default function HowItWorks() {
             </p>
             <a
               href="/chef/signup"
-              className="inline-block w-full rounded-lg bg-gradient-to-r from-orange-600 to-amber-600 px-6 py-3 text-white font-medium transition-all hover:from-orange-700 hover:to-amber-700 sm:w-auto sm:px-8"
+              className="fc-button fc-button-primary w-full sm:w-auto sm:px-8"
             >
               Start Creating Your Menu
             </a>

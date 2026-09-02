@@ -26,25 +26,25 @@ export default function HeaderHome() {
         >
           <Link
             href="#how-it-works"
-            className="text-text-inverse-muted transition-colors hover:text-text-inverse"
+            className="fc-touch-target inline-flex items-center text-text-inverse-muted transition-colors hover:text-text-inverse"
           >
             How it works
           </Link>
           <Link
             href="/guest"
-            className="text-text-inverse-muted transition-colors hover:text-text-inverse"
+            className="fc-touch-target inline-flex items-center text-text-inverse-muted transition-colors hover:text-text-inverse"
           >
             Join a meal
           </Link>
           <Link
             href="/chef/signin"
-            className="rounded-full border border-border-inverse px-5 py-2.5 transition-colors hover:border-text-inverse-muted hover:bg-overlay-inverse"
+            className="fc-touch-target inline-flex items-center rounded-full border border-border-inverse px-5 transition-colors hover:border-text-inverse-muted hover:bg-overlay-inverse"
           >
             Host sign in
           </Link>
           <Link
             href="/chef/signup"
-            className="rounded-full bg-surface px-5 py-2.5 font-semibold text-ink transition-transform hover:-translate-y-0.5"
+            className="fc-touch-target inline-flex items-center rounded-full bg-surface px-5 font-semibold text-ink transition-transform hover:-translate-y-0.5"
           >
             Host a meal
           </Link>
@@ -77,28 +77,28 @@ export default function HeaderHome() {
         >
           <Link
             href="#how-it-works"
-            className="rounded-xl px-4 py-3 hover:bg-overlay-inverse"
+            className="fc-touch-target rounded-xl px-4 py-3 hover:bg-overlay-inverse"
             onClick={() => setIsMenuOpen(false)}
           >
             How it works
           </Link>
           <Link
             href="/guest"
-            className="rounded-xl px-4 py-3 hover:bg-overlay-inverse"
+            className="fc-touch-target rounded-xl px-4 py-3 hover:bg-overlay-inverse"
             onClick={() => setIsMenuOpen(false)}
           >
             Join a meal
           </Link>
           <Link
             href="/chef/signin"
-            className="rounded-xl px-4 py-3 hover:bg-overlay-inverse"
+            className="fc-touch-target rounded-xl px-4 py-3 hover:bg-overlay-inverse"
             onClick={() => setIsMenuOpen(false)}
           >
             Host sign in
           </Link>
           <Link
             href="/chef/signup"
-            className="mt-2 rounded-full bg-brand px-5 py-3 text-center font-semibold text-ink"
+            className="fc-touch-target mt-2 rounded-full bg-brand px-5 py-3 text-center font-semibold text-ink"
             onClick={() => setIsMenuOpen(false)}
           >
             Host a meal

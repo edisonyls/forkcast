@@ -246,7 +246,7 @@ export default function CartPage() {
             </p>
             <Link
               href={getContinueShoppingLink()}
-              className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-2"
+              className="fc-button fc-button-primary"
             >
               <svg
                 className="w-5 h-5"
@@ -278,7 +278,7 @@ export default function CartPage() {
             >
               <div className="mb-6">
                 <div className="text-6xl mb-4">🎉</div>
-                <h2 className="text-2xl font-bold text-green-600 mb-2">
+                <h2 className="text-2xl font-bold text-success mb-2">
                   Order Placed Successfully!
                 </h2>
                 <p className="text-gray-700">{celebrationMessage}</p>
@@ -294,7 +294,7 @@ export default function CartPage() {
                   setShowCelebration(false);
                   clearCart();
                 }}
-                className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold"
+                className="fc-button fc-button-primary"
               >
                 Awesome! 🎊
               </button>
@@ -322,7 +322,7 @@ export default function CartPage() {
               {cartChef && (
                 <>
                   <span className="hidden sm:inline text-gray-400">•</span>
-                  <p className="text-green-600 font-medium">
+                  <p className="text-brand-ink font-medium">
                     from {cartChef.name}
                   </p>
                 </>
@@ -331,7 +331,7 @@ export default function CartPage() {
           </div>
           <button
             onClick={() => setShowClearConfirmation(true)}
-            className="fc-touch-target flex items-center gap-2 self-start text-red-600 hover:text-red-700 font-medium"
+            className="fc-button fc-button-danger-ghost self-start"
           >
             <svg
               className="w-4 h-4"
@@ -375,13 +375,14 @@ export default function CartPage() {
                       <h3 className="text-lg font-bold text-gray-800">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-green-600 font-medium">
+                      <p className="text-sm text-brand-ink font-medium">
                         by {item.chefName}
                       </p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
+                      className="fc-icon-button fc-icon-button-ghost"
+                      aria-label={`Remove ${item.name} from cart`}
                     >
                       <svg
                         className="w-5 h-5"
@@ -548,7 +549,7 @@ export default function CartPage() {
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href={getContinueShoppingLink()}
-            className="fc-touch-target flex w-full items-center justify-center gap-2 text-green-600 hover:text-green-700 font-medium sm:w-auto sm:justify-start"
+            className="fc-button fc-button-secondary w-full sm:w-auto"
           >
             <svg
               className="w-5 h-5"
@@ -582,7 +583,7 @@ export default function CartPage() {
                 setShowOrderModal(true);
               }}
               disabled={events.length === 0 || !selectedEvent}
-              className="w-full bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed sm:w-auto sm:px-8"
+              className="fc-button fc-button-primary w-full sm:w-auto sm:px-8"
             >
               {events.length === 0 ? (
                 <>No Events Available</>
@@ -636,7 +637,7 @@ export default function CartPage() {
           >
             <div className="mb-6">
               <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-2xl font-bold text-green-600 mb-2">
+              <h2 className="text-2xl font-bold text-success mb-2">
                 Order Placed Successfully!
               </h2>
               <p className="text-gray-700">{celebrationMessage}</p>
@@ -652,7 +653,7 @@ export default function CartPage() {
                 setShowCelebration(false);
                 clearCart();
               }}
-              className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-semibold"
+              className="fc-button fc-button-primary"
             >
               Awesome! 🎊
             </button>

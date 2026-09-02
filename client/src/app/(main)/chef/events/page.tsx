@@ -222,13 +222,13 @@ export default function EventsManagement() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "OPEN":
-        return "bg-green-100 text-green-800";
+        return "fc-badge-success";
       case "CLOSED":
-        return "bg-gray-100 text-gray-800";
+        return "fc-badge-neutral";
       case "CANCELLED":
-        return "bg-red-100 text-red-800";
+        return "fc-badge-danger";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "fc-badge-neutral";
     }
   };
 
@@ -270,11 +270,11 @@ export default function EventsManagement() {
             .filter((event) => event.pendingOrdersCount > 0);
 
           return eventsWithPendingOrders.length > 0 ? (
-            <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 sm:p-6">
+            <div className="fc-feedback fc-feedback-warning mb-6 sm:p-6">
               <div className="flex items-start">
                 <div className="flex-shrink-0 mt-0.5">
                   <svg
-                    className="h-5 w-5 text-yellow-400"
+                    className="h-5 w-5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -286,7 +286,7 @@ export default function EventsManagement() {
                   </svg>
                 </div>
                 <div className="ml-3 w-full">
-                  <h3 className="text-sm font-medium text-yellow-800 mb-3">
+                  <h3 className="text-sm font-medium mb-3">
                     Pending Orders Awaiting Confirmation
                   </h3>
                   <div className="space-y-2">
@@ -304,7 +304,7 @@ export default function EventsManagement() {
                               ({new Date(event.eventDate).toLocaleDateString()})
                             </span>
                           </div>
-                          <div className="text-sm text-yellow-700 mt-1">
+                          <div className="text-sm mt-1">
                             <strong>{event.pendingOrdersCount}</strong> pending
                             order
                             {event.pendingOrdersCount === 1 ? "" : "s"} need
@@ -314,7 +314,7 @@ export default function EventsManagement() {
                         </div>
                         <Link
                           href={`/chef/events/${event.id}`}
-                          className="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700 transition-colors text-center font-medium"
+                          className="fc-button fc-button-warning text-sm"
                         >
                           Review Orders
                         </Link>
@@ -340,7 +340,7 @@ export default function EventsManagement() {
             </div>
             <Link
               href="/chef/dashboard"
-              className="bg-gray-600 text-white px-4 py-3 sm:py-2 rounded-md hover:bg-gray-700 text-center font-medium whitespace-nowrap"
+              className="fc-button fc-button-neutral whitespace-nowrap"
             >
               Back to Dashboard
             </Link>
@@ -351,7 +351,7 @@ export default function EventsManagement() {
         <div className="mb-6">
           <button
             onClick={() => setShowEventModal(true)}
-            className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 sm:py-2 rounded-md hover:bg-orange-700 font-medium"
+            className="fc-button fc-button-primary w-full sm:w-auto"
           >
             Create New Event
           </button>
@@ -365,7 +365,7 @@ export default function EventsManagement() {
             </p>
             <button
               onClick={() => setShowEventModal(true)}
-              className="mt-4 bg-orange-600 text-white px-6 py-3 rounded-md hover:bg-orange-700 font-medium"
+              className="fc-button fc-button-primary mt-4"
             >
               Create Your First Event
             </button>
@@ -431,14 +431,14 @@ export default function EventsManagement() {
                                   </h3>
                                   <div className="flex flex-wrap items-center gap-2">
                                     <span
-                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                                      className={`fc-badge ${getStatusColor(
                                         event.status,
                                       )}`}
                                     >
                                       {event.status}
                                     </span>
                                     {pendingOrdersCount > 0 && (
-                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                      <span className="fc-badge fc-badge-warning">
                                         {pendingOrdersCount} Pending
                                       </span>
                                     )}
@@ -542,7 +542,7 @@ export default function EventsManagement() {
                                                 (item, index) => (
                                                   <div
                                                     key={index}
-                                                    className="bg-green-50 border border-green-200 rounded px-3 py-2"
+                                                    className="fc-feedback fc-feedback-success px-3 py-2"
                                                   >
                                                     <div className="flex items-center justify-between">
                                                       <div className="flex-1 min-w-0">
@@ -559,7 +559,7 @@ export default function EventsManagement() {
                                                           </div>
                                                         )}
                                                       </div>
-                                                      <div className="ml-2 bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                                      <div className="ml-2 rounded-full bg-brand px-2 py-1 text-xs font-medium text-ink">
                                                         {item.totalQuantity}x
                                                       </div>
                                                     </div>
@@ -576,6 +576,7 @@ export default function EventsManagement() {
 
                               <div className="relative dropdown-container flex sm:justify-end">
                                 <button
+                                  type="button"
                                   onClick={() =>
                                     setOpenDropdownId(
                                       openDropdownId === event.id
@@ -583,7 +584,10 @@ export default function EventsManagement() {
                                         : event.id,
                                     )
                                   }
-                                  className="bg-white rounded-md p-2.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 shadow-md"
+                                  className="fc-menu-trigger"
+                                  aria-label={`Open actions for ${event.title}`}
+                                  aria-haspopup="menu"
+                                  aria-expanded={openDropdownId === event.id}
                                 >
                                   <svg
                                     className="w-5 h-5"
@@ -595,11 +599,15 @@ export default function EventsManagement() {
                                 </button>
 
                                 {openDropdownId === event.id && (
-                                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
+                                  <div
+                                    className="fc-menu-panel absolute right-0 mt-2 w-48 z-10"
+                                    role="menu"
+                                  >
                                     <Link
                                       href={`/chef/events/${event.id}`}
                                       onClick={() => setOpenDropdownId(null)}
-                                      className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                      className="fc-menu-item"
+                                      role="menuitem"
                                     >
                                       <svg
                                         className="w-4 h-4 mr-2"
@@ -628,7 +636,8 @@ export default function EventsManagement() {
                                           handleDeleteEvent(event.id);
                                           setOpenDropdownId(null);
                                         }}
-                                        className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-red-600 hover:bg-red-50"
+                                        className="fc-menu-item fc-menu-item-danger"
+                                        role="menuitem"
                                       >
                                         <svg
                                           className="w-4 h-4 mr-2"
@@ -704,7 +713,7 @@ export default function EventsManagement() {
                                   {event.title}
                                 </h3>
                                 <span
-                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                                  className={`fc-badge ${getStatusColor(
                                     event.status,
                                   )} self-start sm:self-auto`}
                                 >
@@ -801,7 +810,7 @@ export default function EventsManagement() {
                                               (item, index) => (
                                                 <div
                                                   key={index}
-                                                  className="bg-green-50 border border-green-200 rounded px-3 py-2"
+                                                  className="fc-feedback fc-feedback-success px-3 py-2"
                                                 >
                                                   <div className="flex items-center justify-between">
                                                     <div className="flex-1 min-w-0">
@@ -818,7 +827,7 @@ export default function EventsManagement() {
                                                         </div>
                                                       )}
                                                     </div>
-                                                    <div className="ml-2 bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                                    <div className="ml-2 rounded-full bg-brand px-2 py-1 text-xs font-medium text-ink">
                                                       {item.totalQuantity}x
                                                     </div>
                                                   </div>
@@ -835,6 +844,7 @@ export default function EventsManagement() {
 
                             <div className="relative dropdown-container flex sm:justify-end">
                               <button
+                                type="button"
                                 onClick={() =>
                                   setOpenDropdownId(
                                     openDropdownId === event.id
@@ -842,7 +852,10 @@ export default function EventsManagement() {
                                       : event.id,
                                   )
                                 }
-                                className="bg-white rounded-md p-2.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 shadow-md"
+                                className="fc-menu-trigger"
+                                aria-label={`Open actions for ${event.title}`}
+                                aria-haspopup="menu"
+                                aria-expanded={openDropdownId === event.id}
                               >
                                 <svg
                                   className="w-5 h-5"
@@ -854,11 +867,15 @@ export default function EventsManagement() {
                               </button>
 
                               {openDropdownId === event.id && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
+                                <div
+                                  className="fc-menu-panel absolute right-0 mt-2 w-48 z-10"
+                                  role="menu"
+                                >
                                   <Link
                                     href={`/chef/events/${event.id}`}
                                     onClick={() => setOpenDropdownId(null)}
-                                    className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    className="fc-menu-item"
+                                    role="menuitem"
                                   >
                                     <svg
                                       className="w-4 h-4 mr-2"
@@ -887,7 +904,8 @@ export default function EventsManagement() {
                                         handleDeleteEvent(event.id);
                                         setOpenDropdownId(null);
                                       }}
-                                      className="flex items-center w-full text-left px-4 py-3 sm:py-2 text-sm text-red-600 hover:bg-red-50"
+                                      className="fc-menu-item fc-menu-item-danger"
+                                      role="menuitem"
                                     >
                                       <svg
                                         className="w-4 h-4 mr-2"
@@ -932,7 +950,7 @@ export default function EventsManagement() {
               </h3>
 
               {error && (
-                <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded text-sm">
+                <div className="fc-feedback fc-feedback-danger mb-4 text-sm">
                   {error}
                 </div>
               )}
@@ -947,7 +965,7 @@ export default function EventsManagement() {
                     value={eventDate}
                     onChange={(e) => setEventDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="fc-control px-3 py-2"
                     required
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -963,7 +981,7 @@ export default function EventsManagement() {
                     value={eventDescription}
                     onChange={(e) => setEventDescription(e.target.value)}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                    className="fc-control px-3 py-2"
                     placeholder="Add a description for your event (only visible to you)"
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -976,7 +994,7 @@ export default function EventsManagement() {
                   <button
                     type="submit"
                     disabled={eventLoading}
-                    className="flex-1 bg-orange-600 text-white py-3 sm:py-2 px-4 rounded-md hover:bg-orange-700 disabled:opacity-50 font-medium"
+                    className="fc-button fc-button-primary flex-1"
                   >
                     {eventLoading ? "Creating..." : "Create Event"}
                   </button>
@@ -988,7 +1006,7 @@ export default function EventsManagement() {
                       setEventDescription("");
                       setError("");
                     }}
-                    className="flex-1 bg-gray-300 text-gray-700 py-3 sm:py-2 px-4 rounded-md hover:bg-gray-400 font-medium"
+                    className="fc-button fc-button-secondary flex-1"
                   >
                     Cancel
                   </button>

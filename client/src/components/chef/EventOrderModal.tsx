@@ -260,7 +260,7 @@ export default function EventOrderModal({
           aria-modal="true"
           aria-labelledby="event-order-success-title"
         >
-          <div className="text-green-600 text-6xl mb-4">✓</div>
+          <div className="text-success text-6xl mb-4">✓</div>
           <h2
             id="event-order-success-title"
             className="text-2xl font-bold text-gray-900 mb-2"
@@ -306,7 +306,8 @@ export default function EventOrderModal({
             <button
               onClick={handleClose}
               disabled={loading}
-              className="fc-touch-target flex shrink-0 items-center justify-center text-gray-400 hover:text-gray-600"
+              className="fc-icon-button fc-icon-button-ghost shrink-0"
+              aria-label="Close order details"
             >
               <svg
                 className="w-6 h-6"
@@ -327,7 +328,7 @@ export default function EventOrderModal({
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-6">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+            <div className="fc-feedback fc-feedback-danger mb-4">
               {error}
             </div>
           )}
@@ -346,7 +347,7 @@ export default function EventOrderModal({
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="fc-control px-3 py-2"
                   required
                 />
               </div>
@@ -358,7 +359,7 @@ export default function EventOrderModal({
                   type="email"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="fc-control px-3 py-2"
                 />
               </div>
               <div>
@@ -369,7 +370,7 @@ export default function EventOrderModal({
                   type="tel"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="fc-control px-3 py-2"
                 />
               </div>
               <div>
@@ -380,7 +381,7 @@ export default function EventOrderModal({
                   value={specialRequests}
                   onChange={(e) => setSpecialRequests(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="fc-control px-3 py-2"
                   placeholder="Any special dietary requirements or requests..."
                 />
               </div>
@@ -430,7 +431,8 @@ export default function EventOrderModal({
                               updateQuantity(item.id, quantity - 1)
                             }
                             disabled={quantity === 0}
-                            className="fc-touch-target rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 disabled:opacity-50"
+                            className="fc-icon-button disabled:opacity-50"
+                            aria-label={`Decrease ${item.name} quantity`}
                           >
                             -
                           </button>
@@ -440,7 +442,8 @@ export default function EventOrderModal({
                           <button
                             type="button"
                             onClick={() => addItem(item.id)}
-                            className="fc-touch-target rounded-full bg-green-600 text-white hover:bg-green-700"
+                            className="fc-icon-button fc-icon-button-primary"
+                            aria-label={`Increase ${item.name} quantity`}
                           >
                             +
                           </button>
@@ -496,7 +499,7 @@ export default function EventOrderModal({
                             onChange={(e) =>
                               updateSpecialNotes(item.id, e.target.value)
                             }
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="fc-control px-3 py-2 text-sm"
                             placeholder="Any additional special instructions..."
                           />
                         </div>
@@ -507,7 +510,7 @@ export default function EventOrderModal({
                         orderItem?.selectedCustomizations &&
                         orderItem.selectedCustomizations.length > 0 && (
                           <div className="mt-2">
-                            <p className="text-xs text-green-600 font-medium mb-1">
+                            <p className="text-xs text-success font-medium mb-1">
                               Selected customizations:
                             </p>
                             <div className="flex flex-wrap gap-1">
@@ -515,7 +518,7 @@ export default function EventOrderModal({
                                 (customization) => (
                                   <span
                                     key={customization.id}
-                                    className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"
+                                    className="fc-badge fc-badge-success"
                                   >
                                     {customization.name}
                                   </span>
@@ -547,14 +550,14 @@ export default function EventOrderModal({
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="fc-touch-target flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-400 disabled:opacity-50"
+              className="fc-button fc-button-secondary flex-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || orderItems.length === 0}
-              className="fc-touch-target flex-1 bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
+              className="fc-button fc-button-primary flex-1"
             >
               {loading
                 ? "Placing Order..."

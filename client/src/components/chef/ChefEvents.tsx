@@ -56,13 +56,13 @@ export default function ChefEvents({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "OPEN":
-        return "bg-green-100 text-green-800";
+        return "fc-badge-success";
       case "CLOSED":
-        return "bg-gray-100 text-gray-800";
+        return "fc-badge-neutral";
       case "CANCELLED":
-        return "bg-red-100 text-red-800";
+        return "fc-badge-danger";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "fc-badge-neutral";
     }
   };
 
@@ -152,7 +152,7 @@ export default function ChefEvents({
                         {event.title}
                       </h3>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                        className={`fc-badge ${getStatusColor(
                           event.status,
                         )}`}
                       >
@@ -216,7 +216,7 @@ export default function ChefEvents({
                             setSelectedEvent(event);
                             setIsModalOpen(true);
                           }}
-                          className="fc-touch-target w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+                          className="fc-button fc-button-primary w-full"
                         >
                           Place Order for This Event
                         </button>

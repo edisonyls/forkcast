@@ -19,13 +19,14 @@ export default function Search() {
         <input
           type="text"
           placeholder="Search by cuisine or host name..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="fc-control px-4 py-3 pr-12"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button
           type="submit"
-          className="fc-touch-target absolute right-0 top-1/2 flex -translate-y-1/2 items-center justify-center text-gray-400 hover:text-orange-600"
+          className="fc-icon-button fc-icon-button-ghost absolute right-1 top-1/2 -translate-y-1/2"
+          aria-label="Search hosts"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
