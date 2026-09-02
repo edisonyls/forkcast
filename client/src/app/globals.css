@@ -42,11 +42,7 @@
     var(--fc-color-surface) 46%,
     transparent
   );
-  --fc-color-border: color-mix(
-    in srgb,
-    var(--fc-color-ink) 13%,
-    transparent
-  );
+  --fc-color-border: color-mix(in srgb, var(--fc-color-ink) 13%, transparent);
   --fc-color-border-strong: color-mix(
     in srgb,
     var(--fc-color-ink) 30%,
@@ -78,6 +74,9 @@
   --fc-header-height: 4.5rem;
   --fc-touch-target: 2.75rem;
   --fc-dialog-gutter: clamp(0.75rem, 3vw, 1.5rem);
+  --fc-radius-card: 1rem;
+  --fc-shadow-card: 0 1rem 3rem
+    color-mix(in srgb, var(--fc-color-shadow) 10%, transparent);
 }
 
 /* Tailwind's responsive prefixes now share the same app-wide device scale as
@@ -113,6 +112,57 @@
   --color-warning: var(--fc-color-warning);
   --color-danger: var(--fc-color-danger);
   --color-info: var(--fc-color-info);
+
+  /* Bridge legacy Tailwind utilities to the ForkCast visual language. This
+     keeps every route on the same warm-neutral palette while the JSX moves
+     toward semantic color utilities over time. */
+  --color-white: var(--fc-color-surface);
+  --color-black: var(--fc-color-ink);
+  --color-gray-50: color-mix(
+    in srgb,
+    var(--fc-color-surface) 58%,
+    var(--fc-color-canvas)
+  );
+  --color-gray-100: var(--fc-color-canvas);
+  --color-gray-200: var(--fc-color-surface-muted);
+  --color-gray-300: #c4bbaa;
+  --color-gray-400: #8c877a;
+  --color-gray-500: #6b675d;
+  --color-gray-600: #555148;
+  --color-gray-700: #3a3831;
+  --color-gray-800: var(--fc-color-ink-soft);
+  --color-gray-900: var(--fc-color-ink);
+  --color-blue-50: var(--fc-color-brand-soft);
+  --color-blue-100: #e5efb6;
+  --color-blue-200: #d5e886;
+  --color-blue-300: #c5df59;
+  --color-blue-400: var(--fc-color-brand-strong);
+  --color-blue-500: #859722;
+  --color-blue-600: var(--fc-color-brand-ink);
+  --color-blue-700: #465113;
+  --color-blue-800: #343d0d;
+  --color-blue-900: #262d09;
+  --color-green-50: var(--fc-color-brand-soft);
+  --color-green-100: #e5efb6;
+  --color-green-200: #d5e886;
+  --color-green-300: #c5df59;
+  --color-green-400: var(--fc-color-brand);
+  --color-green-500: var(--fc-color-brand-strong);
+  --color-green-600: var(--fc-color-brand-ink);
+  --color-green-700: #465113;
+  --color-green-800: #343d0d;
+  --color-green-900: #262d09;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: var(--fc-radius-card);
+  --radius-xl: 1.25rem;
+  --shadow-sm: 0 0.25rem 0.75rem
+    color-mix(in srgb, var(--fc-color-shadow) 7%, transparent);
+  --shadow: 0 0.5rem 1.5rem
+    color-mix(in srgb, var(--fc-color-shadow) 8%, transparent);
+  --shadow-md: var(--fc-shadow-card);
+  --shadow-lg: 0 1.5rem 4rem
+    color-mix(in srgb, var(--fc-color-shadow) 14%, transparent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -130,6 +180,76 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.fc-app-main {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--fc-color-canvas);
+  background-image:
+    radial-gradient(
+      circle at 88% 4%,
+      color-mix(in srgb, var(--fc-color-brand) 22%, transparent),
+      transparent 26rem
+    ),
+    linear-gradient(var(--fc-color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fc-color-border) 1px, transparent 1px);
+  background-size:
+    auto,
+    3.75rem 3.75rem,
+    3.75rem 3.75rem;
+}
+
+.fc-app-main > .bg-gray-50 {
+  background-color: transparent;
+}
+
+.fc-app-main :where(h1, h2) {
+  letter-spacing: -0.035em;
+}
+
+.fc-app-main
+  :where(.bg-white.shadow, .bg-white.shadow-md, .bg-white.shadow-lg) {
+  border: 1px solid var(--fc-color-border);
+}
+
+.fc-app-main
+  :where(
+    .bg-blue-500,
+    .bg-blue-600,
+    .bg-green-500,
+    .bg-green-600,
+    .bg-green-700,
+    .bg-orange-500,
+    .bg-purple-500
+  ) {
+  background-color: var(--fc-color-brand);
+  color: var(--fc-color-ink);
+}
+
+.fc-app-main :where(.hover\:bg-blue-700:hover, .hover\:bg-green-700:hover) {
+  background-color: var(--fc-color-brand-strong);
+  color: var(--fc-color-ink);
+}
+
+.fc-app-main
+  :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  border-color: var(--fc-color-border-strong);
+  background-color: var(--fc-color-surface);
+  color: var(--fc-color-ink);
+}
+
+.fc-auth-page {
+  background-color: transparent;
+}
+
+.fc-auth-card {
+  border: 1px solid var(--fc-color-border);
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--fc-color-surface) 94%, transparent);
+  box-shadow: var(--fc-shadow-card);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  backdrop-filter: blur(1rem);
 }
 
 img,
@@ -182,8 +302,7 @@ input[type="submit"] {
   align-items: center;
   justify-content: center;
   overflow-y: auto;
-  padding:
-    max(var(--fc-dialog-gutter), env(safe-area-inset-top))
+  padding: max(var(--fc-dialog-gutter), env(safe-area-inset-top))
     max(var(--fc-dialog-gutter), env(safe-area-inset-right))
     max(var(--fc-dialog-gutter), env(safe-area-inset-bottom))
     max(var(--fc-dialog-gutter), env(safe-area-inset-left));

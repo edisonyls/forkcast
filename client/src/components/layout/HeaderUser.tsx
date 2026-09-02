@@ -5,6 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useState } from "react";
 
+const hostNavigation = [
+  { href: "/chef/dashboard", label: "Dashboard" },
+  { href: "/chef/menu", label: "Menu" },
+  { href: "/chef/events", label: "Events" },
+  { href: "/chef/settings", label: "Settings" },
+];
+
 export default function HeaderUser() {
   const { getTotalItems } = useCart();
   const totalItems = getTotalItems();
@@ -90,12 +97,34 @@ export default function HeaderUser() {
             )}
 
             {isChefDashboard ? (
-              <button
-                onClick={handleSignOut}
-                className="rounded-md bg-danger px-4 py-2 text-text-inverse transition-opacity hover:opacity-90"
-              >
-                Sign Out
-              </button>
+              <>
+                {hostNavigation.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== "/chef/dashboard" &&
+                      pathname?.startsWith(`${item.href}/`));
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`transition-colors ${
+                        isActive
+                          ? "text-brand"
+                          : "text-text-inverse-muted hover:text-text-inverse"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+                <button
+                  onClick={handleSignOut}
+                  className="rounded-full border border-border-inverse px-4 py-2 text-text-inverse-muted transition-colors hover:border-text-inverse-muted hover:bg-overlay-inverse hover:text-text-inverse"
+                >
+                  Sign out
+                </button>
+              </>
             ) : isGuestPage ? (
               // Guest page navigation: Browse Hosts
               <Link
@@ -185,15 +214,38 @@ export default function HeaderUser() {
           >
             <div className="flex flex-col space-y-3 pt-4">
               {isChefDashboard ? (
-                <button
-                  onClick={() => {
-                    handleSignOut();
-                    setIsMenuOpen(false);
-                  }}
-                  className="rounded-md bg-danger px-4 py-3 text-center font-medium text-text-inverse transition-opacity hover:opacity-90"
-                >
-                  Sign Out
-                </button>
+                <>
+                  {hostNavigation.map((item) => {
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== "/chef/dashboard" &&
+                        pathname?.startsWith(`${item.href}/`));
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`rounded-xl px-4 py-3 text-center font-medium transition-colors ${
+                          isActive
+                            ? "bg-brand text-ink"
+                            : "text-text-inverse-muted hover:bg-overlay-inverse hover:text-text-inverse"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="rounded-full border border-border-inverse px-4 py-3 text-center font-medium text-text-inverse-muted transition-colors hover:bg-overlay-inverse hover:text-text-inverse"
+                  >
+                    Sign out
+                  </button>
+                </>
               ) : isGuestPage ? (
                 // Guest page mobile navigation
                 <Link

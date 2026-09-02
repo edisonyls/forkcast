@@ -99,7 +99,7 @@ export default function ChefSignIn() {
   // Show loading state while checking authentication
   if (checkingAuth) {
     return (
-      <div className="flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center bg-gray-50 px-[var(--fc-page-gutter)]">
+      <div className="fc-auth-page flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center px-[var(--fc-page-gutter)]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Checking authentication...</p>
@@ -116,8 +116,8 @@ export default function ChefSignIn() {
   }
 
   return (
-    <div className="flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center bg-gray-50 px-[var(--fc-page-gutter)] py-8 sm:py-12">
-      <div className="max-w-md w-full space-y-8">
+    <div className="fc-auth-page flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center px-[var(--fc-page-gutter)] py-8 sm:py-12">
+      <div className="fc-auth-card max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Host Sign In

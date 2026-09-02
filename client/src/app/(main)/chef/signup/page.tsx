@@ -239,8 +239,8 @@ export default function ChefSignUp() {
   };
 
   return (
-    <div className="flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center bg-gray-50 px-[var(--fc-page-gutter)] py-8 sm:py-12">
-      <div className="max-w-md w-full space-y-8">
+    <div className="fc-auth-page flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center px-[var(--fc-page-gutter)] py-8 sm:py-12">
+      <div className="fc-auth-card max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Become a Host
