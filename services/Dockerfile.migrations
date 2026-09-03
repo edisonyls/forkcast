@@ -13,7 +13,8 @@ COPY order-service/package.json ./order-service/package.json
 COPY search-service/package.json ./search-service/package.json
 COPY shared/package.json ./shared/package.json
 COPY upload-service/package.json ./upload-service/package.json
-RUN npm ci
+RUN npm ci \
+  && rm -rf node_modules/tsx node_modules/esbuild node_modules/@esbuild
 
 COPY --chown=nodeapp:nodejs shared/prisma ./shared/prisma
 USER 1001
