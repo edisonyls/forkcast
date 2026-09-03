@@ -1,0 +1,54 @@
+FROM node:24-alpine AS build
+
+ARG SERVICE_NAME
+RUN test -n "$SERVICE_NAME"
+
+RUN apk add --no-cache libc6-compat openssl
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+COPY api-gateway/package.json ./api-gateway/package.json
+COPY menu-service/package.json ./menu-service/package.json
+COPY notification-service/package.json ./notification-service/package.json
+COPY order-service/package.json ./order-service/package.json
+COPY search-service/package.json ./search-service/package.json
+COPY shared/package.json ./shared/package.json
+COPY upload-service/package.json ./upload-service/package.json
+RUN npm ci
+
+COPY shared ./shared
+COPY ${SERVICE_NAME} ./${SERVICE_NAME}
+RUN npx prisma generate --schema=shared/prisma/schema.prisma \
+  && npm run build --workspace=@forkcast/shared \
+  && npm run build --workspace="./${SERVICE_NAME}" \
+  && npm prune --omit=dev
+
+FROM node:24-alpine AS production
+
+ARG SERVICE_NAME
+ARG SERVICE_PORT
+RUN test -n "$SERVICE_NAME" && test -n "$SERVICE_PORT"
+
+RUN apk add --no-cache libc6-compat openssl \
+  && addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 --ingroup nodejs nodeapp
+
+WORKDIR /app
+COPY --from=build --chown=nodeapp:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=nodeapp:nodejs /app/shared/package.json ./shared/package.json
+COPY --from=build --chown=nodeapp:nodejs /app/shared/dist ./shared/dist
+COPY --from=build --chown=nodeapp:nodejs /app/shared/prisma ./shared/prisma
+COPY --from=build --chown=nodeapp:nodejs /app/${SERVICE_NAME}/package.json ./${SERVICE_NAME}/package.json
+COPY --from=build --chown=nodeapp:nodejs /app/${SERVICE_NAME}/dist ./${SERVICE_NAME}/dist
+
+ENV NODE_ENV=production
+ENV PORT=$SERVICE_PORT
+WORKDIR /app/${SERVICE_NAME}
+USER 1001
+EXPOSE $SERVICE_PORT
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:' + process.env.PORT + '/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+
+CMD ["node", "dist/server.js"]
+

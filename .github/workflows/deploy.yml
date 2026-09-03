@@ -1,0 +1,267 @@
+name: Build and deploy production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: forkcast-production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify release source
+    if: github.repository == 'edisonyls/forkcast' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            services/package-lock.json
+
+      - name: Verify client
+        working-directory: client
+        env:
+          NEXT_PUBLIC_API_URL: https://forkcast.edisonyls.com
+          API_GATEWAY_URL: http://api-gateway:3000
+        run: |
+          npm ci
+          npm audit --omit=dev --audit-level=high
+          npm test
+          npm run build
+
+      - name: Verify services
+        working-directory: services
+        run: |
+          npm ci
+          npm audit --omit=dev --audit-level=high
+          npm run build:all
+
+  build:
+    name: Publish ${{ matrix.image }}
+    if: github.repository == 'edisonyls/forkcast' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs: verify
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: client
+            variable: CLIENT_IMAGE
+            context: client
+            dockerfile: client/Dockerfile
+            build_args: |
+              NEXT_PUBLIC_API_URL=https://forkcast.edisonyls.com
+              API_GATEWAY_URL=http://api-gateway:3000
+          - image: api-gateway
+            variable: API_GATEWAY_IMAGE
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=api-gateway
+              SERVICE_PORT=3000
+          - image: menu-service
+            variable: MENU_SERVICE_IMAGE
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=menu-service
+              SERVICE_PORT=3002
+          - image: order-service
+            variable: ORDER_SERVICE_IMAGE
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=order-service
+              SERVICE_PORT=3003
+          - image: search-service
+            variable: SEARCH_SERVICE_IMAGE
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=search-service
+              SERVICE_PORT=3004
+          - image: notification-service
+            variable: NOTIFICATION_SERVICE_IMAGE
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=notification-service
+              SERVICE_PORT=3005
+          - image: upload-service
+            variable: UPLOAD_SERVICE_IMAGE
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=upload-service
+              SERVICE_PORT=3006
+          - image: migrations
+            variable: MIGRATIONS_IMAGE
+            context: services
+            dockerfile: services/Dockerfile.migrations
+            build_args: ""
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/forkcast-${{ matrix.image }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish image
+        id: image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          build-args: ${{ matrix.build_args }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.IMAGE }}:sha-${{ github.sha }}
+          cache-from: type=gha,scope=production-${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=production-${{ matrix.image }}
+          provenance: mode=max
+          sbom: true
+
+      - name: Scan published image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}@${{ steps.image.outputs.digest }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
+
+      - name: Attest image provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.image.outputs.digest }}
+          push-to-registry: true
+
+      - name: Record immutable image reference
+        run: |
+          mkdir image-reference
+          printf '%s=%s@%s\n' '${{ matrix.variable }}' "$IMAGE" '${{ steps.image.outputs.digest }}' \
+            > "image-reference/${{ matrix.image }}.env"
+
+      - name: Upload image reference
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-${{ matrix.image }}
+          path: image-reference/*.env
+          if-no-files-found: error
+          retention-days: 3
+
+  bundle:
+    name: Assemble immutable release
+    if: github.repository == 'edisonyls/forkcast' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Download image references
+        uses: actions/download-artifact@v8
+        with:
+          pattern: image-*
+          path: image-references
+          merge-multiple: true
+
+      - name: Build release archive
+        run: |
+          mkdir release
+          sort image-references/*.env > release/images.env
+          cp deploy/compose.production.yml release/
+          cp deploy/deploy.sh deploy/backup-postgres.sh release/
+          chmod +x release/deploy.sh release/backup-postgres.sh
+          printf '%s\n' "$GITHUB_SHA" > release/release.sha
+          tar --create --gzip --file forkcast-release.tgz --directory release .
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v7
+        with:
+          name: production-release
+          path: forkcast-release.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy:
+    name: Deploy approved release
+    if: github.repository == 'edisonyls/forkcast' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: bundle
+    environment:
+      name: production
+      url: https://forkcast.edisonyls.com
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download release archive
+        uses: actions/download-artifact@v8
+        with:
+          name: production-release
+
+      - name: Validate deployment configuration
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_AUDIENCE: ${{ secrets.TS_AUDIENCE }}
+        run: |
+          test -n "$DEPLOY_HOST"
+          test -n "$DEPLOY_USER"
+          test -n "$TS_OAUTH_CLIENT_ID"
+          test -n "$TS_AUDIENCE"
+
+      - name: Join the tailnet with workload identity
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          audience: ${{ secrets.TS_AUDIENCE }}
+          tags: tag:forkcast-deploy
+          ping: ${{ secrets.DEPLOY_HOST }}
+
+      - name: Transfer and deploy release
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+          remote_release="/opt/forkcast/releases/${GITHUB_SHA}"
+          tailscale ssh "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "rm -rf '${remote_release}' && mkdir -p '${remote_release}' && tar -xzf - -C '${remote_release}'" \
+            < forkcast-release.tgz
+          tailscale ssh "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "'${remote_release}/deploy.sh' '${remote_release}'"

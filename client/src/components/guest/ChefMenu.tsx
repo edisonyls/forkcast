@@ -2,8 +2,10 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import CustomizationModal from "./CustomizationModal";
 import ImageCarousel from "./ImageCarousel";
+import { useCart } from "@/contexts/CartContext";
 
 interface Chef {
   id: string | number;
@@ -63,12 +65,53 @@ interface ChefMenuProps {
   events?: Event[]; // Optional for backward compatibility
 }
 
+interface MenuItemThumbnailProps {
+  imageSource: string | null;
+  itemName: string;
+  eager?: boolean;
+}
+
+function MenuItemThumbnail({
+  imageSource,
+  itemName,
+  eager = false,
+}: MenuItemThumbnailProps) {
+  const [hasImageError, setHasImageError] = useState(false);
+
+  return (
+    <span className="fc-mobile-meal-image">
+      {imageSource && !hasImageError ? (
+        <Image
+          src={imageSource}
+          alt=""
+          fill
+          sizes="7rem"
+          className="object-cover"
+          loading={eager ? "eager" : "lazy"}
+          onError={() => setHasImageError(true)}
+        />
+      ) : (
+        <span
+          className="grid h-full w-full place-items-center text-3xl"
+          aria-label={`${itemName} image unavailable`}
+        >
+          🍽️
+        </span>
+      )}
+      <span className="fc-mobile-add-icon" aria-hidden="true">
+        +
+      </span>
+    </span>
+  );
+}
+
 export default function ChefMenu({
   chef,
   categories,
   menuItems,
   events = [],
 }: ChefMenuProps) {
+  const { cartChef, getTotalItems } = useCart();
   const [selectedCategory, setSelectedCategory] = useState(
     categories.length > 0 ? categories[0].id : null,
   );
@@ -76,6 +119,7 @@ export default function ChefMenu({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showEventsTab, setShowEventsTab] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [hasProfileImageError, setHasProfileImageError] = useState(false);
 
   const filteredItems = selectedCategory
     ? menuItems.filter(
@@ -107,6 +151,39 @@ export default function ChefMenu({
 
     return eventDate >= today && event.status !== "CANCELLED";
   });
+
+  const totalCartItems = getTotalItems();
+  const showCartDock =
+    totalCartItems > 0 && cartChef?.id.toString() === chef.id.toString();
+
+  const openEventsTab = () => {
+    setShowEventsTab(true);
+    if (!selectedEventId && availableEvents.length > 0) {
+      setSelectedEventId(availableEvents[0].id);
+    }
+  };
+
+  const openItem = (item: MenuItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const getMenuImageSource = (image?: string) => {
+    if (!image) return null;
+    if (image.startsWith("http") || image.startsWith("data:")) {
+      return image;
+    }
+    return `${process.env.NEXT_PUBLIC_API_URL}${image}`;
+  };
+
+  const profileImageSource = hasProfileImageError
+    ? "/user.png"
+    : chef.image &&
+        !chef.image.startsWith("http") &&
+        !chef.image.startsWith("/user.png") &&
+        !chef.image.startsWith("data:")
+      ? `${process.env.NEXT_PUBLIC_API_URL}${chef.image}`
+      : chef.image || "/user.png";
 
   // Aggregate orders by menu item across all events
   const getOrderSummary = () => {
@@ -152,25 +229,91 @@ export default function ChefMenu({
 
   return (
     <React.Fragment>
+      {/* Mobile-first host summary and sticky meal navigation */}
+      <div className="md:hidden">
+        <section className="fc-mobile-host-summary">
+          <Image
+            src={profileImageSource}
+            alt={chef.name}
+            width={64}
+            height={64}
+            className="h-16 w-16 shrink-0 rounded-2xl object-cover"
+            priority
+            onError={() => setHasProfileImageError(true)}
+          />
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-xl font-bold text-ink">{chef.name}</h1>
+            <div className="mt-1 flex items-center gap-2 text-sm text-text-muted">
+              <span className="fc-badge fc-badge-brand">★ {chef.rating}</span>
+              <span>{menuItems.length} meals</span>
+            </div>
+            {chef.bio && (
+              <p className="mt-2 line-clamp-2 text-sm text-text-muted">
+                {chef.bio}
+              </p>
+            )}
+          </div>
+        </section>
+
+        <div className="fc-mobile-meal-nav">
+          <div className="fc-mobile-segmented-control" aria-label="Meal views">
+            <button
+              type="button"
+              onClick={() => setShowEventsTab(false)}
+              className="fc-mobile-segment"
+              aria-pressed={!showEventsTab}
+            >
+              Menu
+            </button>
+            <button
+              type="button"
+              onClick={openEventsTab}
+              className="fc-mobile-segment"
+              aria-pressed={showEventsTab}
+            >
+              Orders
+              {availableEvents.length > 0 && (
+                <span className="fc-badge fc-badge-brand">
+                  {availableEvents.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {!showEventsTab && (
+            <div
+              className="fc-mobile-category-strip"
+              aria-label="Meal categories"
+            >
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className="fc-category-chip"
+                  aria-pressed={selectedCategory === category.id}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Left Side - Categories and Event Orders */}
-      <div className="w-full md:w-1/4">
+      <div className="hidden md:block md:w-1/4">
         <div className="space-y-4 md:sticky md:top-4">
           {/* Chef Info */}
           <div className="bg-white rounded-lg shadow-md p-3">
             <Image
-              src={
-                chef.image &&
-                !chef.image.startsWith("http") &&
-                !chef.image.startsWith("/user.png") &&
-                !chef.image.startsWith("data:")
-                  ? `${process.env.NEXT_PUBLIC_API_URL}${chef.image}`
-                  : chef.image || "/user.png"
-              }
+              src={profileImageSource}
               alt={chef.name}
               width={80}
               height={80}
               className="rounded-full mx-auto mb-2"
               priority
+              onError={() => setHasProfileImageError(true)}
             />
             <h2 className="text-sm font-bold text-center">{chef.name}</h2>
             {chef.bio && (
@@ -196,7 +339,7 @@ export default function ChefMenu({
                   review and track your orders!
                 </p>
                 <button
-                  onClick={() => setShowEventsTab(true)}
+                  onClick={openEventsTab}
                   className="fc-button fc-button-secondary text-xs"
                 >
                   🗓️ View Orders
@@ -219,7 +362,7 @@ export default function ChefMenu({
                 Menu
               </button>
               <button
-                onClick={() => setShowEventsTab(true)}
+                onClick={openEventsTab}
                 className={`flex-1 py-3 px-4 text-sm font-medium transition-colors relative ${
                   showEventsTab
                     ? "bg-brand-soft text-brand-ink border-b-2 border-brand-strong"
@@ -316,7 +459,7 @@ export default function ChefMenu({
       </div>
 
       {/* Right Side - Menu Items */}
-      <div className="w-full md:w-3/4">
+      <div className={`w-full md:w-3/4 ${showCartDock ? "pb-24 md:pb-0" : ""}`}>
         {!showEventsTab ? (
           // Show Menu Items
           filteredItems.length === 0 ? (
@@ -329,61 +472,149 @@ export default function ChefMenu({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item: MenuItem) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden h-[400px] flex flex-col"
-                >
-                  <div className="relative h-48 w-full flex-shrink-0 overflow-hidden">
-                    <ImageCarousel
-                      images={item.images || []}
-                      itemName={item.name}
-                      className="h-full w-full"
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold flex-1 mr-2 line-clamp-2 leading-tight">
-                        {item.name}
-                      </h3>
-                      <span className="fc-badge fc-badge-brand flex-shrink-0">
-                        {item.preparationTime} mins
-                      </span>
+            <>
+              <div className="md:hidden">
+                <div className="fc-mobile-meal-list">
+                  <div className="mb-2 flex items-end justify-between gap-3 px-1">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-ink">
+                        {categories.find(
+                          (category) => category.id === selectedCategory,
+                        )?.name || "Menu"}
+                      </p>
+                      <h2 className="mt-1 text-2xl font-bold text-ink">
+                        Choose your meal
+                      </h2>
                     </div>
-                    <p className="text-gray-600 text-sm mb-4 flex-1 line-clamp-3 overflow-hidden">
-                      {item.description}
-                    </p>
-                    <div className="flex justify-center items-center mb-4 mt-auto">
-                      <div className="flex items-center">
-                        <span className="text-yellow-500">★</span>
-                        <span className="ml-1">{item.rating}</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedItem(item);
-                        setIsModalOpen(true);
-                      }}
-                      className="fc-button fc-button-primary w-full"
-                    >
-                      Add to Order
-                    </button>
+                    <span className="text-sm text-text-muted">
+                      {filteredItems.length} items
+                    </span>
                   </div>
+
+                  {filteredItems.map((item: MenuItem, itemIndex) => {
+                    const imageSource = getMenuImageSource(item.images?.[0]);
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => openItem(item)}
+                        className="fc-mobile-meal-row"
+                        aria-label={`View ${item.name}`}
+                      >
+                        <span className="min-w-0 flex-1 py-1 text-left">
+                          <span className="line-clamp-2 text-base font-bold leading-snug text-ink">
+                            {item.name}
+                          </span>
+                          <span className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-text-muted">
+                            {item.description}
+                          </span>
+                          <span className="mt-3 flex items-center gap-2 text-xs font-medium text-text-muted">
+                            <span className="text-warning">
+                              ★ {item.rating}
+                            </span>
+                            <span aria-hidden="true">•</span>
+                            <span>{item.preparationTime} min</span>
+                          </span>
+                        </span>
+
+                        <MenuItemThumbnail
+                          imageSource={imageSource}
+                          itemName={item.name}
+                          eager={itemIndex === 0}
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
+              </div>
+
+              <div className="hidden grid-cols-2 gap-6 md:grid lg:grid-cols-3">
+                {filteredItems.map((item: MenuItem) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden h-[400px] flex flex-col"
+                  >
+                    <div className="relative h-48 w-full flex-shrink-0 overflow-hidden">
+                      <ImageCarousel
+                        images={item.images || []}
+                        itemName={item.name}
+                        className="h-full w-full"
+                      />
+                    </div>
+                    <div className="p-4 flex flex-col flex-1">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-bold flex-1 mr-2 line-clamp-2 leading-tight">
+                          {item.name}
+                        </h3>
+                        <span className="fc-badge fc-badge-brand flex-shrink-0">
+                          {item.preparationTime} mins
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-4 flex-1 line-clamp-3 overflow-hidden">
+                        {item.description}
+                      </p>
+                      <div className="flex justify-center items-center mb-4 mt-auto">
+                        <div className="flex items-center">
+                          <span className="text-warning">★</span>
+                          <span className="ml-1">{item.rating}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => openItem(item)}
+                        className="fc-button fc-button-primary w-full"
+                      >
+                        Add to Order
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )
         ) : (
           // Show Event Order Details for Selected Event
           <div className="space-y-6">
+            <div className="md:hidden">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-ink">
+                  Your upcoming meals
+                </h2>
+                <span className="text-sm text-text-muted">
+                  {availableEvents.length} events
+                </span>
+              </div>
+              {availableEvents.length > 0 && (
+                <div
+                  className="fc-mobile-category-strip"
+                  aria-label="Upcoming events"
+                >
+                  {availableEvents.map((event) => (
+                    <button
+                      key={event.id}
+                      type="button"
+                      onClick={() => setSelectedEventId(event.id)}
+                      className="fc-category-chip"
+                      aria-pressed={selectedEventId === event.id}
+                    >
+                      {event.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {!selectedEventId ? (
               <div className="bg-white rounded-lg shadow-md p-5 text-center sm:p-8">
                 <h2 className="text-2xl font-bold text-gray-700 mb-4">
-                  🗓️ Event Orders Overview
+                  {availableEvents.length > 0
+                    ? "🗓️ Event Orders Overview"
+                    : "🗓️ No upcoming meals yet"}
                 </h2>
                 <p className="text-gray-600">
-                  Select an event from the sidebar to view its order details.
+                  {availableEvents.length > 0
+                    ? "Select an event to view its order details."
+                    : "New events from this host will appear here."}
                 </p>
               </div>
             ) : (
@@ -505,6 +736,19 @@ export default function ChefMenu({
           </div>
         )}
       </div>
+
+      {showCartDock && (
+        <div className="fc-mobile-cart-dock md:hidden">
+          <Link
+            href="/cart"
+            className="fc-button fc-button-primary w-full justify-between"
+          >
+            <span className="fc-mobile-cart-count">{totalCartItems}</span>
+            <span>View cart</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      )}
 
       {/* Customization Modal */}
       {selectedItem && (

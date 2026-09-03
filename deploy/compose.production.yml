@@ -1,0 +1,213 @@
+name: forkcast
+
+x-app-defaults: &app-defaults
+  restart: unless-stopped
+  init: true
+  read_only: true
+  tmpfs:
+    - /tmp:size=64m,mode=1777
+  security_opt:
+    - no-new-privileges:true
+  networks:
+    - forkcast-internal
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+
+x-service-environment: &service-environment
+  NODE_ENV: production
+  DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in /etc/forkcast/forkcast.env}
+  REDIS_URL: redis://redis:6379
+  JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in /etc/forkcast/forkcast.env}
+  JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in /etc/forkcast/forkcast.env}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in /etc/forkcast/forkcast.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in /etc/forkcast/forkcast.env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - forkcast-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks:
+      - forkcast-internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    read_only: true
+    tmpfs:
+      - /data:size=128m,mode=0700
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  migrate:
+    image: ${MIGRATIONS_IMAGE:?Set MIGRATIONS_IMAGE in images.env}
+    profiles: ["tools"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in /etc/forkcast/forkcast.env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - forkcast-internal
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+
+  menu-service:
+    <<: *app-defaults
+    image: ${MENU_SERVICE_IMAGE:?Set MENU_SERVICE_IMAGE in images.env}
+    environment:
+      <<: *service-environment
+      PORT: 3002
+      UPLOAD_SERVICE_URL: http://upload-service:3006
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "3002"
+
+  order-service:
+    <<: *app-defaults
+    image: ${ORDER_SERVICE_IMAGE:?Set ORDER_SERVICE_IMAGE in images.env}
+    environment:
+      <<: *service-environment
+      PORT: 3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "3003"
+
+  search-service:
+    <<: *app-defaults
+    image: ${SEARCH_SERVICE_IMAGE:?Set SEARCH_SERVICE_IMAGE in images.env}
+    environment:
+      <<: *service-environment
+      PORT: 3004
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "3004"
+
+  notification-service:
+    <<: *app-defaults
+    image: ${NOTIFICATION_SERVICE_IMAGE:?Set NOTIFICATION_SERVICE_IMAGE in images.env}
+    environment:
+      <<: *service-environment
+      PORT: 3005
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - "3005"
+
+  upload-service:
+    <<: *app-defaults
+    image: ${UPLOAD_SERVICE_IMAGE:?Set UPLOAD_SERVICE_IMAGE in images.env}
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in /etc/forkcast/forkcast.env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+    volumes:
+      - type: bind
+        source: /mnt/forkcast/uploads
+        target: /app/uploads
+    expose:
+      - "3006"
+
+  api-gateway:
+    <<: *app-defaults
+    image: ${API_GATEWAY_IMAGE:?Set API_GATEWAY_IMAGE in images.env}
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      FRONTEND_URL: https://forkcast.edisonyls.com
+      USER_SERVICE_URL: http://menu-service:3002
+      MENU_SERVICE_URL: http://menu-service:3002
+      ORDER_SERVICE_URL: http://order-service:3003
+      SEARCH_SERVICE_URL: http://search-service:3004
+      NOTIFICATION_SERVICE_URL: http://notification-service:3005
+      UPLOAD_SERVICE_URL: http://upload-service:3006
+    depends_on:
+      menu-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      search-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      upload-service:
+        condition: service_healthy
+    ports:
+      - "${TAILSCALE_IP:?Set TAILSCALE_IP in /etc/forkcast/forkcast.env}:13000:3000"
+
+  client:
+    <<: *app-defaults
+    image: ${CLIENT_IMAGE:?Set CLIENT_IMAGE in images.env}
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /app/.next/cache:size=256m,mode=1777
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_API_URL: https://forkcast.edisonyls.com
+      API_GATEWAY_URL: http://api-gateway:3000
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    ports:
+      - "${TAILSCALE_IP:?Set TAILSCALE_IP in /etc/forkcast/forkcast.env}:13001:3000"
+
+networks:
+  forkcast-internal:
+    name: forkcast-internal
+
+volumes:
+  postgres-data:
+    name: forkcast-postgres-data

@@ -11,7 +11,8 @@
     "dev:notification": "cd notification-service && npm run dev",
     "dev:upload": "cd upload-service && npm run dev",
     "install:all": "npm install && cd api-gateway && npm install && cd ../menu-service && npm install && cd ../order-service && npm install && cd ../search-service && npm install && cd ../notification-service && npm install && cd ../upload-service && npm install",
-    "build:all": "cd api-gateway && npm run build && cd ../menu-service && npm run build && cd ../order-service && npm run build && cd ../search-service && npm run build && cd ../notification-service && npm run build && cd ../upload-service && npm run build",
+    "prisma:generate": "prisma generate --schema=shared/prisma/schema.prisma",
+    "build:all": "npm run prisma:generate && npm run build --workspace=./shared && npm run build --workspace=./api-gateway && npm run build --workspace=./menu-service && npm run build --workspace=./order-service && npm run build --workspace=./search-service && npm run build --workspace=./notification-service && npm run build --workspace=./upload-service",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
@@ -32,5 +33,13 @@
   ],
   "dependencies": {
     "@prisma/client": "6.12.0"
+  },
+  "overrides": {
+    "body-parser": {
+      "qs": "6.16.0"
+    },
+    "express": {
+      "qs": "6.16.0"
+    }
   }
 }

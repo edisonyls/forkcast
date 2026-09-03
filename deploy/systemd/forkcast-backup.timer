@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the Forkcast PostgreSQL backup daily
+
+[Timer]
+OnCalendar=*-*-* 02:30:00 Australia/Melbourne
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

@@ -1,0 +1,4 @@
+/.github/workflows/ @edisonyls
+/deploy/ @edisonyls
+/client/Dockerfile @edisonyls
+/services/Dockerfile.* @edisonyls

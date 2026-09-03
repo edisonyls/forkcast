@@ -1,0 +1,13 @@
+[Unit]
+Description=Back up the Forkcast PostgreSQL database
+RequiresMountsFor=/mnt/forkcast
+After=docker.service tailscaled.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=forkcast-deploy
+Group=forkcast-deploy
+UMask=0077
+ExecStart=/opt/forkcast/current/backup-postgres.sh
+
