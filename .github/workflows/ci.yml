@@ -1,0 +1,149 @@
+name: CI
+
+# Pushes to main are verified by the deploy workflow, which runs the same
+# client/services checks and builds every image before publishing.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  client:
+    name: Verify client
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build client
+        env:
+          NEXT_PUBLIC_API_URL: https://forkcast.edisonyls.com
+          API_GATEWAY_URL: http://api-gateway:3000
+        run: npm run build
+
+  services:
+    name: Verify services
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: services
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: services/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Compile all workspaces
+        run: npm run build:all
+
+  containers:
+    name: Build ${{ matrix.image }} container
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [client, services]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: client
+            context: client
+            dockerfile: client/Dockerfile
+            build_args: |
+              NEXT_PUBLIC_API_URL=https://forkcast.edisonyls.com
+              API_GATEWAY_URL=http://api-gateway:3000
+          - image: api-gateway
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=api-gateway
+              SERVICE_PORT=3000
+          - image: menu-service
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=menu-service
+              SERVICE_PORT=3002
+          - image: order-service
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=order-service
+              SERVICE_PORT=3003
+          - image: search-service
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=search-service
+              SERVICE_PORT=3004
+          - image: notification-service
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=notification-service
+              SERVICE_PORT=3005
+          - image: upload-service
+            context: services
+            dockerfile: services/Dockerfile.service
+            build_args: |
+              SERVICE_NAME=upload-service
+              SERVICE_PORT=3006
+          - image: migrations
+            context: services
+            dockerfile: services/Dockerfile.migrations
+            build_args: ""
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build container
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          build-args: ${{ matrix.build_args }}
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha,scope=ci-${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=ci-${{ matrix.image }}

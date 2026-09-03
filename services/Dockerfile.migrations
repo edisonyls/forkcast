@@ -1,0 +1,21 @@
+FROM node:24-alpine
+
+RUN apk add --no-cache libc6-compat openssl \
+  && addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 --ingroup nodejs nodeapp
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY api-gateway/package.json ./api-gateway/package.json
+COPY menu-service/package.json ./menu-service/package.json
+COPY notification-service/package.json ./notification-service/package.json
+COPY order-service/package.json ./order-service/package.json
+COPY search-service/package.json ./search-service/package.json
+COPY shared/package.json ./shared/package.json
+COPY upload-service/package.json ./upload-service/package.json
+RUN npm ci
+
+COPY --chown=nodeapp:nodejs shared/prisma ./shared/prisma
+USER 1001
+
+CMD ["npx", "prisma", "migrate", "deploy", "--schema=/app/shared/prisma/schema.prisma"]

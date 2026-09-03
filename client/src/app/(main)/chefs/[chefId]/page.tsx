@@ -381,9 +381,9 @@ export default function ChefPage() {
   }
 
   return (
-    <div className="fc-shell py-6 sm:py-8">
+    <div className="fc-shell py-3 sm:py-8">
       {/* Back Button */}
-      <div className="mb-6">
+      <div className="mb-3 sm:mb-6">
         <button
           onClick={() => router.push("/chefs")}
           className="fc-button fc-button-ghost"
@@ -406,7 +406,7 @@ export default function ChefPage() {
       </div>
 
       {/* Menu */}
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col gap-4 md:flex-row md:gap-8">
         <ChefMenu
           chef={{
             id: chef.id,
