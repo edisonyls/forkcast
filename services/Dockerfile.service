@@ -1,4 +1,4 @@
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 
 ARG SERVICE_NAME
 RUN test -n "$SERVICE_NAME"
@@ -23,7 +23,7 @@ RUN npx prisma generate --schema=shared/prisma/schema.prisma \
   && npm run build --workspace="./${SERVICE_NAME}" \
   && npm prune --omit=dev
 
-FROM node:24-alpine AS production
+FROM node:26-alpine AS production
 
 ARG SERVICE_NAME
 ARG SERVICE_PORT
