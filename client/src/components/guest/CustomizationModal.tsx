@@ -115,29 +115,31 @@ export default function CustomizationModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+    <div className="fc-dialog-backdrop" role="presentation">
       <div
-        className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+        className="fc-dialog max-w-md"
         role="dialog"
         aria-modal="true"
         aria-labelledby="customisation-title"
       >
-        <div className="flex justify-between items-start mb-4">
-          <h2
-            id="customisation-title"
-            className="min-w-0 pr-3 text-xl font-bold"
-          >
-            {item.name}
-          </h2>
+        <div className="fc-dialog-header">
+          <div className="min-w-0">
+            {item.chefName && <p className="fc-eyebrow">{item.chefName}</p>}
+            <h2 id="customisation-title" className="fc-dialog-title">
+              {item.name}
+            </h2>
+          </div>
           <button
+            type="button"
             onClick={onClose}
-            className="fc-touch-target flex shrink-0 items-center justify-center text-gray-500 hover:text-gray-700"
+            className="fc-icon-button fc-icon-button-ghost fc-close"
+            aria-label="Close"
           >
-            ✕
+            &times;
           </button>
         </div>
 
-        <div className="relative h-48 w-full mb-4 rounded overflow-hidden">
+        <div className="relative h-48 w-full overflow-hidden border-b border-border-theme">
           <ImageCarousel
             images={item.images || []}
             itemName={item.name}
@@ -145,85 +147,82 @@ export default function CustomizationModal({
           />
         </div>
 
-        <p className="text-gray-600 mb-4">{item.description}</p>
-
-        {/* Chef info */}
-        {item.chefName && (
-          <div className="fc-feedback fc-feedback-info mb-4">
-            <p className="text-sm">
-              By <span className="font-semibold">{item.chefName}</span>
-            </p>
-          </div>
-        )}
-
-        {item.customizableOptions && item.customizableOptions.length > 0 && (
-          <div className="mb-4">
-            <h3 className="font-semibold mb-2">Customization Options</h3>
-            {item.customizableOptions.map((option) => (
-              <label
-                key={option.id}
-                className="flex min-h-[var(--fc-touch-target)] items-center justify-between py-2 border-b cursor-pointer hover:bg-gray-50"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2 text-green-600 focus:ring-green-500"
-                    checked={selectedOptions.some(
-                      (opt) => opt.id === option.id,
-                    )}
-                    onChange={() => toggleOption(option)}
-                  />
-                  <span>{option.name}</span>
-                </div>
-              </label>
-            ))}
-          </div>
-        )}
-
-        {/* Custom Options Section */}
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2">Additional Custom Options</h3>
-          <p className="text-sm text-gray-600 mb-2">
-            Add your own customization preferences (separate multiple options
-            with commas)
+        <div className="fc-dialog-body">
+          <p className="mt-0 mb-1 text-sm leading-relaxed text-text-muted">
+            {item.description}
           </p>
-          <textarea
-            value={customOptions}
-            onChange={(e) => setCustomOptions(e.target.value)}
-            placeholder="e.g., extra spicy, no onions, gluten-free bread"
-            className="fc-control px-3 py-2 text-sm resize-none"
-            rows={3}
-          />
-        </div>
+          <p className="fc-meta mb-5">
+            <span>&#9733; {item.rating}</span>
+            <span>{item.preparationTime} min</span>
+          </p>
 
-        <div className="flex items-center justify-between mb-6">
-          <span className="font-semibold">Quantity:</span>
-          <div className="flex items-center">
-            <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="fc-touch-target bg-gray-200 px-3 py-1 rounded-l hover:bg-gray-300 transition-colors"
-            >
-              -
-            </button>
-            <span className="bg-gray-100 px-4 py-1 border-t border-b border-gray-200">
-              {quantity}
+          {item.customizableOptions && item.customizableOptions.length > 0 && (
+            <div className="fc-field">
+              <span className="fc-label">Customisations</span>
+              <div className="grid gap-2">
+                {item.customizableOptions.map((option) => (
+                  <label key={option.id} className="fc-option items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedOptions.some(
+                        (opt) => opt.id === option.id,
+                      )}
+                      onChange={() => toggleOption(option)}
+                    />
+                    <span className="text-sm text-ink">{option.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="fc-field">
+            <label className="fc-label" htmlFor="custom-options">
+              Anything else
+              <span className="fc-label-note">Optional</span>
+            </label>
+            <textarea
+              id="custom-options"
+              value={customOptions}
+              onChange={(e) => setCustomOptions(e.target.value)}
+              placeholder="Extra spicy, no onions, gluten-free bread"
+              className="fc-control resize-none px-3 py-2.5 text-sm"
+              rows={3}
+            />
+            <p className="fc-hint">Separate several requests with commas.</p>
+          </div>
+
+          <div className="fc-field flex items-center justify-between gap-4">
+            <span className="fc-label mb-0">Quantity</span>
+            <span className="fc-stepper">
+              <button
+                type="button"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                aria-label="Decrease quantity"
+              >
+                &minus;
+              </button>
+              <span className="fc-stepper-value">{quantity}</span>
+              <button
+                type="button"
+                onClick={() => setQuantity(quantity + 1)}
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
             </span>
-            <button
-              onClick={() => setQuantity(quantity + 1)}
-              className="fc-touch-target bg-gray-200 px-3 py-1 rounded-r hover:bg-gray-300 transition-colors"
-            >
-              +
-            </button>
           </div>
         </div>
 
-        <button
-          onClick={handleAddToCart}
-          disabled={isAdding}
-          className="fc-button fc-button-primary w-full"
-        >
-          {isAdding ? "Adding to Cart..." : "Add to Cart"}
-        </button>
+        <div className="fc-dialog-footer">
+          <button
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            className="fc-button fc-button-primary w-full"
+          >
+            {isAdding ? "Adding..." : `Add ${quantity} to cart`}
+          </button>
+        </div>
       </div>
     </div>
   );

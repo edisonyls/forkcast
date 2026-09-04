@@ -67,92 +67,95 @@ export default function OrderPlacementModal({
   const selectedEventInfo = events.find((e) => e.id === selectedEvent);
 
   return (
-    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+    <div className="fc-dialog-backdrop" role="presentation">
       <div
-        className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+        className="fc-dialog max-w-md"
         role="dialog"
         aria-modal="true"
         aria-labelledby="order-placement-title"
       >
-        <div className="flex justify-between items-start mb-4">
-          <h2
-            id="order-placement-title"
-            className="min-w-0 pr-3 text-xl font-bold text-gray-900"
-          >
-            Place Your Order
-          </h2>
+        <div className="fc-dialog-header">
+          <div className="min-w-0">
+            <p className="fc-eyebrow">Final step</p>
+            <h2 id="order-placement-title" className="fc-dialog-title">
+              Place your order
+            </h2>
+          </div>
           <button
+            type="button"
             onClick={handleClose}
-            className="fc-touch-target flex shrink-0 items-center justify-center text-gray-500 hover:text-gray-700"
+            className="fc-icon-button fc-icon-button-ghost fc-close"
+            aria-label="Close"
           >
-            ✕
+            &times;
           </button>
         </div>
 
-        {selectedEventInfo && (
-          <div className="fc-feedback fc-feedback-success mb-4">
-            <p className="text-sm">
-              <strong>Event:</strong> {selectedEventInfo.title}
-            </p>
-            <p className="text-sm">
-              📅{" "}
-              {new Date(selectedEventInfo.eventDate).toLocaleDateString(
-                "en-US",
-                {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                },
-              )}
-            </p>
-          </div>
-        )}
+        <div className="fc-dialog-body">
+          <dl className="fc-stat-grid mb-6">
+            {selectedEventInfo && (
+              <div>
+                <dt className="fc-stat-label">Event</dt>
+                <dd className="fc-stat-value">
+                  {selectedEventInfo.title}
+                  <span className="block text-sm text-text-muted">
+                    {new Date(selectedEventInfo.eventDate).toLocaleDateString(
+                      "en-US",
+                      { weekday: "long", month: "long", day: "numeric" },
+                    )}
+                  </span>
+                </dd>
+              </div>
+            )}
+            <div>
+              <dt className="fc-stat-label">Order size</dt>
+              <dd className="fc-stat-value">
+                {totalItems} {totalItems === 1 ? "item" : "items"}
+              </dd>
+            </div>
+          </dl>
 
-        <div className="fc-feedback fc-feedback-success mb-4">
-          <p className="text-sm">
-            <strong>Order Summary:</strong> {totalItems}{" "}
-            {totalItems === 1 ? "item" : "items"}
-          </p>
+          <form onSubmit={handleSubmit} id="order-placement-form">
+            <div className="fc-field">
+              <label className="fc-label" htmlFor="order-customer-name">
+                Your name
+              </label>
+              <input
+                id="order-customer-name"
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="fc-control px-3 py-2 text-sm"
+                placeholder="So the host knows whose plate this is"
+                required
+              />
+            </div>
+
+            {error && (
+              <p className="fc-feedback fc-feedback-danger mt-4 text-sm">
+                {error}
+              </p>
+            )}
+          </form>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Your Name *
-            </label>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="fc-control px-3 py-2 text-sm"
-              placeholder="Enter your full name"
-              required
-            />
-          </div>
-
-          {error && (
-            <div className="fc-feedback fc-feedback-danger">
-              <p className="text-sm">{error}</p>
-            </div>
-          )}
-
-          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="fc-button fc-button-secondary flex-1"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !customerName.trim()}
-              className="fc-button fc-button-primary flex-1"
-            >
-              {isSubmitting ? "Placing Order..." : "Place Order"}
-            </button>
-          </div>
-        </form>
+        <div className="fc-dialog-footer fc-dialog-footer-split">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="fc-button fc-button-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="order-placement-form"
+            disabled={isSubmitting || !customerName.trim()}
+            className="fc-button fc-button-primary"
+          >
+            {isSubmitting ? "Placing order..." : "Place order"}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -20,6 +20,24 @@ interface Chef {
   createdAt: string;
 }
 
+const shortcuts = [
+  {
+    href: "/chef/menu",
+    label: "Menu",
+    description: "Add, edit, and organise the dishes guests can order.",
+  },
+  {
+    href: "/chef/events",
+    label: "Events",
+    description: "Open a night for orders and confirm what comes in.",
+  },
+  {
+    href: "/chef/settings",
+    label: "Settings",
+    description: "Your profile, your bio, and the secret that unlocks it.",
+  },
+];
+
 export default function ChefDashboard() {
   const router = useRouter();
   const [chef, setChef] = useState<Chef | null>(null);
@@ -93,25 +111,39 @@ export default function ChefDashboard() {
     }
   };
 
+  const copySecret = async () => {
+    if (!chef) return;
+    try {
+      await navigator.clipboard.writeText(chef.secret);
+      setToast({ message: "Secret copied to clipboard", type: "success" });
+    } catch (error) {
+      setToast({ message: "Failed to copy secret", type: "error" });
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-lg">Loading...</div>
+      <div className="fc-loading" role="status">
+        <span className="fc-spinner" aria-hidden="true" />
+        Loading dashboard
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-center">
-          <div className="text-red-600 mb-4">{error}</div>
-          <button
-            onClick={() => router.push("/chef/signin")}
-            className="fc-button fc-button-primary"
-          >
-            Go to Sign In
-          </button>
+      <div className="fc-shell fc-page">
+        <div className="fc-panel fc-empty">
+          <h1 className="fc-empty-title">We couldn&rsquo;t load your profile</h1>
+          <p className="fc-empty-body">{error}</p>
+          <div className="fc-empty-actions">
+            <button
+              onClick={() => router.push("/chef/signin")}
+              className="fc-button fc-button-primary"
+            >
+              Go to sign in
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -121,9 +153,16 @@ export default function ChefDashboard() {
     return null;
   }
 
+  const avatarSrc =
+    chef.image &&
+    !chef.image.startsWith("http") &&
+    !chef.image.startsWith("data:") &&
+    !chef.image.startsWith("/user.png")
+      ? `${process.env.NEXT_PUBLIC_API_URL}${chef.image}`
+      : chef.image || "/user.png";
+
   return (
-    <div className="bg-gray-50 py-4 sm:py-8">
-      {/* Toast Notification */}
+    <div className="fc-shell fc-page">
       {toast && (
         <Toast
           message={toast.message}
@@ -132,194 +171,124 @@ export default function ChefDashboard() {
         />
       )}
 
-      <div className="fc-shell">
-        {/* Pending Orders Alert */}
-        {pendingOrdersCount > 0 && (
-          <div className="fc-feedback fc-feedback-warning mb-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium">
-                  Pending Orders Awaiting Your Confirmation
-                </h3>
-                <div className="mt-1 text-sm">
-                  You have <strong>{pendingOrdersCount}</strong> pending order
-                  {pendingOrdersCount === 1 ? "" : "s"} that need
-                  {pendingOrdersCount === 1 ? "s" : ""} your attention.
-                  <Link
-                    href="/chef/events"
-                    className="ml-1 font-medium underline hover:no-underline"
-                  >
-                    View Orders →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      <header className="fc-page-header">
+        <div className="min-w-0">
+          <p className="fc-eyebrow">Host dashboard</p>
+          <h1 className="fc-page-title">
+            Welcome back, <em>{chef.name}</em>
+          </h1>
+          <p className="fc-page-lead">
+            Everything guests see starts here &mdash; your menu, your open
+            nights, and the secret that lets them in.
+          </p>
+        </div>
+        <div className="fc-page-actions">
+          <Link href="/chef/events" className="fc-button fc-button-primary">
+            Go to events
+          </Link>
+        </div>
+      </header>
 
-        {/* Header */}
-        <div className="mb-6 rounded-lg bg-white p-4 shadow sm:mb-8 sm:p-6">
-          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
-            <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-gray-200">
-                <Image
-                  src={
-                    chef.image &&
-                    !chef.image.startsWith("http") &&
-                    !chef.image.startsWith("data:") &&
-                    !chef.image.startsWith("/user.png")
-                      ? `${process.env.NEXT_PUBLIC_API_URL}${chef.image}`
-                      : chef.image || "/user.png"
-                  }
-                  alt={chef.name}
-                  width={80}
-                  height={80}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
+      {pendingOrdersCount > 0 && (
+        <div className="fc-feedback fc-feedback-warning mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="m-0 text-sm">
+            <strong>{pendingOrdersCount}</strong> order
+            {pendingOrdersCount === 1 ? "" : "s"} still need
+            {pendingOrdersCount === 1 ? "s" : ""} your confirmation.
+          </p>
+          <Link
+            href="/chef/events"
+            className="fc-button fc-button-warning self-start text-sm sm:self-auto"
+          >
+            Review orders
+          </Link>
+        </div>
+      )}
+
+      <section className="fc-panel">
+        <div className="fc-panel-body">
+          <div className="flex flex-col items-start gap-5 sm:flex-row sm:gap-6">
+            <span className="fc-avatar h-20 w-20">
+              <Image src={avatarSrc} alt="" width={80} height={80} />
+            </span>
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-                Welcome, {chef.name}!
-              </h1>
-              <p className="text-gray-600 mt-2">@{chef.username}</p>
-              <p className="text-sm text-gray-500 mt-1">{chef.email}</p>
-              <div className="mt-3">
-                <p className="text-sm text-gray-600">{chef.bio}</p>
-              </div>
+              <h2 className="m-0 text-xl font-semibold tracking-[-0.03em] text-ink">
+                {chef.name}
+              </h2>
+              <p className="fc-meta mt-1.5">
+                <span className="fc-mono">@{chef.username}</span>
+                <span>{chef.email}</span>
+              </p>
+              {chef.bio && (
+                <p className="mt-3 mb-0 max-w-[60ch] text-sm leading-relaxed text-text-muted">
+                  {chef.bio}
+                </p>
+              )}
             </div>
           </div>
+        </div>
 
-          <div className="mt-6 border-t pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Rating</h3>
-                <p className="mt-1 text-sm text-gray-900">
-                  {chef.rating.toFixed(1)} ⭐ ({chef.ratingCount} reviews)
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">
-                  Menu Access Secret
-                </h3>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <p className="max-w-full break-all rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-900">
-                    {chef.secret}
-                  </p>
+        <div className="fc-panel-footer">
+          <dl className="fc-stat-grid">
+            <div>
+              <dt className="fc-stat-label">Rating</dt>
+              <dd className="fc-stat-value">
+                {chef.rating.toFixed(1)}{" "}
+                <span className="text-text-subtle">
+                  from {chef.ratingCount}{" "}
+                  {chef.ratingCount === 1 ? "review" : "reviews"}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="fc-stat-label">Hosting since</dt>
+              <dd className="fc-stat-value">
+                {new Date(chef.createdAt).toLocaleDateString()}
+              </dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="fc-stat-label">Menu access secret</dt>
+              <dd className="fc-stat-value">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="fc-token">{chef.secret}</span>
                   <button
-                    onClick={async () => {
-                      try {
-                        await navigator.clipboard.writeText(chef.secret);
-                        setToast({
-                          message: "Secret copied to clipboard!",
-                          type: "success",
-                        });
-                      } catch (error) {
-                        setToast({
-                          message: "Failed to copy secret",
-                          type: "error",
-                        });
-                      }
-                    }}
+                    type="button"
+                    onClick={copySecret}
                     className="fc-button fc-button-secondary px-3 text-xs"
                   >
                     Copy
                   </button>
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Share this secret with guests to access your menu
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">
-                  Member Since
-                </h3>
-                <p className="mt-1 text-sm text-gray-900">
-                  {new Date(chef.createdAt).toLocaleDateString()}
-                </p>
-              </div>
+                </span>
+                <span className="fc-hint block">
+                  Guests need this to open your menu.
+                </span>
+              </dd>
             </div>
-          </div>
+          </dl>
         </div>
+      </section>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-3">
+        {shortcuts.map((shortcut, index) => (
           <Link
-            href="/chef/menu"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-md transition-shadow"
+            key={shortcut.href}
+            href={shortcut.href}
+            className="fc-card fc-card-link"
           >
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-ink">
-                  <span className="text-white text-sm font-medium">📋</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Manage Menu
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Add, edit, and organize your menu items
-                </p>
-              </div>
-            </div>
+            <span className="fc-stat-label">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <span className="block text-lg font-semibold tracking-[-0.025em] text-ink">
+              {shortcut.label}
+            </span>
+            <span className="mt-1.5 block text-sm leading-relaxed text-text-muted">
+              {shortcut.description}
+            </span>
           </Link>
-
-          <Link
-            href="/chef/events"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-ink">
-                  <span className="text-white text-sm font-medium">🗓️</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">Events</h3>
-                <p className="text-sm text-gray-500">
-                  Create events for friends to place orders
-                </p>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/chef/settings"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-ink">
-                  <span className="text-white text-sm font-medium">⚙️</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">Settings</h3>
-                <p className="text-sm text-gray-500">
-                  Update your profile and preferences
-                </p>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        {/* Onboarding Checklist */}
-        <OnboardingChecklist chef={{ id: chef.id, secret: chef.secret }} />
+        ))}
       </div>
+
+      <OnboardingChecklist chef={{ id: chef.id, secret: chef.secret }} />
     </div>
   );
 }

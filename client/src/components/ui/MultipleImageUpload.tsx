@@ -185,7 +185,7 @@ export default function MultipleImageUpload({
           {/* Display existing images */}
           {displayImages.map((imageUrl, index) => (
             <div key={`display-${index}`} className="relative group">
-              <div className="aspect-square relative rounded-lg overflow-hidden border-2 border-gray-200">
+              <div className="relative aspect-square overflow-hidden rounded-[var(--fc-radius-control)] border border-border-theme">
                 <Image
                   src={
                     imageUrl.startsWith("http") || imageUrl.startsWith("data:")
@@ -195,7 +195,7 @@ export default function MultipleImageUpload({
                   alt={`Menu item image ${index + 1}`}
                   fill
                   sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-contain bg-gray-50"
+                  className="bg-surface-muted object-contain"
                 />
                 {!disabled && (
                   <button
@@ -214,13 +214,13 @@ export default function MultipleImageUpload({
           {/* Preview new images */}
           {previewImages.map((imageData) => (
             <div key={`preview-${imageData.id}`} className="relative group">
-              <div className="aspect-square relative rounded-lg overflow-hidden border-2 border-blue-300">
+              <div className="relative aspect-square overflow-hidden rounded-[var(--fc-radius-control)] border border-brand-strong">
                 <Image
                   src={imageData.previewUrl}
                   alt="Preview"
                   fill
                   sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-contain bg-gray-50"
+                  className="bg-surface-muted object-contain"
                 />
                 {!disabled && (
                   <button
@@ -244,7 +244,7 @@ export default function MultipleImageUpload({
 
       {/* Upload Button */}
       {canAddMore && (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-4 text-center transition-colors hover:border-gray-400 sm:p-6">
+        <div className="rounded-[var(--fc-radius-card)] border border-dashed border-border-strong p-4 text-center transition-colors hover:border-brand-ink sm:p-6">
           <input
             ref={fileInputRef}
             type="file"
@@ -259,40 +259,24 @@ export default function MultipleImageUpload({
             type="button"
             onClick={handleClick}
             disabled={disabled || uploading}
-            className="fc-touch-target flex w-full flex-col items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-brand-soft hover:text-ink disabled:cursor-not-allowed disabled:text-gray-400"
+            className="fc-touch-target flex w-full flex-col items-center justify-center gap-1 rounded-[var(--fc-radius-control)] p-2 text-text-muted transition-colors hover:bg-brand-soft hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <svg
-              className="w-12 h-12 mb-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            <span className="text-sm font-medium">
+            <span className="text-sm font-semibold text-ink">
               {uploading
                 ? "Uploading..."
                 : totalImages === 0
-                  ? "Add Images"
-                  : `Add More Images (${totalImages}/${maxImages})`}
+                  ? "Add images"
+                  : `Add more (${totalImages}/${maxImages})`}
             </span>
-            <span className="text-xs text-gray-500 mt-1">
-              Click or drag to select multiple images
-            </span>
-            <span className="text-xs text-gray-400 mt-1">
-              Accepted formats: {ACCEPTED_EXTENSIONS} • Max 5MB per image
+            <span className="fc-hint m-0">
+              {ACCEPTED_EXTENSIONS} \u00b7 max 5MB each
             </span>
           </button>
         </div>
       )}
 
       {/* Info text */}
-      <div className="text-center text-sm text-gray-500">
+      <div className="text-center text-sm text-text-subtle">
         {totalImages > 0 && (
           <p>
             {totalImages} of {maxImages} images selected

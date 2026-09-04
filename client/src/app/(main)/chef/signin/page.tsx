@@ -100,9 +100,9 @@ export default function ChefSignIn() {
   if (checkingAuth) {
     return (
       <div className="fc-auth-page flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center px-[var(--fc-page-gutter)]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        <div className="fc-loading" role="status">
+          <span className="fc-spinner" aria-hidden="true" />
+          Checking your session
         </div>
         {toast && (
           <Toast
@@ -117,83 +117,73 @@ export default function ChefSignIn() {
 
   return (
     <div className="fc-auth-page flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center px-[var(--fc-page-gutter)] py-8 sm:py-12">
-      <div className="fc-auth-card max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Host Sign In
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to manage your menu and orders
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+      <div className="fc-auth-card w-full max-w-md">
+        <p className="fc-eyebrow">Host sign in</p>
+        <h1 className="fc-page-title text-[2rem] sm:text-[2.25rem]">
+          Back to the <em>pass</em>
+        </h1>
+        <p className="fc-page-lead">
+          Sign in to update your menu and confirm the orders waiting on you.
+        </p>
+
+        <form className="mt-8" onSubmit={handleSubmit}>
           {error && (
-            <div className="fc-feedback fc-feedback-danger">
+            <p className="fc-feedback fc-feedback-danger mb-6 text-sm">
               {error}
-            </div>
+            </p>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                className="fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm"
-                placeholder="Enter your password"
-              />
-            </div>
+          <div className="fc-field">
+            <label htmlFor="email" className="fc-label">
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+              className="fc-control px-3 py-2.5 text-sm"
+              placeholder="you@example.com"
+            />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="fc-button fc-button-primary w-full text-sm"
+          <div className="fc-field">
+            <label htmlFor="password" className="fc-label">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+              className="fc-control px-3 py-2.5 text-sm"
+              placeholder="Your password"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="fc-button fc-button-primary mt-7 w-full"
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+
+          <p className="mt-6 mb-0 text-center text-sm text-text-muted">
+            Don&rsquo;t have an account?{" "}
+            <Link
+              href="/chef/signup"
+              className="font-semibold text-brand-ink underline underline-offset-4 hover:text-ink"
             >
-              {loading ? "Signing In..." : "Sign In"}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
-              <Link
-                href="/chef/signup"
-                className="font-medium text-brand-ink hover:text-ink"
-              >
-                Sign up here
-              </Link>
-            </p>
-          </div>
+              Become a host
+            </Link>
+          </p>
         </form>
       </div>
     </div>

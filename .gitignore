@@ -14,3 +14,4 @@ credentials.json
 *-credentials.json
 .cloudflared/
 cloudflared/
+cleanup-packages.sh

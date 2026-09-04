@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import ImageUpload from "@/components/ui/ImageUpload";
 import Toast from "@/components/ui/Toast";
 
@@ -248,23 +247,27 @@ export default function ChefSettings() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      <div className="fc-loading" role="status">
+        <span className="fc-spinner" aria-hidden="true" />
+        Loading settings
       </div>
     );
   }
 
   if (error && !chef) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={fetchChefProfile}
-            className="fc-button fc-button-primary"
-          >
-            Try Again
-          </button>
+      <div className="fc-shell fc-page">
+        <div className="fc-panel fc-empty">
+          <h1 className="fc-empty-title">We couldn&rsquo;t load your profile</h1>
+          <p className="fc-empty-body">{error}</p>
+          <div className="fc-empty-actions">
+            <button
+              onClick={fetchChefProfile}
+              className="fc-button fc-button-primary"
+            >
+              Try again
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -273,8 +276,7 @@ export default function ChefSettings() {
   if (!chef) return null;
 
   return (
-    <div className="bg-gray-50 py-4 sm:py-8">
-      {/* Toast Notification */}
+    <div className="fc-shell fc-page">
       {toast && (
         <Toast
           message={toast.message}
@@ -283,290 +285,220 @@ export default function ChefSettings() {
         />
       )}
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <header className="fc-page-header">
+        <div className="min-w-0">
+          <p className="fc-eyebrow">Host settings</p>
+          <h1 className="fc-page-title">
+            Your <em>profile</em>
+          </h1>
+          <p className="fc-page-lead">
+            This is what guests see before they open your menu, plus the secret
+            that lets them in.
+          </p>
+        </div>
+        <div className="fc-page-actions">
+          <Link href="/chef/dashboard" className="fc-button fc-button-secondary">
+            &larr; Back to dashboard
+          </Link>
+        </div>
+      </header>
+
+      <form onSubmit={handleSubmit}>
+        <section className="fc-panel">
+          <div className="fc-panel-header">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Settings
-              </h1>
-              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
-                Manage your profile and preferences
+              <h2 className="fc-panel-title">Profile information</h2>
+              <p className="fc-panel-sub">
+                Name, bio, and picture &mdash; the things guests read first.
               </p>
             </div>
-            <Link
-              href="/chef/dashboard"
-              className="fc-button fc-button-neutral"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-
-        {/* Profile Section */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-              Profile Information
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Update your profile details and profile picture
-            </p>
           </div>
 
-          <div className="p-4 sm:p-6">
+          <div className="fc-panel-body">
             {error && (
-              <div className="fc-feedback fc-feedback-danger mb-6">
+              <p className="fc-feedback fc-feedback-danger mb-6 text-sm">
                 {error}
-              </div>
+              </p>
             )}
 
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-                {/* Left Column - Form */}
-                <div className="space-y-6">
-                  {/* Email (Read-only) */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={chef.email}
-                      disabled
-                      className="fc-control mt-1 px-3 py-2 text-gray-500 cursor-not-allowed"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Email cannot be changed
-                    </p>
-                  </div>
-
-                  {/* Username (Read-only) */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      value={chef.username}
-                      disabled
-                      className="fc-control mt-1 px-3 py-2 text-gray-500 cursor-not-allowed"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Username cannot be changed
-                    </p>
-                  </div>
-
-                  {/* Name */}
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className={`fc-control mt-1 px-3 py-2 ${
-                        formErrors.name ? "fc-control-error" : ""
-                      }`}
-                      aria-invalid={Boolean(formErrors.name)}
-                      placeholder="Enter your full name"
-                    />
-                    {formErrors.name && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {formErrors.name}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Bio */}
-                  <div>
-                    <label
-                      htmlFor="bio"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Bio *
-                    </label>
-                    <textarea
-                      id="bio"
-                      name="bio"
-                      rows={4}
-                      value={formData.bio}
-                      onChange={handleInputChange}
-                      className={`fc-control mt-1 px-3 py-2 ${
-                        formErrors.bio ? "fc-control-error" : ""
-                      }`}
-                      aria-invalid={Boolean(formErrors.bio)}
-                      placeholder="Tell customers about yourself and your cooking style..."
-                    />
-                    {formErrors.bio && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {formErrors.bio}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Menu Access Secret */}
-                  <div>
-                    <label
-                      htmlFor="secret"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Menu Access Secret *
-                    </label>
-                    <div className="mt-1">
-                      <div className="sm:flex sm:gap-2">
-                        <input
-                          type="text"
-                          id="secret"
-                          name="secret"
-                          value={formData.secret}
-                          onChange={handleInputChange}
-                          className={`fc-control px-3 py-2 font-mono text-sm sm:flex-1 ${
-                            formErrors.secret ? "fc-control-error" : ""
-                          }`}
-                          aria-invalid={Boolean(formErrors.secret)}
-                          placeholder="Enter menu access secret"
-                        />
-                        <div className="flex gap-2 mt-2 sm:mt-0">
-                          <button
-                            type="button"
-                            onClick={copySecret}
-                            className="fc-button fc-button-secondary flex-1 sm:flex-none text-sm"
-                          >
-                            Copy
-                          </button>
-                          <button
-                            type="button"
-                            onClick={generateNewSecret}
-                            className="fc-button fc-button-primary flex-1 sm:flex-none text-sm"
-                          >
-                            Generate
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    {formErrors.secret && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {formErrors.secret}
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-gray-500">
-                      Share this secret with guests to access your menu. Must be
-                      at least 8 characters.
-                    </p>
-                  </div>
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div>
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="settings-email">
+                    Email address
+                    <span className="fc-label-note">Locked</span>
+                  </label>
+                  <input
+                    id="settings-email"
+                    type="email"
+                    value={chef.email}
+                    disabled
+                    className="fc-control px-3 py-2.5 text-sm"
+                  />
                 </div>
 
-                {/* Right Column - Profile Picture */}
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-4">
-                      Profile Picture
-                    </label>
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="settings-username">
+                    Username
+                    <span className="fc-label-note">Locked</span>
+                  </label>
+                  <input
+                    id="settings-username"
+                    type="text"
+                    value={chef.username}
+                    disabled
+                    className="fc-control px-3 py-2.5 text-sm"
+                  />
+                </div>
 
-                    {/* Current Image Display */}
-                    <div className="text-center mb-4 sm:mb-6">
-                      <div className="inline-block">
-                        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-gray-200 mx-auto">
-                          <Image
-                            src={
-                              chef.image &&
-                              !chef.image.startsWith("http") &&
-                              !chef.image.startsWith("data:") &&
-                              !chef.image.startsWith("/user.png")
-                                ? `${process.env.NEXT_PUBLIC_API_URL}${chef.image}`
-                                : chef.image || "/user.png"
-                            }
-                            alt={chef.name}
-                            width={128}
-                            height={128}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                <div className="fc-field">
+                  <label htmlFor="name" className="fc-label">
+                    Full name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className={`fc-control px-3 py-2.5 text-sm ${
+                      formErrors.name ? "fc-control-error" : ""
+                    }`}
+                    aria-invalid={Boolean(formErrors.name)}
+                    placeholder="The name on your menu"
+                  />
+                  {formErrors.name && (
+                    <p className="fc-error-text">{formErrors.name}</p>
+                  )}
+                </div>
 
-                    {/* Image Upload */}
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center">
-                      <ImageUpload
-                        currentImage={previewImage || chef.image}
-                        onImageChange={handleImagePreview}
-                        onImageError={handleImageError}
-                        disabled={updatingProfile}
-                        size="large"
-                        allowDelete={false}
-                        uploadMode="deferred"
-                      />
-                      {imageError && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {imageError}
-                        </p>
-                      )}
-                      <p className="mt-2 text-xs text-gray-500">
-                        Upload a new image to see a preview. Changes will be
-                        saved when you click "Save Changes".
-                      </p>
-                    </div>
+                <div className="fc-field">
+                  <label htmlFor="bio" className="fc-label">
+                    Bio
+                  </label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    rows={4}
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    className={`fc-control px-3 py-2.5 text-sm ${
+                      formErrors.bio ? "fc-control-error" : ""
+                    }`}
+                    aria-invalid={Boolean(formErrors.bio)}
+                    placeholder="What you cook, and who you cook it for"
+                  />
+                  {formErrors.bio && (
+                    <p className="fc-error-text">{formErrors.bio}</p>
+                  )}
+                </div>
 
-                    {/* Stats */}
-                    <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">
-                        Profile Stats
-                      </h4>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                          <span className="font-medium sm:font-normal">
-                            Rating:
-                          </span>
-                          <span>
-                            {chef.rating.toFixed(1)} ⭐ ({chef.ratingCount}{" "}
-                            reviews)
-                          </span>
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                          <span className="font-medium sm:font-normal">
-                            Member since:
-                          </span>
-                          <span>
-                            {new Date(chef.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
+                <div className="fc-field">
+                  <label htmlFor="secret" className="fc-label">
+                    Menu access secret
+                  </label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="text"
+                      id="secret"
+                      name="secret"
+                      value={formData.secret}
+                      onChange={handleInputChange}
+                      className={`fc-control px-3 py-2.5 font-mono text-sm sm:flex-1 ${
+                        formErrors.secret ? "fc-control-error" : ""
+                      }`}
+                      aria-invalid={Boolean(formErrors.secret)}
+                      placeholder="supper-club-42"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={copySecret}
+                        className="fc-button fc-button-secondary flex-1 text-sm sm:flex-none"
+                      >
+                        Copy
+                      </button>
+                      <button
+                        type="button"
+                        onClick={generateNewSecret}
+                        className="fc-button fc-button-secondary flex-1 text-sm sm:flex-none"
+                      >
+                        Generate
+                      </button>
                     </div>
                   </div>
+                  {formErrors.secret ? (
+                    <p className="fc-error-text">{formErrors.secret}</p>
+                  ) : (
+                    <p className="fc-hint">
+                      At least 8 characters. Changing it locks out anyone using
+                      the old one.
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* Save Button */}
-              <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                  <div>
-                    {hasChanges() && (
-                      <p className="text-sm text-warning">
-                        You have unsaved changes
-                      </p>
+              <div>
+                <div className="fc-field">
+                  <span className="fc-label">Profile picture</span>
+                  <div className="fc-card">
+                    <ImageUpload
+                      currentImage={previewImage || chef.image}
+                      onImageChange={handleImagePreview}
+                      onImageError={handleImageError}
+                      disabled={updatingProfile}
+                      size="large"
+                      allowDelete={false}
+                      uploadMode="deferred"
+                    />
+                    {imageError && (
+                      <p className="fc-error-text">{imageError}</p>
                     )}
+                    <p className="fc-hint">
+                      A new image previews here and is saved with the rest of
+                      the form.
+                    </p>
                   </div>
-                  <button
-                    type="submit"
-                    disabled={updatingProfile || !hasChanges()}
-                    className="fc-button fc-button-primary"
-                  >
-                    {updatingProfile ? "Saving..." : "Save Changes"}
-                  </button>
                 </div>
+
+                <dl className="fc-stat-grid mt-6">
+                  <div>
+                    <dt className="fc-stat-label">Rating</dt>
+                    <dd className="fc-stat-value">
+                      {chef.rating.toFixed(1)}{" "}
+                      <span className="text-text-subtle">
+                        from {chef.ratingCount}{" "}
+                        {chef.ratingCount === 1 ? "review" : "reviews"}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="fc-stat-label">Hosting since</dt>
+                    <dd className="fc-stat-value">
+                      {new Date(chef.createdAt).toLocaleDateString()}
+                    </dd>
+                  </div>
+                </dl>
               </div>
-            </form>
+            </div>
           </div>
-        </div>
-      </div>
+
+          <div className="fc-panel-footer flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="m-0 text-sm text-text-muted">
+              {hasChanges()
+                ? "You have unsaved changes."
+                : "Everything is saved."}
+            </p>
+            <button
+              type="submit"
+              disabled={updatingProfile || !hasChanges()}
+              className="fc-button fc-button-primary"
+            >
+              {updatingProfile ? "Saving..." : "Save changes"}
+            </button>
+          </div>
+        </section>
+      </form>
     </div>
   );
 }

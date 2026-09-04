@@ -17,7 +17,6 @@ interface ChecklistTask {
     text: string;
     href: string;
   };
-  icon: string;
 }
 
 interface OnboardingChecklistProps {
@@ -64,40 +63,35 @@ export default function OnboardingChecklist({
       const checklistTasks: ChecklistTask[] = [
         {
           id: "menu",
-          title: "Create Your First Menu Item",
-          description:
-            "Add at least one dish so guests have something to order",
+          title: "Create your first menu item",
+          description: "Add a dish so guests have something to order",
           completed: hasMenuItems,
           actionButton: {
-            text: "Add Menu Item",
+            text: "Add menu item",
             href: "/chef/menu",
           },
-          icon: "🍽️",
         },
         {
           id: "event",
-          title: "Create a New Event",
-          description:
-            "Guests can only place orders when there is an active event",
+          title: "Open an event",
+          description: "Guests can only order while an event is open",
           completed: hasEvents,
           actionButton: {
-            text: "Create Event",
+            text: "Create event",
             href: "/chef/events",
           },
-          icon: "📅",
         },
         {
           id: "orders",
-          title: "Process Your First Order",
+          title: "Process your first order",
           description: "Confirm or reject at least one guest order",
           completed: hasProcessedOrders,
           actionButton: hasProcessedOrders
             ? undefined
             : {
-                text: "View Orders",
+                text: "View orders",
                 href: "/chef/events",
               },
-          icon: "📋",
         },
       ];
 
@@ -122,59 +116,54 @@ export default function OnboardingChecklist({
   }
 
   return (
-    <div className="mt-8">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">
-        Getting Started
-      </h3>
-      <div className="space-y-3">
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className={`fc-feedback flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between ${
-              task.completed
-                ? "fc-feedback-success"
-                : "fc-feedback-warning"
-            }`}
-          >
-            <div className="flex min-w-0 items-center space-x-3">
-              <span className="text-lg">
-                {task.completed ? "✅" : task.icon}
+    <section className="fc-panel mt-6 sm:mt-8">
+      <div className="fc-panel-header">
+        <div>
+          <p className="fc-eyebrow">Getting started</p>
+          <h2 className="fc-panel-title">Three steps to your first order</h2>
+        </div>
+        <p className="fc-mono m-0 text-sm text-text-subtle">
+          {completedTasks}/{totalTasks} done
+        </p>
+      </div>
+
+      <ol className="fc-list m-0 list-none p-0">
+        {tasks.map((task, index) => (
+          <li key={task.id} className="fc-row items-center">
+            <div className="flex min-w-0 items-center gap-4">
+              <span
+                className={`fc-index ${
+                  task.completed ? "fc-index-done" : "fc-index-active"
+                }`}
+                aria-hidden="true"
+              >
+                {task.completed ? "✓" : index + 1}
               </span>
               <div className="min-w-0">
-                <h4
-                  className={`text-sm font-medium ${
-                    task.completed ? "text-success" : "text-gray-900"
-                  }`}
-                >
+                <h3 className="m-0 text-sm font-semibold text-ink">
                   {task.title}
-                </h4>
-                <p
-                  className={`text-xs ${
-                    task.completed ? "text-success" : "text-gray-600"
-                  }`}
-                >
+                </h3>
+                <p className="mt-1 mb-0 text-xs text-text-muted">
                   {task.description}
                 </p>
               </div>
             </div>
 
-            {task.actionButton && !task.completed && (
-              <Link
-                href={task.actionButton.href}
-                className="fc-button fc-button-primary text-xs"
-              >
-                {task.actionButton.text}
-              </Link>
+            {task.completed ? (
+              <span className="fc-badge fc-badge-success">Complete</span>
+            ) : (
+              task.actionButton && (
+                <Link
+                  href={task.actionButton.href}
+                  className="fc-button fc-button-secondary text-sm"
+                >
+                  {task.actionButton.text}
+                </Link>
+              )
             )}
-
-            {task.completed && (
-              <span className="self-start text-success text-xs font-medium sm:self-auto">
-                Complete
-              </span>
-            )}
-          </div>
+          </li>
         ))}
-      </div>
-    </div>
+      </ol>
+    </section>
   );
 }

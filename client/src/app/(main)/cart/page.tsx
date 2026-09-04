@@ -208,416 +208,310 @@ export default function CartPage() {
   const getContinueShoppingText = () => {
     // If there's a cart with items, prioritize that chef
     if (cartChef) {
-      return `Back to ${cartChef.name}'s Menu`;
+      return `Back to ${cartChef.name}'s menu`;
     }
     // Otherwise, use last visited chef if available
     if (lastVisitedChef?.hasAccess) {
-      return `Back to ${lastVisitedChef.name}'s Menu`;
+      return `Back to ${lastVisitedChef.name}'s menu`;
     }
-    return "Continue Shopping";
+    return "Continue browsing";
   };
+
+  const celebrationDialog = showCelebration ? (
+    <div className="fc-dialog-backdrop" role="presentation">
+      <div
+        className="fc-dialog max-w-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="order-celebration-title"
+      >
+        <div className="fc-dialog-header">
+          <div>
+            <p className="fc-eyebrow">Order sent</p>
+            <h2 id="order-celebration-title" className="fc-dialog-title">
+              You&rsquo;re on the list
+            </h2>
+          </div>
+        </div>
+        <div className="fc-dialog-body">
+          <p className="mt-0 mb-3 text-sm leading-relaxed text-ink">
+            {celebrationMessage}
+          </p>
+          <p className="fc-hint m-0">
+            The host will confirm it shortly. You can check the status on their
+            event page any time.
+          </p>
+        </div>
+        <div className="fc-dialog-footer">
+          <button
+            onClick={() => {
+              setShowCelebration(false);
+              clearCart();
+            }}
+            className="fc-button fc-button-primary"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   if (items.length === 0) {
     return (
       <>
-        <div className="fc-shell py-6 sm:py-8">
-          <div className="text-center py-16">
-            <div className="mb-6">
-              <svg
-                className="w-24 h-24 mx-auto text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5m2.5-5h10m0 0v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-8z"
-                />
-              </svg>
+        <div className="fc-shell fc-page">
+          <header className="fc-page-header">
+            <div className="min-w-0">
+              <p className="fc-eyebrow">Your order</p>
+              <h1 className="fc-page-title">
+                Nothing here <em>yet</em>
+              </h1>
+              <p className="fc-page-lead">
+                Pick a few dishes from a host&rsquo;s menu and they&rsquo;ll
+                collect here, ready to send in one go.
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Your Cart is Empty
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Start exploring our amazing hosts and add some delicious items to
-              your cart!
-            </p>
-            <Link
-              href={getContinueShoppingLink()}
-              className="fc-button fc-button-primary"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-              {lastVisitedChef?.hasAccess
-                ? `Browse ${lastVisitedChef.name}'s Menu`
-                : "Browse Hosts"}
-            </Link>
-          </div>
-        </div>
-
-        {/* Celebration Modal */}
-        {showCelebration && (
-          <div className="fc-dialog-backdrop bg-black/50" role="presentation">
-            <div
-              className="fc-dialog max-w-md rounded-lg bg-white p-5 text-center sm:p-8"
-              role="dialog"
-              aria-modal="true"
-            >
-              <div className="mb-6">
-                <div className="text-6xl mb-4">🎉</div>
-                <h2 className="text-2xl font-bold text-success mb-2">
-                  Order Placed Successfully!
-                </h2>
-                <p className="text-gray-700">{celebrationMessage}</p>
-              </div>
-              <div className="mb-6">
-                <p className="text-sm text-gray-600">
-                  You can check your order status by visiting the host's event
-                  page.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowCelebration(false);
-                  clearCart();
-                }}
+            <div className="fc-page-actions">
+              <Link
+                href={getContinueShoppingLink()}
                 className="fc-button fc-button-primary"
               >
-                Awesome! 🎊
-              </button>
+                {lastVisitedChef?.hasAccess
+                  ? `Browse ${lastVisitedChef.name}'s menu`
+                  : "Browse hosts"}
+              </Link>
             </div>
-          </div>
-        )}
+          </header>
+        </div>
+
+        {celebrationDialog}
       </>
     );
   }
 
   return (
     <>
-      <div className="fc-shell py-6 sm:py-8">
-        {/* Header */}
-        <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
+      <div className="fc-shell fc-page">
+        <header className="fc-page-header">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">
-              Your Order
-            </h1>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
-              <p className="text-gray-600">
-                {getTotalItems()} {getTotalItems() === 1 ? "item" : "items"} in
-                your cart
-              </p>
-              {cartChef && (
+            <p className="fc-eyebrow">Your order</p>
+            <h1 className="fc-page-title">
+              {getTotalItems()} {getTotalItems() === 1 ? "dish" : "dishes"}
+              {cartChef ? (
                 <>
-                  <span className="hidden sm:inline text-gray-400">•</span>
-                  <p className="text-brand-ink font-medium">
-                    from {cartChef.name}
-                  </p>
+                  {" "}
+                  from <em>{cartChef.name}</em>
                 </>
-              )}
-            </div>
+              ) : null}
+            </h1>
+            <p className="fc-page-lead">
+              Check the quantities, choose the night, and send it to the host in
+              one go.
+            </p>
           </div>
-          <button
-            onClick={() => setShowClearConfirmation(true)}
-            className="fc-button fc-button-danger-ghost self-start"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="fc-page-actions">
+            <button
+              onClick={() => setShowClearConfirmation(true)}
+              className="fc-button fc-button-danger-ghost"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            Clear Cart
-          </button>
-        </div>
+              Clear cart
+            </button>
+          </div>
+        </header>
 
-        {/* Cart Items */}
-        <div className="space-y-6">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-lg bg-white p-4 shadow-md sm:p-6"
-            >
-              <div className="flex flex-col md:flex-row gap-4">
-                {/* Item Image */}
-                <div className="relative h-44 w-full flex-shrink-0 sm:h-52 md:h-32 md:w-32">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover rounded-lg"
-                  />
-                </div>
+        <section className="fc-panel">
+          <div className="fc-panel-header">
+            <h2 className="fc-panel-title">Items</h2>
+            <p className="fc-stat-label m-0">
+              {items.length} {items.length === 1 ? "line" : "lines"}
+            </p>
+          </div>
 
-                {/* Item Details */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-800">
-                        {item.name}
-                      </h3>
-                      <p className="text-sm text-brand-ink font-medium">
-                        by {item.chefName}
+          <ul className="fc-list m-0 list-none p-0">
+            {items.map((item) => (
+              <li key={item.id} className="fc-row flex-nowrap items-start">
+                <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row">
+                  <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-[var(--fc-radius-control)] border border-border-theme bg-surface-muted sm:h-24 sm:w-24">
+                    <Image
+                      src={item.image}
+                      alt=""
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <h3 className="m-0 text-base font-semibold tracking-[-0.02em] text-ink">
+                      {item.name}
+                    </h3>
+                    <p className="fc-meta mt-1">
+                      <span>by {item.chefName}</span>
+                      <span>&#9733; {item.rating}</span>
+                      <span>{item.preparationTime} min</span>
+                    </p>
+
+                    {item.description && (
+                      <p className="mt-2 mb-0 line-clamp-2 text-sm leading-relaxed text-text-muted">
+                        {item.description}
                       </p>
-                    </div>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="fc-icon-button fc-icon-button-ghost"
-                      aria-label={`Remove ${item.name} from cart`}
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                    )}
 
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {item.description}
-                  </p>
-
-                  {/* Customizations */}
-                  {item.customizations.length > 0 && (
-                    <div className="mb-3">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Customizations:
-                      </span>
-                      <div className="mt-1">
-                        {item.customizations.map((customization, index) => (
-                          <span
-                            key={customization.id}
-                            className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full mr-1 mb-1 inline-block"
-                          >
-                            {customization.name}
-                          </span>
-                        ))}
+                    {item.customizations.length > 0 && (
+                      <div className="mt-3">
+                        <span className="fc-stat-label">Customisations</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {item.customizations.map((customization) => (
+                            <span key={customization.id} className="fc-chip">
+                              {customization.name}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Item Meta */}
-                  <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <span className="text-yellow-500">★</span>
-                      <span>{item.rating}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span>{item.preparationTime} mins</span>
-                    </div>
-                  </div>
-
-                  {/* Quantity Controls */}
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-sm font-medium text-gray-700">
-                        Quantity:
-                      </span>
-                      <div className="flex items-center">
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <span className="fc-stepper">
                         <button
+                          type="button"
                           onClick={() =>
                             updateQuantity(item.id, item.quantity - 1)
                           }
-                          className="fc-touch-target bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-l transition-colors"
+                          aria-label={`Decrease quantity of ${item.name}`}
                         >
-                          -
+                          &minus;
                         </button>
-                        <span className="bg-gray-100 px-4 py-1 border-t border-b border-gray-200">
+                        <span className="fc-stepper-value">
                           {item.quantity}
                         </span>
                         <button
+                          type="button"
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="fc-touch-target bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-r transition-colors"
+                          aria-label={`Increase quantity of ${item.name}`}
                         >
                           +
                         </button>
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Added {new Date(item.addedAt).toLocaleDateString()}
+                      </span>
+                      <span className="fc-hint m-0">
+                        Added {new Date(item.addedAt).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                 </div>
+
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="fc-icon-button fc-icon-button-ghost fc-close shrink-0"
+                  aria-label={`Remove ${item.name} from cart`}
+                >
+                  &times;
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {cartChef && (
+          <section className="fc-panel">
+            <div className="fc-panel-header">
+              <div>
+                <p className="fc-eyebrow">Step two</p>
+                <h2 className="fc-panel-title">
+                  {events.length > 0 ? "Pick a night" : "No nights open"}
+                </h2>
+                <p className="fc-panel-sub">
+                  {events.length > 0
+                    ? "Orders go to one event, so the host knows what to cook and when."
+                    : `${cartChef.name} hasn't opened an event yet.`}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Event Selection or No Events Message */}
-        {cartChef && (
-          <div className="mt-8 rounded-lg bg-white p-4 shadow-md sm:p-6">
-            {events.length > 0 ? (
-              <>
-                <h3 className="text-lg font-bold text-gray-800 mb-4">
-                  Select an Event
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Choose which event you'd like to place this order for:
+            <div className="fc-panel-body">
+              {loadingEvents ? (
+                <div className="fc-loading min-h-0" role="status">
+                  <span className="fc-spinner" aria-hidden="true" />
+                  Loading events
+                </div>
+              ) : events.length > 0 ? (
+                <div className="grid gap-2">
+                  {events.map((event) => (
+                    <label key={event.id} className="fc-option">
+                      <input
+                        type="radio"
+                        name="selectedEvent"
+                        value={event.id}
+                        checked={selectedEvent === event.id}
+                        onChange={(e) => setSelectedEvent(e.target.value)}
+                        className="mt-0.5"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-ink">
+                          {event.title}
+                        </span>
+                        <span className="mt-0.5 block text-sm text-text-muted">
+                          {new Date(event.eventDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              month: "long",
+                              day: "numeric",
+                            },
+                          )}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <p className="m-0 text-sm leading-relaxed text-text-muted">
+                  Orders can only be placed against an open event. Check back
+                  later, or ask {cartChef.name} when the next one is.
                 </p>
-
-                {loadingEvents ? (
-                  <div className="text-center py-4">
-                    <div className="text-gray-500">Loading events...</div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {events.map((event) => (
-                      <label
-                        key={event.id}
-                        className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="selectedEvent"
-                          value={event.id}
-                          checked={selectedEvent === event.id}
-                          onChange={(e) => setSelectedEvent(e.target.value)}
-                          className="text-green-600 focus:ring-green-500"
-                        />
-                        <div className="ml-3">
-                          <div className="font-medium text-gray-800">
-                            {event.title}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            Event Date:{" "}
-                            {new Date(event.eventDate).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                <h3 className="text-lg font-bold text-gray-800 mb-4">
-                  No Events Available
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  {cartChef.name} hasn't created any events yet. Orders can only
-                  be placed for events. Please check back later or contact the
-                  host about upcoming events.
-                </p>
-              </>
-            )}
-          </div>
+              )}
+            </div>
+          </section>
         )}
 
-        {/* Cart Actions */}
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href={getContinueShoppingLink()}
             className="fc-button fc-button-secondary w-full sm:w-auto"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            {getContinueShoppingText()}
+            &larr; {getContinueShoppingText()}
           </Link>
 
-          <div className="flex w-full gap-4 sm:w-auto">
-            <button
-              onClick={() => {
-                if (events.length === 0) {
-                  alert(
-                    "No events available from this host. Orders can only be placed for events.",
-                  );
-                  return;
-                }
-                if (!selectedEvent) {
-                  alert("Please select an event for your order.");
-                  return;
-                }
-                setShowOrderModal(true);
-              }}
-              disabled={events.length === 0 || !selectedEvent}
-              className="fc-button fc-button-primary w-full sm:w-auto sm:px-8"
-            >
-              {events.length === 0 ? (
-                <>No Events Available</>
-              ) : (
-                <>
-                  Place Order ({getTotalItems()}{" "}
-                  {getTotalItems() === 1 ? "item" : "items"})
-                  {selectedEvent && events.length > 0 && (
-                    <span className="block text-xs opacity-90">
-                      for {events.find((e) => e.id === selectedEvent)?.title}
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            onClick={() => setShowOrderModal(true)}
+            disabled={events.length === 0 || !selectedEvent}
+            className="fc-button fc-button-primary w-full sm:w-auto sm:px-8"
+          >
+            {events.length === 0
+              ? "No events available"
+              : !selectedEvent
+                ? "Pick a night to continue"
+                : `Place order · ${getTotalItems()} ${
+                    getTotalItems() === 1 ? "item" : "items"
+                  }`}
+          </button>
         </div>
       </div>
 
-      {/* Clear Cart Confirmation Modal */}
       <ConfirmationModal
         isOpen={showClearConfirmation}
         onClose={() => setShowClearConfirmation(false)}
         onConfirm={handleClearCart}
-        title="Clear Cart?"
-        message={`Are you sure you want to remove all ${getTotalItems()} item${
+        title="Clear your cart?"
+        message={`This removes all ${getTotalItems()} item${
           getTotalItems() === 1 ? "" : "s"
-        } from your cart? This action cannot be undone.`}
-        confirmText="Clear Cart"
-        cancelText="Keep Items"
+        }. There's no undo.`}
+        confirmText="Clear cart"
+        cancelText="Keep items"
         isDestructive={true}
       />
 
-      {/* Order Placement Modal */}
       <OrderPlacementModal
         isOpen={showOrderModal}
         onClose={() => setShowOrderModal(false)}
@@ -627,39 +521,7 @@ export default function CartPage() {
         totalItems={getTotalItems()}
       />
 
-      {/* Celebration Modal */}
-      {showCelebration && (
-        <div className="fc-dialog-backdrop bg-black/50" role="presentation">
-          <div
-            className="fc-dialog max-w-md rounded-lg bg-white p-5 text-center sm:p-8"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="mb-6">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-2xl font-bold text-success mb-2">
-                Order Placed Successfully!
-              </h2>
-              <p className="text-gray-700">{celebrationMessage}</p>
-            </div>
-            <div className="mb-6">
-              <p className="text-sm text-gray-600">
-                You can check your order status by visiting the host's event
-                page.
-              </p>
-            </div>
-            <button
-              onClick={() => {
-                setShowCelebration(false);
-                clearCart();
-              }}
-              className="fc-button fc-button-primary"
-            >
-              Awesome! 🎊
-            </button>
-          </div>
-        </div>
-      )}
+      {celebrationDialog}
     </>
   );
 }

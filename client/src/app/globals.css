@@ -302,10 +302,6 @@ body {
     3.75rem 3.75rem;
 }
 
-.fc-app-main > .bg-gray-50 {
-  background-color: transparent;
-}
-
 .fc-app-main :where(h1, h2) {
   letter-spacing: -0.035em;
 }
@@ -313,25 +309,6 @@ body {
 .fc-app-main
   :where(.bg-white.shadow, .bg-white.shadow-md, .bg-white.shadow-lg) {
   border: 1px solid var(--fc-color-border);
-}
-
-.fc-app-main
-  :where(
-    .bg-blue-500,
-    .bg-blue-600,
-    .bg-green-500,
-    .bg-green-600,
-    .bg-green-700,
-    .bg-orange-500,
-    .bg-purple-500
-  ) {
-  background-color: var(--fc-color-brand);
-  color: var(--fc-color-ink);
-}
-
-.fc-app-main :where(.hover\:bg-blue-700:hover, .hover\:bg-green-700:hover) {
-  background-color: var(--fc-color-brand-strong);
-  color: var(--fc-color-ink);
 }
 
 .fc-app-main
@@ -438,6 +415,7 @@ input[type="submit"] {
   line-height: 1.25;
   text-align: center;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background-color 160ms ease,
@@ -1052,4 +1030,625 @@ input[type="submit"] {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.fc-page {
+  padding-block: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* Every app page opens the same way: a ruled mono label, a tightly tracked
+   title, an optional lead, and actions parked on the right. */
+.fc-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  border-bottom: 1px solid var(--fc-color-border);
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  padding-bottom: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+@media (min-width: 51.25rem) {
+  .fc-page-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}
+
+.fc-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.85rem;
+  color: var(--fc-color-brand-ink);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fc-eyebrow::before {
+  width: 1.5rem;
+  height: 1px;
+  flex: none;
+  background: currentColor;
+  content: "";
+}
+
+.fc-page-title {
+  margin: 0;
+  color: var(--fc-color-ink);
+  font-size: clamp(1.9rem, 4.4vw, 2.85rem);
+  font-weight: 640;
+  line-height: 1.03;
+  letter-spacing: -0.045em;
+}
+
+.fc-page-title em,
+.fc-serif {
+  color: var(--fc-color-brand-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.fc-page-lead {
+  max-width: 48ch;
+  margin: 0.75rem 0 0;
+  color: var(--fc-color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.fc-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Panels and cards -- the single surface treatment for the whole product. */
+.fc-panel,
+.fc-card {
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-card);
+  background: var(--fc-color-surface);
+}
+
+.fc-panel + .fc-panel {
+  margin-top: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.fc-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--fc-color-border);
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.fc-panel-title {
+  margin: 0;
+  color: var(--fc-color-ink);
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.fc-panel-sub {
+  margin: 0.35rem 0 0;
+  color: var(--fc-color-text-muted);
+  font-size: 0.85rem;
+}
+
+.fc-panel-body {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.fc-panel-footer {
+  border-top: 1px solid var(--fc-color-border);
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.fc-card {
+  display: block;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+/* A card that navigates. The lime rule sweeping in from the left is the one
+   hover flourish the product uses -- the same gesture on every clickable card,
+   echoing the underlined links on the marketing pages. */
+.fc-card-link {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.fc-card-link::after {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--fc-color-brand);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms ease;
+}
+
+.fc-card-link:hover {
+  border-color: var(--fc-color-border-strong);
+  transform: translateY(-2px);
+}
+
+.fc-card-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Divided record lists: events, orders, cart lines. */
+.fc-list > * + * {
+  border-top: 1px solid var(--fc-color-border);
+}
+
+.fc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+/* Marks a row that needs the host's attention, without shouting. */
+.fc-row-flagged {
+  background: color-mix(in srgb, var(--fc-color-warning) 6%, transparent);
+  box-shadow: inset 3px 0 0 var(--fc-color-warning);
+}
+
+/* Labelled data. The mono label is what makes a screenful of facts scan. */
+.fc-stat-grid {
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.75rem);
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.fc-stat-label {
+  display: block;
+  margin: 0 0 0.35rem;
+  color: var(--fc-color-text-subtle);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.fc-stat-value {
+  margin: 0;
+  color: var(--fc-color-ink);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+/* Numbered marker. Replaces the emoji-in-a-coloured-square pattern. */
+.fc-index {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-pill);
+  color: var(--fc-color-text-subtle);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.fc-index-active {
+  border-color: transparent;
+  background: var(--fc-color-brand);
+  color: var(--fc-color-ink);
+}
+
+.fc-index-done {
+  border-color: color-mix(in srgb, var(--fc-color-success) 30%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--fc-color-success) 12%,
+    var(--fc-color-surface)
+  );
+  color: color-mix(in srgb, var(--fc-color-success) 82%, var(--fc-color-ink));
+}
+
+/* Empty and loading states. Every route uses these two, so a blank screen
+   never looks like a different product. */
+.fc-empty {
+  padding: clamp(2rem, 6vw, 3.5rem) clamp(1rem, 4vw, 2rem);
+  text-align: center;
+}
+
+.fc-empty-title {
+  margin: 0;
+  color: var(--fc-color-ink);
+  font-size: 1.1rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.fc-empty-body {
+  max-width: 44ch;
+  margin: 0.5rem auto 0;
+  color: var(--fc-color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.fc-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.fc-loading {
+  display: flex;
+  min-height: 40svh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--fc-color-text-subtle);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fc-spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid var(--fc-color-border-strong);
+  border-radius: var(--fc-radius-pill);
+  border-top-color: var(--fc-color-brand-ink);
+  animation: fc-spin 700ms linear infinite;
+}
+
+@keyframes fc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-spinner {
+    animation-duration: 2.4s;
+  }
+
+  .fc-card-link:hover,
+  .fc-button:hover:not(:disabled):not([aria-disabled="true"]) {
+    transform: none;
+  }
+}
+
+/* Form rhythm. Labels, hints, and errors were hand-rolled on every page; this
+   is the one spacing and colour treatment for all of them. */
+.fc-field + .fc-field {
+  margin-top: 1.25rem;
+}
+
+.fc-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--fc-color-ink-soft);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.fc-label-note {
+  margin-left: 0.4rem;
+  color: var(--fc-color-text-subtle);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fc-hint {
+  margin: 0.4rem 0 0;
+  color: var(--fc-color-text-subtle);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.fc-error-text {
+  margin: 0.4rem 0 0;
+  color: var(--fc-color-danger);
+  font-size: 0.78rem;
+}
+
+/* A selectable record -- radio or checkbox rendered as a full-width row. */
+.fc-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-control);
+  background: var(--fc-color-surface);
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.fc-option:hover {
+  border-color: var(--fc-color-border-strong);
+}
+
+.fc-option:has(input:checked) {
+  border-color: var(--fc-color-brand-ink);
+  background: var(--fc-color-brand-soft);
+}
+
+/* Read-only tag. Distinct from .fc-badge, which carries status meaning. */
+.fc-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-pill);
+  background: color-mix(
+    in srgb,
+    var(--fc-color-surface-muted) 40%,
+    var(--fc-color-surface)
+  );
+  padding: 0.2rem 0.6rem;
+  color: var(--fc-color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.fc-stepper {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--fc-color-border-strong);
+  border-radius: var(--fc-radius-pill);
+  background: var(--fc-color-surface);
+}
+
+.fc-stepper button {
+  display: grid;
+  width: var(--fc-touch-target);
+  height: var(--fc-touch-target);
+  place-items: center;
+  color: var(--fc-color-ink-soft);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.fc-stepper button:hover:not(:disabled) {
+  background: var(--fc-color-brand-soft);
+  color: var(--fc-color-ink);
+}
+
+.fc-stepper-value {
+  min-width: 2.75rem;
+  border-inline: 1px solid var(--fc-color-border);
+  padding-block: 0.55rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Tabs, underlined rather than filled, matching the card hover gesture. */
+.fc-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--fc-color-border);
+}
+
+.fc-tab {
+  position: relative;
+  min-height: var(--fc-touch-target);
+  flex: 1;
+  padding: 0.75rem 1rem;
+  color: var(--fc-color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 160ms ease;
+}
+
+.fc-tab::after {
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 2px;
+  background: var(--fc-color-brand);
+  content: "";
+  transform: scaleX(0);
+  transition: transform 180ms ease;
+}
+
+.fc-tab:hover,
+.fc-tab[aria-selected="true"] {
+  color: var(--fc-color-ink);
+}
+
+.fc-tab[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Vertical navigation list, used for menu categories. */
+.fc-navlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fc-navlist-item {
+  display: block;
+  width: 100%;
+  min-height: var(--fc-touch-target);
+  border-radius: var(--fc-radius-control);
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.fc-navlist-item:hover {
+  background: color-mix(
+    in srgb,
+    var(--fc-color-surface-muted) 45%,
+    transparent
+  );
+}
+
+.fc-navlist-item[aria-current="true"] {
+  background: var(--fc-color-brand-soft);
+  box-shadow: inset 2px 0 0 var(--fc-color-brand-ink);
+  color: var(--fc-color-ink);
+}
+
+/* Inline separated metadata: "12 orders / Opened 3 May". */
+.fc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.85rem;
+  color: var(--fc-color-text-muted);
+  font-size: 0.82rem;
+}
+
+.fc-meta > * + * {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.fc-meta > * + *::before {
+  color: var(--fc-color-text-subtle);
+  content: "/";
+}
+
+.fc-mono {
+  font-family: var(--font-geist-mono), monospace;
+  letter-spacing: 0.01em;
+}
+
+/* A copyable credential. */
+.fc-token {
+  display: inline-block;
+  max-width: 100%;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-control);
+  background: color-mix(
+    in srgb,
+    var(--fc-color-surface-muted) 42%,
+    var(--fc-color-surface)
+  );
+  padding: 0.35rem 0.6rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.fc-avatar {
+  display: block;
+  overflow: hidden;
+  flex: none;
+  border: 1px solid var(--fc-color-border);
+  border-radius: var(--fc-radius-pill);
+  background: var(--fc-color-surface-muted);
+}
+
+.fc-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dialog anatomy, so every modal in the product is spaced identically. */
+.fc-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--fc-color-border);
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+}
+
+.fc-dialog-title {
+  margin: 0;
+  color: var(--fc-color-ink);
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.fc-dialog-body {
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+}
+
+/* One dismiss affordance product-wide: the multiplication sign, sized so it
+   reads as a control rather than stray punctuation. */
+.fc-close {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.fc-dialog-footer {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.75rem;
+  border-top: 1px solid var(--fc-color-border);
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+}
+
+@media (min-width: 35rem) {
+  .fc-dialog-footer {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .fc-dialog-footer-split > .fc-button {
+    flex: 1 1 0;
+  }
+}
+
+/* Anything that acts like a control says so under the cursor. */
+button,
+summary,
+[role="button"],
+[role="menuitem"],
+[role="tab"],
+label[for],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+select:disabled,
+input:disabled,
+textarea:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
 }

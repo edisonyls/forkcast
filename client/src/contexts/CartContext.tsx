@@ -120,10 +120,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to localStorage whenever it changes. Skipped until the initial
+  // load has run, otherwise this effect fires first on mount with the empty
+  // default state and overwrites the stored cart before it is read back.
   useEffect(() => {
+    if (isLoading) return;
     localStorage.setItem("forkcast-cart", JSON.stringify(items));
-  }, [items]);
+  }, [items, isLoading]);
 
   // Save cart chef to localStorage whenever it changes
   useEffect(() => {

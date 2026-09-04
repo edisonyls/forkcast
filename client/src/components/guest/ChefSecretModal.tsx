@@ -36,77 +36,80 @@ export default function ChefSecretModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+    <div className="fc-dialog-backdrop" role="presentation">
       <div
-        className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
+        className="fc-dialog max-w-md"
         role="dialog"
         aria-modal="true"
         aria-labelledby="chef-secret-title"
       >
-        <div className="flex justify-between items-center mb-4">
-          <h2 id="chef-secret-title" className="min-w-0 pr-3 text-xl font-bold">
-            Access {chefName}'s Menu
-          </h2>
+        <div className="fc-dialog-header">
+          <div className="min-w-0">
+            <p className="fc-eyebrow">Private menu</p>
+            <h2 id="chef-secret-title" className="fc-dialog-title">
+              Access {chefName}&rsquo;s menu
+            </h2>
+          </div>
           <button
+            type="button"
             onClick={handleClose}
-            className="fc-touch-target flex shrink-0 items-center justify-center text-gray-500 hover:text-gray-700"
+            className="fc-icon-button fc-icon-button-ghost fc-close"
             disabled={isLoading}
+            aria-label="Close"
           >
-            ✕
+            &times;
           </button>
         </div>
 
-        <div className="mb-4">
-          <p className="text-gray-600">
-            This host requires a secret to access their menu. Please enter the
-            secret to continue.
+        <div className="fc-dialog-body">
+          <p className="mt-0 mb-5 text-sm leading-relaxed text-text-muted">
+            This host shares their menu by invitation. Enter the secret they
+            sent you to see what they&rsquo;re cooking.
           </p>
+
+          <form onSubmit={handleSubmit} id="chef-secret-form">
+            <div className="fc-field">
+              <label className="fc-label" htmlFor="secret">
+                Secret
+              </label>
+              <input
+                type="password"
+                id="secret"
+                value={secret}
+                onChange={(e) => setSecret(e.target.value)}
+                className="fc-control px-3 py-2"
+                placeholder="Enter the host's secret"
+                disabled={isLoading}
+                autoFocus
+              />
+            </div>
+
+            {error && (
+              <p className="fc-feedback fc-feedback-danger mt-4 text-sm">
+                {error}
+              </p>
+            )}
+          </form>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="secret"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Secret
-            </label>
-            <input
-              type="password"
-              id="secret"
-              value={secret}
-              onChange={(e) => setSecret(e.target.value)}
-              className="fc-control px-3 py-2"
-              placeholder="Enter host's secret"
-              disabled={isLoading}
-              autoFocus
-            />
-          </div>
-
-          {error && (
-            <div className="fc-feedback fc-feedback-danger mb-4">
-              <p className="text-sm">{error}</p>
-            </div>
-          )}
-
-          <div className="flex flex-col-reverse gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="fc-button fc-button-secondary flex-1"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="fc-button fc-button-primary flex-1"
-              disabled={isLoading || !secret.trim()}
-            >
-              {isLoading ? "Verifying..." : "Access Menu"}
-            </button>
-          </div>
-        </form>
+        <div className="fc-dialog-footer fc-dialog-footer-split">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="fc-button fc-button-secondary"
+            disabled={isLoading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="chef-secret-form"
+            className="fc-button fc-button-primary"
+            disabled={isLoading || !secret.trim()}
+          >
+            {isLoading ? "Verifying..." : "Access menu"}
+          </button>
+        </div>
       </div>
     </div>
   );

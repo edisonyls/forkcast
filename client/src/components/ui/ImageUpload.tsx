@@ -125,8 +125,8 @@ export default function ImageUpload({
         <div
           className={`${
             sizeClasses[size]
-          } relative rounded-full overflow-hidden border-4 border-gray-200 hover:border-blue-300 cursor-pointer transition-all duration-200 ${
-            disabled || uploading ? "opacity-50 cursor-not-allowed" : ""
+          } fc-avatar relative cursor-pointer transition-colors duration-200 hover:border-brand-ink ${
+            disabled || uploading ? "cursor-not-allowed opacity-50" : ""
           }`}
           onClick={handleClick}
         >
@@ -143,26 +143,14 @@ export default function ImageUpload({
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
+            <div className="grid h-full w-full place-items-center bg-surface-muted">
+              <span className="fc-stat-label m-0">Photo</span>
             </div>
           )}
 
           {uploading && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+            <div className="absolute inset-0 grid place-items-center bg-ink/55">
+              <span className="fc-spinner h-5 w-5 border-text-inverse/40 border-t-brand" />
             </div>
           )}
         </div>
@@ -201,13 +189,13 @@ export default function ImageUpload({
           {uploading
             ? "Uploading..."
             : previewUrl
-              ? "Change Image"
-              : "Add Image"}
+              ? "Change image"
+              : "Add image"}
         </button>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="fc-hint">
           {allowDelete
-            ? "Optional • Max 5MB • JPG, PNG, GIF"
-            : "Max 5MB • JPG, PNG, GIF"}
+            ? "Optional \u00b7 max 5MB \u00b7 JPG, PNG, GIF"
+            : "Max 5MB \u00b7 JPG, PNG, GIF"}
         </p>
       </div>
     </div>

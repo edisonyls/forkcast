@@ -9,6 +9,7 @@ export default function ChefsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
   const [totalCount, setTotalCount] = useState(0);
 
   const loadChefs = useCallback(async (searchQuery?: string) => {
@@ -21,6 +22,7 @@ export default function ChefsPage() {
       });
       setChefs(result.chefs || []);
       setTotalCount(result.pagination?.totalCount || 0);
+      setActiveSearch(searchQuery || "");
     } catch (err) {
       console.error("Failed to fetch chefs:", err);
       setError(
@@ -36,67 +38,6 @@ export default function ChefsPage() {
     loadChefs();
   }, [loadChefs]);
 
-  if (loading) {
-    return (
-      <div className="fc-shell py-6 sm:py-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Our Hosts
-        </h1>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading hosts...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="fc-shell py-6 sm:py-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Our Hosts
-        </h1>
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            Unable to Load Hosts
-          </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="fc-button fc-button-primary"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!chefs || chefs.length === 0) {
-    return (
-      <div className="fc-shell py-6 sm:py-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Our Hosts
-        </h1>
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            No Hosts Available
-          </h2>
-          <p className="text-gray-600 mb-6">
-            No hosts have been added to the platform yet. Please check back
-            later.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="fc-button fc-button-primary"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     loadChefs(searchTerm.trim() || undefined);
@@ -108,104 +49,102 @@ export default function ChefsPage() {
   };
 
   return (
-    <div className="fc-shell py-6 sm:py-8">
-      <h1 className="mb-6 text-center text-2xl font-bold text-gray-800 sm:mb-8 sm:text-3xl">
-        Our Hosts
-      </h1>
+    <div className="fc-shell fc-page">
+      <header className="fc-page-header">
+        <div className="min-w-0">
+          <p className="fc-eyebrow">Browse</p>
+          <h1 className="fc-page-title">
+            Hosts who are <em>cooking</em>
+          </h1>
+          <p className="fc-page-lead">
+            Every host keeps their menu behind a secret. Find the one who
+            invited you, then enter their code to see the night&rsquo;s dishes.
+          </p>
+        </div>
 
-      {/* Search and Filters */}
-      <div className="mb-8 space-y-4">
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="max-w-md mx-auto">
-          <div className="relative">
+        <form onSubmit={handleSearch} className="w-full md:max-w-sm">
+          <label className="fc-label" htmlFor="chef-search">
+            Search hosts
+          </label>
+          <div className="flex gap-2">
             <input
-              type="text"
-              placeholder="Search by name, username, or bio..."
-              className="fc-control px-4 py-3 pr-12"
+              id="chef-search"
+              type="search"
+              placeholder="Name, username, or bio"
+              className="fc-control min-w-0 flex-1 px-4 py-2.5"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button
-              type="submit"
-              className="fc-icon-button fc-icon-button-ghost absolute right-1 top-1/2 -translate-y-1/2"
-              aria-label="Search hosts"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+            <button type="submit" className="fc-button fc-button-primary shrink-0 px-5">
+              Search
             </button>
           </div>
         </form>
+      </header>
 
-        {/* Results Summary */}
-        <div className="text-center text-sm text-gray-600">
-          {loading ? (
-            "Searching..."
-          ) : (
-            <>
-              {totalCount === 0 && searchTerm
-                ? `No hosts found for "${searchTerm}"`
-                : `Showing ${chefs.length} of ${totalCount} host${
-                    totalCount !== 1 ? "s" : ""
-                  }`}
-              {searchTerm && (
-                <button
-                  onClick={handleClearSearch}
-                  className="fc-button fc-button-ghost ml-2 px-3 text-sm underline"
-                >
-                  Clear search
-                </button>
-              )}
-            </>
+      {loading ? (
+        <div className="fc-loading" role="status">
+          <span className="fc-spinner" aria-hidden="true" />
+          Loading hosts
+        </div>
+      ) : error ? (
+        <div className="fc-panel fc-empty">
+          <h2 className="fc-empty-title">We couldn&rsquo;t load the hosts</h2>
+          <p className="fc-empty-body">{error}</p>
+          <div className="fc-empty-actions">
+            <button
+              onClick={() => loadChefs(activeSearch || undefined)}
+              className="fc-button fc-button-primary"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      ) : chefs.length === 0 ? (
+        <div className="fc-panel fc-empty">
+          <h2 className="fc-empty-title">
+            {activeSearch ? "No hosts match that search" : "No hosts yet"}
+          </h2>
+          <p className="fc-empty-body">
+            {activeSearch
+              ? `Nothing came back for "${activeSearch}". Try a shorter search, or clear it to see everyone.`
+              : "Nobody is hosting on ForkCast yet. Check back soon."}
+          </p>
+          {activeSearch && (
+            <div className="fc-empty-actions">
+              <button
+                onClick={handleClearSearch}
+                className="fc-button fc-button-secondary"
+              >
+                Clear search
+              </button>
+            </div>
           )}
         </div>
-      </div>
-
-      {/* Results */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {chefs.map((chef) => (
-          <ChefCard key={chef.id} chef={chef} />
-        ))}
-      </div>
-
-      {/* No Results Message */}
-      {!loading && chefs.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <svg
-              className="w-16 h-16 mx-auto"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+      ) : (
+        <>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <p className="fc-stat-label m-0">
+              {activeSearch
+                ? `${chefs.length} of ${totalCount} matching "${activeSearch}"`
+                : `${chefs.length} of ${totalCount} hosts`}
+            </p>
+            {activeSearch && (
+              <button
+                onClick={handleClearSearch}
+                className="fc-button fc-button-ghost px-3 text-sm"
+              >
+                Clear search
+              </button>
+            )}
           </div>
-          <h3 className="text-lg font-medium text-gray-600 mb-2">
-            {searchTerm ? "No hosts found" : "No hosts available"}
-          </h3>
-          <p className="text-gray-500">
-            {searchTerm
-              ? `Try adjusting your search terms`
-              : "No hosts have been added to the platform yet"}
-          </p>
-        </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {chefs.map((chef) => (
+              <ChefCard key={chef.id} chef={chef} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

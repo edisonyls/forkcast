@@ -184,80 +184,72 @@ export default function EventDetailsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-lg">Loading...</div>
+      <div className="fc-loading" role="status">
+        <span className="fc-spinner" aria-hidden="true" />
+        Loading event
       </div>
     );
   }
 
   if (error || !event) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-center">
-          <div className="text-red-600 mb-4">{error || "Event not found"}</div>
-          <Link
-            href="/chef/events"
-            className="fc-button fc-button-primary"
-          >
-            Back to Events
-          </Link>
+      <div className="fc-shell fc-page">
+        <div className="fc-panel fc-empty">
+          <h1 className="fc-empty-title">Event not found</h1>
+          <p className="fc-empty-body">
+            {error || "This event may have been deleted."}
+          </p>
+          <div className="fc-empty-actions">
+            <Link href="/chef/events" className="fc-button fc-button-primary">
+              Back to events
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 py-4 sm:py-8">
-      <div className="fc-shell">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link
-                href="/chef/events"
-                className="mb-2 inline-block text-sm font-medium text-brand-ink hover:text-ink"
-              >
-                ← Back to Events
-              </Link>
-              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-                {event.title}
-              </h1>
-              <div className="flex items-center space-x-2 mt-2">
-                <span
-                  className={`fc-badge ${getStatusColor(
-                    event.status,
-                  )}`}
-                >
-                  {event.status}
-                </span>
-                <span className="text-gray-500">•</span>
-                <span className="text-gray-600">
-                  {event._count.eventOrders}{" "}
-                  {event._count.eventOrders === 1 ? "order" : "orders"}
-                </span>
-              </div>
-            </div>
-          </div>
+    <div className="fc-shell fc-page">
+      <header className="fc-page-header">
+        <div className="min-w-0">
+          <Link
+            href="/chef/events"
+            className="fc-button fc-button-ghost -ml-2 mb-2 px-2 text-sm"
+          >
+            &larr; Back to events
+          </Link>
+          <p className="fc-eyebrow">Event orders</p>
+          <h1 className="fc-page-title">{event.title}</h1>
+          <p className="fc-meta mt-3">
+            <span className={`fc-badge ${getStatusColor(event.status)}`}>
+              {event.status}
+            </span>
+            <span>
+              {event._count.eventOrders}{" "}
+              {event._count.eventOrders === 1 ? "order" : "orders"}
+            </span>
+          </p>
         </div>
+      </header>
 
-        {/* Event Info */}
-        <div className="mb-6 rounded-lg bg-white p-4 shadow sm:mb-8 sm:p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">
-            Event Details
-          </h2>
-
+      <section className="fc-panel">
+        <div className="fc-panel-header">
+          <h2 className="fc-panel-title">Event details</h2>
+        </div>
+        <div className="fc-panel-body">
           {event.description && (
-            <p className="text-gray-700 mb-4">{event.description}</p>
+            <p className="mt-0 mb-5 max-w-[70ch] text-sm leading-relaxed text-text-muted">
+              {event.description}
+            </p>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+          <dl className="fc-stat-grid">
             <div>
-              <span className="font-medium text-gray-900">Event Date:</span>
-              <p
-                className={`mt-1 ${
-                  isEventPast(event.eventDate)
-                    ? "text-red-600"
-                    : "text-gray-600"
+              <dt className="fc-stat-label">Event date</dt>
+              <dd
+                className={`fc-stat-value ${
+                  isEventPast(event.eventDate) ? "text-danger" : ""
                 }`}
               >
                 {new Date(event.eventDate).toLocaleDateString("en-US", {
@@ -266,163 +258,139 @@ export default function EventDetailsPage() {
                   month: "long",
                   day: "numeric",
                 })}
-              </p>
+              </dd>
             </div>
-
             <div>
-              <span className="font-medium text-gray-900">Orders:</span>
-              <p className="mt-1 text-gray-600">
+              <dt className="fc-stat-label">Orders</dt>
+              <dd className="fc-stat-value">
                 {event._count.eventOrders}
                 {event.maxOrders && ` / ${event.maxOrders}`}
-              </p>
+              </dd>
             </div>
             <div>
-              <span className="font-medium text-gray-900">Created:</span>
-              <p className="mt-1 text-gray-600">
+              <dt className="fc-stat-label">Created</dt>
+              <dd className="fc-stat-value">
                 {new Date(event.createdAt).toLocaleDateString()}
-              </p>
+              </dd>
             </div>
-          </div>
+          </dl>
+        </div>
+      </section>
+
+      <section className="fc-panel">
+        <div className="fc-panel-header">
+          <h2 className="fc-panel-title">Orders</h2>
+          <p className="fc-stat-label m-0">
+            {event.eventOrders.length}{" "}
+            {event.eventOrders.length === 1 ? "order" : "orders"}
+          </p>
         </div>
 
-        {/* Orders */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="border-b border-gray-200 px-4 py-4 sm:px-6">
-            <h2 className="text-lg font-medium text-gray-900">Orders</h2>
+        {event.eventOrders.length === 0 ? (
+          <div className="fc-empty">
+            <h3 className="fc-empty-title">No orders yet</h3>
+            <p className="fc-empty-body">
+              Share your menu secret with guests and their orders will land
+              here.
+            </p>
           </div>
-
-          {event.eventOrders.length === 0 ? (
-            <div className="p-4 text-center sm:p-6">
-              <p className="text-gray-500">No orders yet.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {event.eventOrders.map((order) => (
-                <div key={order.id} className="p-4 sm:p-6">
-                  <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {order.customerName}
-                        </h3>
-                        <span
-                          className={`fc-badge ${getOrderStatusColor(
-                            order.status,
-                          )}`}
-                        >
-                          {order.status === "CANCELLED"
-                            ? "REJECTED"
-                            : order.status}
-                        </span>
-                      </div>
-
-                      <div className="mt-1 text-sm text-gray-600">
-                        {order.customerEmail && (
-                          <p>Email: {order.customerEmail}</p>
-                        )}
-                        {order.customerPhone && (
-                          <p>Phone: {order.customerPhone}</p>
-                        )}
-                        <p>
-                          Ordered:{" "}
-                          {new Date(order.createdAt).toLocaleDateString()} at{" "}
-                          {new Date(order.createdAt).toLocaleTimeString()}
-                        </p>
-                      </div>
+        ) : (
+          <ul className="fc-list m-0 list-none p-0">
+            {event.eventOrders.map((order) => (
+              <li key={order.id} className="fc-row flex-col">
+                <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="m-0 text-base font-semibold tracking-[-0.02em] text-ink">
+                        {order.customerName}
+                      </h3>
+                      <span
+                        className={`fc-badge ${getOrderStatusColor(
+                          order.status,
+                        )}`}
+                      >
+                        {order.status === "CANCELLED" ? "REJECTED" : order.status}
+                      </span>
                     </div>
 
-                    {(order.status === "PENDING" ||
-                      order.status === "CONFIRMED" ||
-                      order.status === "CANCELLED") && (
-                      <div className="flex flex-wrap gap-2">
-                        {order.status === "PENDING" && (
-                          <button
-                            onClick={() =>
-                              updateOrderStatus(order.id, "CONFIRMED")
-                            }
-                            disabled={statusUpdating === order.id}
-                            className="fc-button fc-button-primary text-sm"
-                          >
-                            {statusUpdating === order.id ? "..." : "Confirm"}
-                          </button>
-                        )}
-                        {(order.status === "PENDING" ||
-                          order.status === "CONFIRMED") && (
-                          <button
-                            onClick={() =>
-                              updateOrderStatus(order.id, "CANCELLED")
-                            }
-                            disabled={statusUpdating === order.id}
-                            className="fc-button fc-button-danger text-sm"
-                          >
-                            {statusUpdating === order.id ? "..." : "Reject"}
-                          </button>
-                        )}
-                        {order.status === "CANCELLED" && (
-                          <button
-                            onClick={() =>
-                              updateOrderStatus(order.id, "CONFIRMED")
-                            }
-                            disabled={statusUpdating === order.id}
-                            className="fc-button fc-button-primary text-sm"
-                          >
-                            {statusUpdating === order.id ? "..." : "Confirm"}
-                          </button>
-                        )}
-                      </div>
-                    )}
+                    <p className="fc-meta mt-1.5">
+                      {order.customerEmail && <span>{order.customerEmail}</span>}
+                      {order.customerPhone && <span>{order.customerPhone}</span>}
+                      <span>
+                        Ordered {new Date(order.createdAt).toLocaleDateString()}{" "}
+                        at {new Date(order.createdAt).toLocaleTimeString()}
+                      </span>
+                    </p>
                   </div>
 
-                  {/* Order Items */}
-                  <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Order Items ({calculateOrderTotal(order.eventOrderItems)}{" "}
-                      items)
-                    </h4>
-                    <div className="space-y-2">
-                      {order.eventOrderItems.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex justify-between items-start"
-                        >
-                          <div className="flex-1">
-                            <span className="font-medium">
-                              {item.menuItem.name}
-                            </span>
-                            <span className="text-gray-600 ml-2">
-                              x{item.quantity}
-                            </span>
-                            {item.specialNotes && (
-                              <p className="text-sm text-gray-600 mt-1">
-                                Note:{" "}
-                                {item.specialNotes.replace(
-                                  /^Customizations:\s*/,
-                                  "",
-                                )}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {order.specialRequests && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <h5 className="font-medium text-gray-900 mb-2">
-                          Special Requests:
-                        </h5>
-                        <p className="text-sm text-gray-700">
-                          {order.specialRequests}
-                        </p>
-                      </div>
+                  <div className="flex flex-wrap gap-2">
+                    {order.status !== "CONFIRMED" && (
+                      <button
+                        onClick={() => updateOrderStatus(order.id, "CONFIRMED")}
+                        disabled={statusUpdating === order.id}
+                        className="fc-button fc-button-primary text-sm"
+                      >
+                        {statusUpdating === order.id ? "Saving..." : "Confirm"}
+                      </button>
+                    )}
+                    {order.status !== "CANCELLED" && (
+                      <button
+                        onClick={() => updateOrderStatus(order.id, "CANCELLED")}
+                        disabled={statusUpdating === order.id}
+                        className="fc-button fc-button-danger-ghost text-sm"
+                      >
+                        {statusUpdating === order.id ? "Saving..." : "Reject"}
+                      </button>
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+
+                <div className="mt-4 w-full">
+                  <span className="fc-stat-label">
+                    {calculateOrderTotal(order.eventOrderItems)} items
+                  </span>
+                  <ul className="fc-card m-0 list-none p-0">
+                    {order.eventOrderItems.map((item, index) => (
+                      <li
+                        key={item.id}
+                        className={`flex flex-wrap items-baseline justify-between gap-2 px-4 py-3 ${
+                          index > 0 ? "border-t border-border-theme" : ""
+                        }`}
+                      >
+                        <span className="min-w-0">
+                          <span className="text-sm font-medium text-ink">
+                            {item.menuItem.name}
+                          </span>
+                          {item.specialNotes && (
+                            <span className="mt-1 block text-xs text-text-muted">
+                              {item.specialNotes.replace(
+                                /^Customizations:\s*/,
+                                "",
+                              )}
+                            </span>
+                          )}
+                        </span>
+                        <span className="fc-mono text-sm text-text-muted">
+                          &times;{item.quantity}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {order.specialRequests && (
+                    <div className="mt-3">
+                      <span className="fc-stat-label">Special requests</span>
+                      <p className="m-0 text-sm leading-relaxed text-text-muted">
+                        {order.specialRequests}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

@@ -240,247 +240,215 @@ export default function ChefSignUp() {
 
   return (
     <div className="fc-auth-page flex min-h-[calc(100svh-var(--fc-header-height))] items-center justify-center px-[var(--fc-page-gutter)] py-8 sm:py-12">
-      <div className="fc-auth-card max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Become a Host
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Join our platform and start sharing your culinary creations
-          </p>
-        </div>
+      <div className="fc-auth-card w-full max-w-md">
+        <p className="fc-eyebrow">Host sign up</p>
+        <h1 className="fc-page-title text-[2rem] sm:text-[2.25rem]">
+          Cook for people who <em>told you</em> what they want
+        </h1>
+        <p className="fc-page-lead">
+          Set up a menu, share one secret, and let your guests order before you
+          shop.
+        </p>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8" onSubmit={handleSubmit}>
           {errors.general && (
-            <div className="fc-feedback fc-feedback-danger">
+            <p className="fc-feedback fc-feedback-danger mb-6 text-sm">
               {errors.general}
-            </div>
+            </p>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address *
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
-                  errors.email ? "fc-control-error" : ""
-                }`}
-                aria-invalid={Boolean(errors.email)}
-                placeholder="Enter your email"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Username *
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                value={formData.username}
-                onChange={handleInputChange}
-                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
-                  errors.username ? "fc-control-error" : ""
-                }`}
-                aria-invalid={Boolean(errors.username)}
-                placeholder="Choose a username"
-              />
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Full Name *
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
-                  errors.name ? "fc-control-error" : ""
-                }`}
-                aria-invalid={Boolean(errors.name)}
-                placeholder="Enter your full name"
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Profile Picture
-              </label>
-              <ImageUpload
-                currentImage={formData.image}
-                onImageChange={handleImageChange}
-                onImageError={handleImageError}
-                disabled={loading}
-                size="large"
-                uploadMode="deferred"
-              />
-              {errors.image && (
-                <p className="mt-1 text-sm text-red-600">{errors.image}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="bio"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Bio *
-              </label>
-              <textarea
-                id="bio"
-                name="bio"
-                required
-                rows={3}
-                value={formData.bio}
-                onChange={handleInputChange}
-                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
-                  errors.bio ? "fc-control-error" : ""
-                }`}
-                aria-invalid={Boolean(errors.bio)}
-                placeholder="Tell us about yourself and your cooking style"
-              />
-              {errors.bio && (
-                <p className="mt-1 text-sm text-red-600">{errors.bio}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password *
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
-                  errors.password ? "fc-control-error" : ""
-                }`}
-                aria-invalid={Boolean(errors.password)}
-                placeholder="8-32 characters with letters and numbers"
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
-              <p className="mt-1 text-xs text-gray-500">
-                Password must be 8-32 characters and contain both letters and
-                numbers
-              </p>
-            </div>
-
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Confirm Password *
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
-                  errors.confirmPassword ? "fc-control-error" : ""
-                }`}
-                aria-invalid={Boolean(errors.confirmPassword)}
-                placeholder="Confirm your password"
-              />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.confirmPassword}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="secret"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Menu Access Secret *
-              </label>
-              <input
-                id="secret"
-                name="secret"
-                type="text"
-                required
-                value={formData.secret}
-                onChange={handleInputChange}
-                className={`fc-control mt-1 px-3 py-2 placeholder-gray-500 sm:text-sm ${
-                  errors.secret ? "fc-control-error" : ""
-                }`}
-                aria-invalid={Boolean(errors.secret)}
-                placeholder="A unique code guests will use to access your menu"
-              />
-              {errors.secret && (
-                <p className="mt-1 text-sm text-red-600">{errors.secret}</p>
-              )}
-              <p className="mt-1 text-xs text-gray-500">
-                This secret code will be shared with guests to access your menu
-              </p>
-            </div>
+          <div className="fc-field">
+            <label htmlFor="email" className="fc-label">
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+              className={`fc-control px-3 py-2.5 text-sm ${
+                errors.email ? "fc-control-error" : ""
+              }`}
+              aria-invalid={Boolean(errors.email)}
+              placeholder="you@example.com"
+            />
+            {errors.email && <p className="fc-error-text">{errors.email}</p>}
           </div>
 
-          <div>
-            <button
-              type="submit"
+          <div className="fc-field">
+            <label htmlFor="username" className="fc-label">
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              value={formData.username}
+              onChange={handleInputChange}
+              className={`fc-control px-3 py-2.5 text-sm ${
+                errors.username ? "fc-control-error" : ""
+              }`}
+              aria-invalid={Boolean(errors.username)}
+              placeholder="How guests will find you"
+            />
+            {errors.username && (
+              <p className="fc-error-text">{errors.username}</p>
+            )}
+          </div>
+
+          <div className="fc-field">
+            <label htmlFor="name" className="fc-label">
+              Full name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={handleInputChange}
+              className={`fc-control px-3 py-2.5 text-sm ${
+                errors.name ? "fc-control-error" : ""
+              }`}
+              aria-invalid={Boolean(errors.name)}
+              placeholder="The name on your menu"
+            />
+            {errors.name && <p className="fc-error-text">{errors.name}</p>}
+          </div>
+
+          <div className="fc-field">
+            <span className="fc-label">
+              Profile picture
+              <span className="fc-label-note">Optional</span>
+            </span>
+            <ImageUpload
+              currentImage={formData.image}
+              onImageChange={handleImageChange}
+              onImageError={handleImageError}
               disabled={loading}
-              className="fc-button fc-button-primary w-full text-sm"
-            >
-              {loading ? "Creating Account..." : "Create Host Account"}
-            </button>
+              size="large"
+              uploadMode="deferred"
+            />
+            {errors.image && <p className="fc-error-text">{errors.image}</p>}
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{" "}
-              <Link
-                href="/chef/signin"
-                className="font-medium text-brand-ink hover:text-ink"
-              >
-                Sign in here
-              </Link>
-            </p>
+          <div className="fc-field">
+            <label htmlFor="bio" className="fc-label">
+              Bio
+            </label>
+            <textarea
+              id="bio"
+              name="bio"
+              required
+              rows={3}
+              value={formData.bio}
+              onChange={handleInputChange}
+              className={`fc-control px-3 py-2.5 text-sm ${
+                errors.bio ? "fc-control-error" : ""
+              }`}
+              aria-invalid={Boolean(errors.bio)}
+              placeholder="What you cook, and who you cook it for"
+            />
+            {errors.bio && <p className="fc-error-text">{errors.bio}</p>}
           </div>
+
+          <div className="fc-field">
+            <label htmlFor="password" className="fc-label">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+              className={`fc-control px-3 py-2.5 text-sm ${
+                errors.password ? "fc-control-error" : ""
+              }`}
+              aria-invalid={Boolean(errors.password)}
+              placeholder="8-32 characters"
+            />
+            {errors.password ? (
+              <p className="fc-error-text">{errors.password}</p>
+            ) : (
+              <p className="fc-hint">
+                8&ndash;32 characters, with both letters and numbers.
+              </p>
+            )}
+          </div>
+
+          <div className="fc-field">
+            <label htmlFor="confirmPassword" className="fc-label">
+              Confirm password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              className={`fc-control px-3 py-2.5 text-sm ${
+                errors.confirmPassword ? "fc-control-error" : ""
+              }`}
+              aria-invalid={Boolean(errors.confirmPassword)}
+              placeholder="Type it once more"
+            />
+            {errors.confirmPassword && (
+              <p className="fc-error-text">{errors.confirmPassword}</p>
+            )}
+          </div>
+
+          <div className="fc-field">
+            <label htmlFor="secret" className="fc-label">
+              Menu access secret
+            </label>
+            <input
+              id="secret"
+              name="secret"
+              type="text"
+              required
+              value={formData.secret}
+              onChange={handleInputChange}
+              className={`fc-control px-3 py-2.5 font-mono text-sm ${
+                errors.secret ? "fc-control-error" : ""
+              }`}
+              aria-invalid={Boolean(errors.secret)}
+              placeholder="supper-club-42"
+            />
+            {errors.secret ? (
+              <p className="fc-error-text">{errors.secret}</p>
+            ) : (
+              <p className="fc-hint">
+                The one code you share with guests to unlock your menu.
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="fc-button fc-button-primary mt-7 w-full"
+          >
+            {loading ? "Creating account..." : "Create host account"}
+          </button>
+
+          <p className="mt-6 mb-0 text-center text-sm text-text-muted">
+            Already have an account?{" "}
+            <Link
+              href="/chef/signin"
+              className="font-semibold text-brand-ink underline underline-offset-4 hover:text-ink"
+            >
+              Sign in
+            </Link>
+          </p>
         </form>
       </div>
     </div>

@@ -272,31 +272,29 @@ export default function ChefPage() {
 
   if (loading) {
     return (
-      <div className="fc-shell py-6 sm:py-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading host information...</p>
-        </div>
+      <div className="fc-loading" role="status">
+        <span className="fc-spinner" aria-hidden="true" />
+        Loading host
       </div>
     );
   }
 
   if (error || !chef) {
     return (
-      <div className="fc-shell py-6 sm:py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
-            {error || "Host not found"}
-          </h1>
-          <p className="text-gray-600 mb-6">
+      <div className="fc-shell fc-page">
+        <div className="fc-panel fc-empty">
+          <h1 className="fc-empty-title">Host not found</h1>
+          <p className="fc-empty-body">
             {error || "The host you're looking for doesn't exist."}
           </p>
-          <button
-            onClick={() => router.push("/chefs")}
-            className="fc-button fc-button-primary"
-          >
-            Back to Hosts
-          </button>
+          <div className="fc-empty-actions">
+            <button
+              onClick={() => router.push("/chefs")}
+              className="fc-button fc-button-primary"
+            >
+              Back to hosts
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -306,15 +304,20 @@ export default function ChefPage() {
   if (!isMenuAccessible) {
     return (
       <>
-        <div className="fc-shell py-6 sm:py-8">
-          <div className="text-center">
-            <div className="mx-auto max-w-md rounded-lg bg-white p-5 shadow-md sm:p-8">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">
+        <div className="fc-shell fc-page">
+          <div className="fc-panel mx-auto max-w-md">
+            <div className="fc-panel-body text-center">
+              <p className="fc-eyebrow justify-center">Locked menu</p>
+              <h1 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-ink">
                 {chef.name}
               </h1>
-              <p className="text-gray-600 mb-4">{chef.bio}</p>
-              <p className="text-brand-ink font-medium">
-                🔒 This host requires a secret to access their menu.
+              {chef.bio && (
+                <p className="mt-3 mb-0 text-sm leading-relaxed text-text-muted">
+                  {chef.bio}
+                </p>
+              )}
+              <p className="fc-hint mt-4">
+                Enter this host&rsquo;s secret to see their menu.
               </p>
             </div>
           </div>
@@ -346,34 +349,21 @@ export default function ChefPage() {
 
   if (availableCategories.length === 0) {
     return (
-      <div className="fc-shell py-6 sm:py-8">
-        {/* Back Button */}
+      <div className="fc-shell fc-page">
         <div className="mb-6">
           <button
             onClick={() => router.push("/chefs")}
-            className="fc-button fc-button-ghost"
+            className="fc-button fc-button-ghost px-2"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            <span>Back to Hosts</span>
+            &larr; Back to hosts
           </button>
         </div>
 
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">{chef.name}</h1>
-          <p className="text-gray-600">
-            This host hasn't added any menu categories yet.
+        <div className="fc-panel fc-empty">
+          <h1 className="fc-empty-title">{chef.name} isn&rsquo;t ready yet</h1>
+          <p className="fc-empty-body">
+            This host hasn&rsquo;t added any menu categories. Check back once
+            they&rsquo;ve planned the night.
           </p>
         </div>
       </div>
@@ -381,27 +371,13 @@ export default function ChefPage() {
   }
 
   return (
-    <div className="fc-shell py-3 sm:py-8">
-      {/* Back Button */}
+    <div className="fc-shell fc-page">
       <div className="mb-3 sm:mb-6">
         <button
           onClick={() => router.push("/chefs")}
-          className="fc-button fc-button-ghost"
+          className="fc-button fc-button-ghost px-2"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          <span>Back to Hosts</span>
+          &larr; Back to hosts
         </button>
       </div>
 

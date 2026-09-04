@@ -253,318 +253,268 @@ export default function EventOrderModal({
 
   if (success) {
     return (
-      <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+      <div className="fc-dialog-backdrop" role="presentation">
         <div
-          className="fc-dialog max-w-md rounded-lg bg-white p-5 text-center sm:p-8"
+          className="fc-dialog max-w-md"
           role="dialog"
           aria-modal="true"
           aria-labelledby="event-order-success-title"
         >
-          <div className="text-success text-6xl mb-4">✓</div>
-          <h2
-            id="event-order-success-title"
-            className="text-2xl font-bold text-gray-900 mb-2"
-          >
-            Order Placed!
-          </h2>
-          <p className="text-gray-600">
-            Your order for "{event.title}" has been successfully placed. The
-            host will review and confirm your order. You can see the status
-            badges on the menu items.
-          </p>
+          <div className="fc-dialog-header">
+            <div>
+              <p className="fc-eyebrow">Order sent</p>
+              <h2 id="event-order-success-title" className="fc-dialog-title">
+                You&rsquo;re on the list
+              </h2>
+            </div>
+          </div>
+          <div className="fc-dialog-body">
+            <p className="m-0 text-sm leading-relaxed text-text-muted">
+              Your order for &ldquo;{event.title}&rdquo; is with the host. Watch
+              the status badge on the menu for their confirmation.
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+    <div className="fc-dialog-backdrop" role="presentation">
       <div
-        className="fc-dialog max-w-4xl rounded-lg bg-white"
+        className="fc-dialog max-w-4xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby="event-order-title"
       >
-        <div className="border-b border-gray-200 p-4 sm:p-6">
-          <div className="flex justify-between items-start">
-            <div className="min-w-0 pr-3">
-              <h2
-                id="event-order-title"
-                className="text-xl font-bold text-gray-900 sm:text-2xl"
-              >
-                Order for {event.title}
-              </h2>
-              <p className="text-gray-600 mt-1">
-                Event Date:{" "}
-                {new Date(event.eventDate).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-            <button
-              onClick={handleClose}
-              disabled={loading}
-              className="fc-icon-button fc-icon-button-ghost shrink-0"
-              aria-label="Close order details"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+        <div className="fc-dialog-header">
+          <div className="min-w-0">
+            <p className="fc-eyebrow">
+              {new Date(event.eventDate).toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+            <h2 id="event-order-title" className="fc-dialog-title">
+              Order for {event.title}
+            </h2>
           </div>
+          <button
+            onClick={handleClose}
+            disabled={loading}
+            className="fc-icon-button fc-icon-button-ghost fc-close shrink-0"
+            aria-label="Close"
+          >
+            &times;
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-          {error && (
-            <div className="fc-feedback fc-feedback-danger mb-4">
-              {error}
-            </div>
-          )}
-
-          {/* Customer Information */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Your Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="fc-control px-3 py-2"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email (optional)
-                </label>
-                <input
-                  type="email"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="fc-control px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone (optional)
-                </label>
-                <input
-                  type="tel"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="fc-control px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Special Requests (optional)
-                </label>
-                <textarea
-                  value={specialRequests}
-                  onChange={(e) => setSpecialRequests(e.target.value)}
-                  rows={3}
-                  className="fc-control px-3 py-2"
-                  placeholder="Any special dietary requirements or requests..."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Menu Items */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Select Items
-            </h3>
-
-            {chefMenuItems.length === 0 ? (
-              <p className="text-gray-500">
-                No menu items available for this host.
+        <form onSubmit={handleSubmit} id="event-order-form">
+          <div className="fc-dialog-body">
+            {error && (
+              <p className="fc-feedback fc-feedback-danger mb-6 text-sm">
+                {error}
               </p>
-            ) : (
-              <div className="max-h-[45dvh] space-y-4 overflow-y-auto overscroll-contain pr-1">
-                {chefMenuItems.map((item) => {
-                  const orderItem = orderItems.find(
-                    (orderItem) => orderItem.menuItemId === item.id,
-                  );
-                  const quantity = orderItem?.quantity || 0;
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="border border-gray-200 rounded-lg p-3 sm:p-4"
-                    >
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">
-                            {item.name}
-                          </h4>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {item.description}
-                          </p>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Prep time: {item.preparationTime} mins
-                          </p>
-                        </div>
-
-                        <div className="flex items-center space-x-2 sm:ml-4">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateQuantity(item.id, quantity - 1)
-                            }
-                            disabled={quantity === 0}
-                            className="fc-icon-button disabled:opacity-50"
-                            aria-label={`Decrease ${item.name} quantity`}
-                          >
-                            -
-                          </button>
-                          <span className="w-8 text-center font-medium">
-                            {quantity}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => addItem(item.id)}
-                            className="fc-icon-button fc-icon-button-primary"
-                            aria-label={`Increase ${item.name} quantity`}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Customization Options */}
-                      {quantity > 0 &&
-                        item.customizableOptions &&
-                        item.customizableOptions.length > 0 && (
-                          <div className="mt-3 border-t border-gray-200 pt-3">
-                            <h5 className="text-sm font-medium text-gray-700 mb-2">
-                              Customization Options:
-                            </h5>
-                            <div className="space-y-2">
-                              {item.customizableOptions.map((option) => {
-                                const isSelected =
-                                  orderItem?.selectedCustomizations?.some(
-                                    (c) => c.id === option.id,
-                                  ) || false;
-
-                                return (
-                                  <label
-                                    key={option.id}
-                                    className="flex min-h-[var(--fc-touch-target)] items-center cursor-pointer hover:bg-gray-50 p-1 rounded"
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={isSelected}
-                                      onChange={() =>
-                                        toggleCustomization(item.id, option)
-                                      }
-                                      className="mr-2 text-green-600 focus:ring-green-500 rounded"
-                                    />
-                                    <span className="text-sm text-gray-700">
-                                      {option.name}
-                                    </span>
-                                  </label>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                      {quantity > 0 && (
-                        <div className="mt-3">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Additional special notes for this item:
-                          </label>
-                          <input
-                            type="text"
-                            value={orderItem?.specialNotes || ""}
-                            onChange={(e) =>
-                              updateSpecialNotes(item.id, e.target.value)
-                            }
-                            className="fc-control px-3 py-2 text-sm"
-                            placeholder="Any additional special instructions..."
-                          />
-                        </div>
-                      )}
-
-                      {/* Selected Customizations Preview */}
-                      {quantity > 0 &&
-                        orderItem?.selectedCustomizations &&
-                        orderItem.selectedCustomizations.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs text-success font-medium mb-1">
-                              Selected customizations:
-                            </p>
-                            <div className="flex flex-wrap gap-1">
-                              {orderItem.selectedCustomizations.map(
-                                (customization) => (
-                                  <span
-                                    key={customization.id}
-                                    className="fc-badge fc-badge-success"
-                                  >
-                                    {customization.name}
-                                  </span>
-                                ),
-                              )}
-                            </div>
-                          </div>
-                        )}
-                    </div>
-                  );
-                })}
-              </div>
             )}
-          </div>
 
-          {/* Order Summary */}
-          {orderItems.length > 0 && (
-            <div className="mb-6 bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Order Summary
-              </h3>
-              <p className="text-gray-600">Total items: {getTotalItems()}</p>
-            </div>
-          )}
+            <section className="mb-8">
+              <p className="fc-stat-label">Your details</p>
+              <div className="grid gap-x-4 md:grid-cols-2">
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="order-name">
+                    Name
+                  </label>
+                  <input
+                    id="order-name"
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="fc-control px-3 py-2.5 text-sm"
+                    required
+                  />
+                </div>
+                <div className="fc-field md:mt-0">
+                  <label className="fc-label" htmlFor="order-email">
+                    Email
+                    <span className="fc-label-note">Optional</span>
+                  </label>
+                  <input
+                    id="order-email"
+                    type="email"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    className="fc-control px-3 py-2.5 text-sm"
+                  />
+                </div>
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="order-phone">
+                    Phone
+                    <span className="fc-label-note">Optional</span>
+                  </label>
+                  <input
+                    id="order-phone"
+                    type="tel"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="fc-control px-3 py-2.5 text-sm"
+                  />
+                </div>
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="order-requests">
+                    Special requests
+                    <span className="fc-label-note">Optional</span>
+                  </label>
+                  <textarea
+                    id="order-requests"
+                    value={specialRequests}
+                    onChange={(e) => setSpecialRequests(e.target.value)}
+                    rows={3}
+                    className="fc-control px-3 py-2.5 text-sm"
+                    placeholder="Allergies, dietary needs, anything else"
+                  />
+                </div>
+              </div>
+            </section>
 
-          {/* Submit Button */}
-          <div className="flex flex-col-reverse gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={loading}
-              className="fc-button fc-button-secondary flex-1"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || orderItems.length === 0}
-              className="fc-button fc-button-primary flex-1"
-            >
-              {loading
-                ? "Placing Order..."
-                : `Place Order (${getTotalItems()} items)`}
-            </button>
+            <section>
+              <p className="fc-stat-label">Choose dishes</p>
+
+              {chefMenuItems.length === 0 ? (
+                <p className="m-0 text-sm text-text-muted">
+                  This host has no dishes on their menu yet.
+                </p>
+              ) : (
+                <div className="grid max-h-[45dvh] gap-3 overflow-y-auto overscroll-contain pr-1">
+                  {chefMenuItems.map((item) => {
+                    const orderItem = orderItems.find(
+                      (orderItem) => orderItem.menuItemId === item.id,
+                    );
+                    const quantity = orderItem?.quantity || 0;
+
+                    return (
+                      <div key={item.id} className="fc-card">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="m-0 text-sm font-semibold text-ink">
+                              {item.name}
+                            </h4>
+                            <p className="mt-1 mb-0 text-sm leading-relaxed text-text-muted">
+                              {item.description}
+                            </p>
+                            <p className="fc-meta mt-1.5">
+                              <span>{item.preparationTime} min</span>
+                            </p>
+                          </div>
+
+                          <span className="fc-stepper shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.id, quantity - 1)}
+                              disabled={quantity === 0}
+                              aria-label={`Decrease ${item.name} quantity`}
+                            >
+                              &minus;
+                            </button>
+                            <span className="fc-stepper-value">{quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => addItem(item.id)}
+                              aria-label={`Increase ${item.name} quantity`}
+                            >
+                              +
+                            </button>
+                          </span>
+                        </div>
+
+                        {quantity > 0 &&
+                          item.customizableOptions &&
+                          item.customizableOptions.length > 0 && (
+                            <div className="mt-4 border-t border-border-theme pt-4">
+                              <span className="fc-stat-label">
+                                Customisations
+                              </span>
+                              <div className="grid gap-2">
+                                {item.customizableOptions.map((option) => {
+                                  const isSelected =
+                                    orderItem?.selectedCustomizations?.some(
+                                      (c) => c.id === option.id,
+                                    ) || false;
+
+                                  return (
+                                    <label
+                                      key={option.id}
+                                      className="fc-option items-center py-2"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={() =>
+                                          toggleCustomization(item.id, option)
+                                        }
+                                      />
+                                      <span className="text-sm text-ink">
+                                        {option.name}
+                                      </span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                        {quantity > 0 && (
+                          <div className="fc-field mt-4">
+                            <label
+                              className="fc-label"
+                              htmlFor={`notes-${item.id}`}
+                            >
+                              Notes for this dish
+                              <span className="fc-label-note">Optional</span>
+                            </label>
+                            <input
+                              id={`notes-${item.id}`}
+                              type="text"
+                              value={orderItem?.specialNotes || ""}
+                              onChange={(e) =>
+                                updateSpecialNotes(item.id, e.target.value)
+                              }
+                              className="fc-control px-3 py-2.5 text-sm"
+                              placeholder="Anything the host should know"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </div>
         </form>
+
+        <div className="fc-dialog-footer fc-dialog-footer-split">
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={loading}
+            className="fc-button fc-button-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="event-order-form"
+            disabled={loading || orderItems.length === 0}
+            className="fc-button fc-button-primary"
+          >
+            {loading
+              ? "Placing order..."
+              : orderItems.length === 0
+                ? "Pick at least one dish"
+                : `Place order · ${getTotalItems()} items`}
+          </button>
+        </div>
       </div>
     </div>
   );

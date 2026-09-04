@@ -92,10 +92,10 @@ function MenuItemThumbnail({
         />
       ) : (
         <span
-          className="grid h-full w-full place-items-center text-3xl"
+          className="fc-stat-label grid h-full w-full place-items-center"
           aria-label={`${itemName} image unavailable`}
         >
-          🍽️
+          No photo
         </span>
       )}
       <span className="fc-mobile-add-icon" aria-hidden="true">
@@ -218,11 +218,12 @@ export default function ChefMenu({
   // If no categories are available, show a message
   if (categories.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">
-          This host hasn't added any menu categories yet.
+      <div className="fc-panel fc-empty w-full">
+        <h2 className="fc-empty-title">Menu not ready</h2>
+        <p className="fc-empty-body">
+          This host hasn&rsquo;t added any categories yet. Check back once
+          they&rsquo;ve planned the night.
         </p>
-        <p className="text-gray-400 text-sm mt-2">Please check back later!</p>
       </div>
     );
   }
@@ -237,15 +238,22 @@ export default function ChefMenu({
             alt={chef.name}
             width={64}
             height={64}
-            className="h-16 w-16 shrink-0 rounded-2xl object-cover"
+            className="fc-avatar h-16 w-16 shrink-0 object-cover"
             priority
             onError={() => setHasProfileImageError(true)}
           />
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-bold text-ink">{chef.name}</h1>
-            <div className="mt-1 flex items-center gap-2 text-sm text-text-muted">
-              <span className="fc-badge fc-badge-brand">★ {chef.rating}</span>
-              <span>{menuItems.length} meals</span>
+            <h1 className="m-0 truncate text-xl font-semibold tracking-[-0.03em] text-ink">
+              {chef.name}
+            </h1>
+            <div className="mt-1.5 flex items-center gap-2 text-sm text-text-muted">
+              <span className="fc-badge fc-badge-brand">
+                &#9733; {chef.rating}
+              </span>
+              <span>
+                {menuItems.length}{" "}
+                {menuItems.length === 1 ? "dish" : "dishes"}
+              </span>
             </div>
             {chef.bio && (
               <p className="mt-2 line-clamp-2 text-sm text-text-muted">
@@ -303,135 +311,103 @@ export default function ChefMenu({
 
       {/* Left Side - Categories and Event Orders */}
       <div className="hidden md:block md:w-1/4">
-        <div className="space-y-4 md:sticky md:top-4">
-          {/* Chef Info */}
-          <div className="bg-white rounded-lg shadow-md p-3">
-            <Image
-              src={profileImageSource}
-              alt={chef.name}
-              width={80}
-              height={80}
-              className="rounded-full mx-auto mb-2"
-              priority
-              onError={() => setHasProfileImageError(true)}
-            />
-            <h2 className="text-sm font-bold text-center">{chef.name}</h2>
+        <div className="space-y-4 md:sticky md:top-6">
+          <div className="fc-card">
+            <div className="flex items-start gap-3">
+              <span className="fc-avatar h-14 w-14">
+                <Image
+                  src={profileImageSource}
+                  alt=""
+                  width={56}
+                  height={56}
+                  priority
+                  onError={() => setHasProfileImageError(true)}
+                />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold text-ink">
+                  {chef.name}
+                </span>
+                <span className="fc-badge fc-badge-brand mt-1.5">
+                  &#9733; {chef.rating}
+                </span>
+              </span>
+            </div>
             {chef.bio && (
-              <p className="text-xs text-gray-600 text-center mt-1 mb-2 line-clamp-2">
+              <p className="mt-3 mb-0 line-clamp-3 text-xs leading-relaxed text-text-muted">
                 {chef.bio}
               </p>
             )}
-            <div className="flex justify-center items-center">
-              <span className="text-yellow-500 text-sm">★</span>
-              <span className="ml-1 text-sm">{chef.rating}</span>
-            </div>
           </div>
 
-          {/* Information Panel for Finding Orders */}
-          <div className="fc-feedback fc-feedback-info">
-            <div className="flex items-start space-x-2">
-              <div className="flex-shrink-0">
-                <span className="text-sm">📋</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-xs mb-2">
-                  <strong>Have placed an order?</strong> Check the Events tab to
-                  review and track your orders!
-                </p>
-                <button
-                  onClick={openEventsTab}
-                  className="fc-button fc-button-secondary text-xs"
-                >
-                  🗓️ View Orders
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Tabs */}
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="flex border-b">
+          <div className="fc-panel overflow-hidden">
+            <div className="fc-tabs" role="tablist">
               <button
+                role="tab"
                 onClick={() => setShowEventsTab(false)}
-                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                  !showEventsTab
-                    ? "bg-brand-soft text-brand-ink border-b-2 border-brand-strong"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
+                className="fc-tab"
+                aria-selected={!showEventsTab}
               >
                 Menu
               </button>
               <button
+                role="tab"
                 onClick={openEventsTab}
-                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors relative ${
-                  showEventsTab
-                    ? "bg-brand-soft text-brand-ink border-b-2 border-brand-strong"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
+                className="fc-tab"
+                aria-selected={showEventsTab}
               >
                 Events
                 {availableEvents.length > 0 && (
-                  <span className="fc-badge fc-badge-brand ml-1">
+                  <span className="fc-badge fc-badge-brand ml-1.5">
                     {availableEvents.length}
                   </span>
                 )}
               </button>
             </div>
 
-            <div className="p-4">
+            <div className="fc-panel-body">
               {!showEventsTab ? (
-                // Menu Categories
                 <>
-                  <h3 className="font-bold mb-4">Menu Categories</h3>
-                  <ul className="space-y-2">
+                  <p className="fc-stat-label">Categories</p>
+                  <div className="fc-navlist">
                     {categories.map((category: Category) => (
-                      <li key={category.id}>
-                        <button
-                          onClick={() => setSelectedCategory(category.id)}
-                          className={`min-h-[var(--fc-touch-target)] w-full text-left px-3 py-2 rounded-md transition-colors ${
-                            selectedCategory === category.id
-                              ? "bg-brand-soft text-brand-ink"
-                              : "hover:bg-gray-100"
-                          }`}
-                        >
-                          {category.name}
-                        </button>
-                      </li>
+                      <button
+                        key={category.id}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className="fc-navlist-item text-sm font-medium"
+                        aria-current={selectedCategory === category.id}
+                      >
+                        {category.name}
+                      </button>
                     ))}
-                  </ul>
+                  </div>
+
+                  <p className="fc-hint mt-5 border-t border-border-theme pt-4">
+                    Already ordered? Your order and its status live in the
+                    Events tab.
+                  </p>
                 </>
               ) : (
-                // Events Tab
                 <>
-                  <h3 className="font-bold mb-4 text-brand-ink">
-                    🗓️ Available Events
-                  </h3>
+                  <p className="fc-stat-label">Upcoming events</p>
 
                   {availableEvents.length === 0 ? (
-                    <div className="text-center py-6">
-                      <p className="text-sm text-gray-500 mb-2">
-                        No upcoming events available from this host
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Check back later for upcoming events!
-                      </p>
-                    </div>
+                    <p className="m-0 text-sm leading-relaxed text-text-muted">
+                      No upcoming events from this host yet.
+                    </p>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="fc-navlist">
                       {availableEvents.map((event) => (
-                        <div
+                        <button
                           key={event.id}
                           onClick={() => setSelectedEventId(event.id)}
-                          className={`rounded-lg border p-3 transition-colors cursor-pointer hover:bg-brand-soft ${
-                            selectedEventId === event.id
-                              ? "bg-brand-soft border-brand-strong"
-                              : "bg-surface border-border-theme"
-                          }`}
+                          className="fc-navlist-item"
+                          aria-current={selectedEventId === event.id}
                         >
-                          <h4 className="font-medium text-sm text-ink mb-2">
+                          <span className="block text-sm font-medium text-ink">
                             {event.title}
-                          </h4>
-                          <div className="flex justify-between items-center">
+                          </span>
+                          <span className="mt-1.5 flex items-center gap-2">
                             <span
                               className={`fc-badge ${
                                 event.status === "OPEN"
@@ -443,11 +419,11 @@ export default function ChefMenu({
                             >
                               {event.status || "OPEN"}
                             </span>
-                            <span className="text-xs text-brand-ink">
+                            <span className="fc-mono text-xs text-text-subtle">
                               {event.eventOrders?.length || 0} orders
                             </span>
-                          </div>
-                        </div>
+                          </span>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -463,12 +439,11 @@ export default function ChefMenu({
         {!showEventsTab ? (
           // Show Menu Items
           filteredItems.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                No menu items in this category yet.
-              </p>
-              <p className="text-gray-400 text-sm mt-2">
-                The host is still building their menu!
+            <div className="fc-panel fc-empty">
+              <h2 className="fc-empty-title">Nothing in this category</h2>
+              <p className="fc-empty-body">
+                The host is still building this part of the menu. Try another
+                category.
               </p>
             </div>
           ) : (
@@ -477,12 +452,12 @@ export default function ChefMenu({
                 <div className="fc-mobile-meal-list">
                   <div className="mb-2 flex items-end justify-between gap-3 px-1">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-ink">
+                      <p className="fc-eyebrow">
                         {categories.find(
                           (category) => category.id === selectedCategory,
                         )?.name || "Menu"}
                       </p>
-                      <h2 className="mt-1 text-2xl font-bold text-ink">
+                      <h2 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-ink">
                         Choose your meal
                       </h2>
                     </div>
@@ -509,11 +484,8 @@ export default function ChefMenu({
                           <span className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-text-muted">
                             {item.description}
                           </span>
-                          <span className="mt-3 flex items-center gap-2 text-xs font-medium text-text-muted">
-                            <span className="text-warning">
-                              ★ {item.rating}
-                            </span>
-                            <span aria-hidden="true">•</span>
+                          <span className="fc-meta mt-3 text-xs">
+                            <span>&#9733; {item.rating}</span>
                             <span>{item.preparationTime} min</span>
                           </span>
                         </span>
@@ -529,45 +501,38 @@ export default function ChefMenu({
                 </div>
               </div>
 
-              <div className="hidden grid-cols-2 gap-6 md:grid lg:grid-cols-3">
+              <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
                 {filteredItems.map((item: MenuItem) => (
-                  <div
+                  <article
                     key={item.id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden h-[400px] flex flex-col"
+                    className="fc-panel flex flex-col overflow-hidden"
                   >
-                    <div className="relative h-48 w-full flex-shrink-0 overflow-hidden">
+                    <div className="relative h-44 w-full shrink-0 overflow-hidden border-b border-border-theme">
                       <ImageCarousel
                         images={item.images || []}
                         itemName={item.name}
                         className="h-full w-full"
                       />
                     </div>
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-bold flex-1 mr-2 line-clamp-2 leading-tight">
-                          {item.name}
-                        </h3>
-                        <span className="fc-badge fc-badge-brand flex-shrink-0">
-                          {item.preparationTime} mins
-                        </span>
-                      </div>
-                      <p className="text-gray-600 text-sm mb-4 flex-1 line-clamp-3 overflow-hidden">
+                    <div className="flex flex-1 flex-col p-4">
+                      <h3 className="m-0 line-clamp-2 text-base font-semibold leading-snug tracking-[-0.02em] text-ink">
+                        {item.name}
+                      </h3>
+                      <p className="fc-meta mt-1.5">
+                        <span>&#9733; {item.rating}</span>
+                        <span>{item.preparationTime} min</span>
+                      </p>
+                      <p className="mt-2.5 mb-0 line-clamp-3 text-sm leading-relaxed text-text-muted">
                         {item.description}
                       </p>
-                      <div className="flex justify-center items-center mb-4 mt-auto">
-                        <div className="flex items-center">
-                          <span className="text-warning">★</span>
-                          <span className="ml-1">{item.rating}</span>
-                        </div>
-                      </div>
                       <button
                         onClick={() => openItem(item)}
-                        className="fc-button fc-button-primary w-full"
+                        className="fc-button fc-button-primary mt-4 w-full"
                       >
-                        Add to Order
+                        Add to order
                       </button>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
             </>
@@ -577,7 +542,7 @@ export default function ChefMenu({
           <div className="space-y-6">
             <div className="md:hidden">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-ink">
+                <h2 className="m-0 text-xl font-semibold tracking-[-0.03em] text-ink">
                   Your upcoming meals
                 </h2>
                 <span className="text-sm text-text-muted">
@@ -605,15 +570,15 @@ export default function ChefMenu({
             </div>
 
             {!selectedEventId ? (
-              <div className="bg-white rounded-lg shadow-md p-5 text-center sm:p-8">
-                <h2 className="text-2xl font-bold text-gray-700 mb-4">
+              <div className="fc-panel fc-empty">
+                <h2 className="fc-empty-title">
                   {availableEvents.length > 0
-                    ? "🗓️ Event Orders Overview"
-                    : "🗓️ No upcoming meals yet"}
+                    ? "Pick an event"
+                    : "No upcoming meals yet"}
                 </h2>
-                <p className="text-gray-600">
+                <p className="fc-empty-body">
                   {availableEvents.length > 0
-                    ? "Select an event to view its order details."
+                    ? "Choose an event to see who ordered what."
                     : "New events from this host will appear here."}
                 </p>
               </div>
@@ -625,111 +590,107 @@ export default function ChefMenu({
                 if (!selectedEvent) return null;
 
                 return (
-                  <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                    <div className="border-l-4 border-green-500 pl-4 mb-6">
-                      <h2 className="text-2xl font-bold text-gray-900">
-                        {selectedEvent.title}
-                      </h2>
-                      <p className="text-gray-600">
-                        📅{" "}
-                        {new Date(selectedEvent.eventDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            weekday: "long",
-                            month: "long",
-                            day: "numeric",
-                          },
-                        )}
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {selectedEvent.eventOrders.length} total orders
+                  <section className="fc-panel">
+                    <div className="fc-panel-header">
+                      <div>
+                        <p className="fc-eyebrow">Event</p>
+                        <h2 className="fc-panel-title">
+                          {selectedEvent.title}
+                        </h2>
+                        <p className="fc-panel-sub">
+                          {new Date(selectedEvent.eventDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              month: "long",
+                              day: "numeric",
+                            },
+                          )}
+                        </p>
+                      </div>
+                      <p className="fc-stat-label m-0">
+                        {selectedEvent.eventOrders.length}{" "}
+                        {selectedEvent.eventOrders.length === 1
+                          ? "order"
+                          : "orders"}
                       </p>
                     </div>
 
                     {selectedEvent.eventOrders.length === 0 ? (
-                      <div className="text-center py-12">
-                        <p className="text-gray-500 text-lg">
-                          No orders placed for this event yet.
-                        </p>
-                        <p className="text-gray-400 text-sm mt-2">
-                          Orders will appear here once customers start placing
-                          them.
+                      <div className="fc-empty">
+                        <h3 className="fc-empty-title">No orders yet</h3>
+                        <p className="fc-empty-body">
+                          Orders appear here as guests place them.
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {selectedEvent.eventOrders.map((order) => {
-                          // Determine status badge color and text
-                          const getStatusBadge = (status: string) => {
-                            switch (status) {
-                              case "PENDING":
-                                return {
-                                  variant: "fc-badge-warning",
-                                  text: "⏳ Pending",
-                                };
-                              case "CONFIRMED":
-                                return {
-                                  variant: "fc-badge-success",
-                                  text: "✓ Confirmed",
-                                };
-                              case "CANCELLED":
-                                return {
-                                  variant: "fc-badge-danger",
-                                  text: "✗ Rejected",
-                                };
-                              default:
-                                return {
-                                  variant: "fc-badge-neutral",
-                                  text: "Unknown",
-                                };
-                            }
-                          };
+                      <div className="fc-panel-body">
+                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                          {selectedEvent.eventOrders.map((order) => {
+                            const statusBadge =
+                              order.status === "PENDING"
+                                ? { variant: "fc-badge-warning", text: "Pending" }
+                                : order.status === "CONFIRMED"
+                                  ? {
+                                      variant: "fc-badge-success",
+                                      text: "Confirmed",
+                                    }
+                                  : order.status === "CANCELLED"
+                                    ? {
+                                        variant: "fc-badge-danger",
+                                        text: "Rejected",
+                                      }
+                                    : {
+                                        variant: "fc-badge-neutral",
+                                        text: "Unknown",
+                                      };
 
-                          const statusBadge = getStatusBadge(order.status);
-
-                          return (
-                            <div
-                              key={order.id}
-                              className="bg-gray-50 rounded-lg p-4 border relative"
-                            >
-                              {/* Status Badge */}
-                              <div
-                                className={`fc-badge absolute top-2 right-2 ${statusBadge.variant}`}
-                              >
-                                {statusBadge.text}
-                              </div>
-
-                              <h4 className="font-medium text-gray-900 mb-3 pr-20">
-                                👤 {order.customerName}
-                              </h4>
-                              <div className="space-y-2">
-                                {order.eventOrderItems.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="border-b border-gray-200 pb-2 last:border-b-0"
+                            return (
+                              <article key={order.id} className="fc-card">
+                                <div className="flex items-start justify-between gap-3">
+                                  <h4 className="m-0 min-w-0 truncate text-sm font-semibold text-ink">
+                                    {order.customerName}
+                                  </h4>
+                                  <span
+                                    className={`fc-badge shrink-0 ${statusBadge.variant}`}
                                   >
-                                    <div className="flex justify-between items-start mb-1">
-                                      <span className="text-gray-700 font-medium text-sm">
-                                        {item.menuItem.name}
+                                    {statusBadge.text}
+                                  </span>
+                                </div>
+
+                                <ul className="mt-3 mb-0 list-none p-0">
+                                  {order.eventOrderItems.map((item, index) => (
+                                    <li
+                                      key={item.id}
+                                      className={`flex items-baseline justify-between gap-3 py-2 ${
+                                        index > 0
+                                          ? "border-t border-border-theme"
+                                          : ""
+                                      }`}
+                                    >
+                                      <span className="min-w-0">
+                                        <span className="block text-sm text-ink">
+                                          {item.menuItem.name}
+                                        </span>
+                                        {item.specialNotes && (
+                                          <span className="mt-0.5 block text-xs text-text-subtle">
+                                            {item.specialNotes}
+                                          </span>
+                                        )}
                                       </span>
-                                      <span className="fc-badge fc-badge-brand">
-                                        {item.quantity}x
+                                      <span className="fc-mono shrink-0 text-sm text-text-muted">
+                                        &times;{item.quantity}
                                       </span>
-                                    </div>
-                                    {item.specialNotes && (
-                                      <p className="text-xs text-gray-500 italic">
-                                        📝 {item.specialNotes}
-                                      </p>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </article>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
-                  </div>
+                  </section>
                 );
               })()
             )}

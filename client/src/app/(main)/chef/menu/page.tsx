@@ -907,8 +907,9 @@ export default function MenuManagement() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-lg">Loading...</div>
+      <div className="fc-loading" role="status">
+        <span className="fc-spinner" aria-hidden="true" />
+        Loading menu
       </div>
     );
   }
@@ -917,208 +918,155 @@ export default function MenuManagement() {
     return null;
   }
 
-  return (
-    <div className="bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between py-6 gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Menu Management
-              </h1>
-              <p className="text-gray-600 mt-1 text-sm sm:text-base">
-                Manage your categories and menu items
-              </p>
-            </div>
-            <Link
-              href="/chef/dashboard"
-              className="fc-button fc-button-neutral whitespace-nowrap"
-            >
-              ← Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
+  const categoryActions = (category: Category, dropdownKey: string) => (
+    <div className="relative dropdown-container">
+      <button
+        type="button"
+        onClick={() =>
+          setOpenCategoryDropdown(
+            openCategoryDropdown === dropdownKey ? null : dropdownKey,
+          )
+        }
+        className="fc-menu-trigger"
+        aria-label={`Open actions for ${category.name}`}
+        aria-haspopup="menu"
+        aria-expanded={openCategoryDropdown === dropdownKey}
+      >
+        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+        </svg>
+      </button>
 
-      {/* Error Message */}
-      {error && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="fc-feedback fc-feedback-danger">
-            {error}
-          </div>
+      {openCategoryDropdown === dropdownKey && (
+        <div className="fc-menu-panel absolute right-0 top-12 z-10 w-40" role="menu">
+          <button
+            onClick={() => {
+              openEditCategoryModal(category);
+              setOpenCategoryDropdown(null);
+            }}
+            className="fc-menu-item"
+            role="menuitem"
+          >
+            Rename
+          </button>
+          <button
+            onClick={() => {
+              handleDeleteCategory(category.id);
+              setOpenCategoryDropdown(null);
+            }}
+            className="fc-menu-item fc-menu-item-danger"
+            role="menuitem"
+          >
+            Delete
+          </button>
         </div>
       )}
+    </div>
+  );
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left Sidebar - Categories */}
-          <div className="hidden lg:block lg:w-80 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Categories
-                  </h2>
-                  <button
-                    onClick={() => setShowCategoryModal(true)}
-                    className="fc-button fc-button-primary px-3 text-sm"
-                  >
-                    + Add
-                  </button>
+  return (
+    <div className="fc-shell fc-page">
+      <header className="fc-page-header">
+        <div className="min-w-0">
+          <p className="fc-eyebrow">Host menu</p>
+          <h1 className="fc-page-title">
+            What you&rsquo;re <em>offering</em>
+          </h1>
+          <p className="fc-page-lead">
+            Group your dishes into categories. Guests browse them in the order
+            you set here.
+          </p>
+        </div>
+        <div className="fc-page-actions">
+          <Link href="/chef/dashboard" className="fc-button fc-button-secondary">
+            &larr; Dashboard
+          </Link>
+          <button
+            onClick={() => setShowCategoryModal(true)}
+            className="fc-button fc-button-primary"
+          >
+            Add category
+          </button>
+        </div>
+      </header>
+
+      {error && (
+        <p className="fc-feedback fc-feedback-danger mb-6 text-sm">{error}</p>
+      )}
+
+      {categories.length === 0 ? (
+        <div className="fc-panel fc-empty">
+          <h2 className="fc-empty-title">Start with a category</h2>
+          <p className="fc-empty-body">
+            Appetisers, mains, desserts &mdash; whatever suits the night. Dishes
+            live inside categories.
+          </p>
+          <div className="fc-empty-actions">
+            <button
+              onClick={() => setShowCategoryModal(true)}
+              className="fc-button fc-button-primary"
+            >
+              Create your first category
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+          {/* Desktop category rail */}
+          <aside className="hidden lg:block lg:w-72 lg:shrink-0">
+            <div className="fc-panel lg:sticky lg:top-6">
+              <div className="fc-panel-header">
+                <h2 className="fc-panel-title">Categories</h2>
+                <p className="fc-stat-label m-0">{categories.length}</p>
+              </div>
+              <div className="fc-panel-body">
+                <div className="fc-navlist">
+                  {categories.map((category) => {
+                    const isSelected = selectedCategoryId === category.id;
+                    const itemCount = menuItems.filter(
+                      (item) => item.categoryId === category.id,
+                    ).length;
+
+                    return (
+                      <div
+                        key={category.id}
+                        className="flex items-center gap-1"
+                      >
+                        <button
+                          onClick={() => setSelectedCategoryId(category.id)}
+                          className="fc-navlist-item flex-1"
+                          aria-current={isSelected}
+                        >
+                          <span className="block text-sm font-semibold text-ink">
+                            {category.name}
+                          </span>
+                          <span className="fc-mono mt-0.5 block text-xs text-text-subtle">
+                            {itemCount} {itemCount === 1 ? "item" : "items"}
+                          </span>
+                        </button>
+                        {categoryActions(category, `rail-${category.id}`)}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              <div className="p-6">
-                {categories.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 text-sm">
-                      No categories yet. Create your first category to get
-                      started!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {categories.map((category) => {
-                      const isSelected = selectedCategoryId === category.id;
-                      const itemCount = menuItems.filter(
-                        (item) => item.categoryId === category.id,
-                      ).length;
-                      return (
-                        <div
-                          key={category.id}
-                          className={`relative rounded-md transition-colors ${
-                            isSelected
-                              ? "bg-brand-soft border border-brand-strong"
-                              : "border border-transparent"
-                          }`}
-                        >
-                          <button
-                            onClick={() => setSelectedCategoryId(category.id)}
-                            className={`min-h-[var(--fc-touch-target)] w-full rounded-md p-3 pr-10 text-left transition-colors ${
-                              isSelected
-                                ? "text-brand-ink"
-                                : "hover:bg-brand-soft"
-                            }`}
-                          >
-                            <div className="font-medium">{category.name}</div>
-                            <div className="text-sm text-gray-500">
-                              {itemCount} items
-                            </div>
-                          </button>
-
-                          {/* Three-dot menu for category */}
-                          <div className="absolute top-2 right-2">
-                            <div className="relative dropdown-container">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setOpenCategoryDropdown(
-                                    openCategoryDropdown === category.id
-                                      ? null
-                                      : category.id,
-                                  )
-                                }
-                                className="fc-menu-trigger"
-                                aria-label={`Open actions for ${category.name}`}
-                                aria-haspopup="menu"
-                                aria-expanded={
-                                  openCategoryDropdown === category.id
-                                }
-                              >
-                                <svg
-                                  className="w-5 h-5"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                </svg>
-                              </button>
-
-                              {/* Dropdown menu */}
-                              {openCategoryDropdown === category.id && (
-                                <div
-                                  className="fc-menu-panel absolute right-0 top-12 w-40 z-10"
-                                  role="menu"
-                                >
-                                  <div className="py-1">
-                                    <button
-                                      onClick={() => {
-                                        openEditCategoryModal(category);
-                                        setOpenCategoryDropdown(null);
-                                      }}
-                                      className="fc-menu-item"
-                                      role="menuitem"
-                                    >
-                                      <svg
-                                        className="w-4 h-4 mr-2"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                        />
-                                      </svg>
-                                      Edit
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        handleDeleteCategory(category.id);
-                                        setOpenCategoryDropdown(null);
-                                      }}
-                                      className="fc-menu-item fc-menu-item-danger"
-                                      role="menuitem"
-                                    >
-                                      <svg
-                                        className="w-4 h-4 mr-2"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                        />
-                                      </svg>
-                                      Delete
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </div>
-          </div>
+          </aside>
 
-          {/* Right Content - Menu Items */}
-          <div className="flex-1">
-            {/* Mobile Category Selector */}
-            {categories.length > 0 && (
-              <div className="lg:hidden mb-6">
-                <label
-                  htmlFor="mobile-category-select"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Select Category
-                </label>
-                <div className="flex gap-3 mb-3">
+          {/* Items */}
+          <div className="min-w-0 flex-1">
+            {/* Mobile category picker */}
+            <div className="fc-panel mb-6 lg:hidden">
+              <div className="fc-panel-body">
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="mobile-category-select">
+                    Category
+                  </label>
                   <select
                     id="mobile-category-select"
                     value={selectedCategoryId || ""}
                     onChange={(e) => setSelectedCategoryId(e.target.value)}
-                    className="fc-control flex-1 px-3 py-2"
+                    className="fc-control px-3 py-2.5 text-sm"
                   >
                     <option value="">Select a category</option>
                     {categories.map((category) => {
@@ -1127,185 +1075,72 @@ export default function MenuManagement() {
                       ).length;
                       return (
                         <option key={category.id} value={category.id}>
-                          {category.name} ({itemCount} items)
+                          {category.name} ({itemCount})
                         </option>
                       );
                     })}
                   </select>
-                  <button
-                    onClick={() => setShowCategoryModal(true)}
-                    className="fc-button fc-button-primary whitespace-nowrap"
-                  >
-                    + Add
-                  </button>
                 </div>
 
-                {/* Mobile Category Management - Only show if a category is selected */}
-                {selectedCategoryId && selectedCategory && (
-                  <div className="flex gap-2">
+                {selectedCategory && (
+                  <div className="mt-4 flex gap-2">
                     <button
                       onClick={() => openEditCategoryModal(selectedCategory)}
-                      className="fc-button fc-button-warning flex-1 text-sm"
+                      className="fc-button fc-button-secondary flex-1 text-sm"
                     >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                      Edit Category
+                      Rename category
                     </button>
                     <button
                       onClick={() => handleDeleteCategory(selectedCategory.id)}
-                      className="fc-button fc-button-danger flex-1 text-sm"
+                      className="fc-button fc-button-danger-ghost flex-1 text-sm"
                     >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                      Delete Category
+                      Delete category
                     </button>
                   </div>
                 )}
               </div>
-            )}
+            </div>
 
-            {categories.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-6 sm:p-12 text-center">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Welcome to Menu Management
-                </h3>
-                <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                  Start by creating your first category, then add menu items to
-                  it.
-                </p>
-                <button
-                  onClick={() => setShowCategoryModal(true)}
-                  className="fc-button fc-button-primary"
-                >
-                  Create Your First Category
-                </button>
-              </div>
-            ) : selectedCategory ? (
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-4 sm:p-6 border-b border-gray-200">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                        {selectedCategory.name}
-                      </h2>
-                      <p className="text-gray-600 text-sm">
-                        {filteredMenuItems.length} items in this category
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => openMenuItemModal(selectedCategory.id)}
-                      className="fc-button fc-button-primary"
-                    >
-                      + Add Item
-                    </button>
+            {selectedCategory ? (
+              <section className="fc-panel">
+                <div className="fc-panel-header">
+                  <div>
+                    <p className="fc-eyebrow">Category</p>
+                    <h2 className="fc-panel-title">{selectedCategory.name}</h2>
+                    <p className="fc-panel-sub">
+                      {filteredMenuItems.length}{" "}
+                      {filteredMenuItems.length === 1 ? "dish" : "dishes"}
+                    </p>
                   </div>
+                  <button
+                    onClick={() => openMenuItemModal(selectedCategory.id)}
+                    className="fc-button fc-button-primary"
+                  >
+                    Add dish
+                  </button>
                 </div>
-                <div className="p-4 sm:p-6">
-                  {filteredMenuItems.length === 0 ? (
-                    <div className="text-center py-8 sm:py-12">
-                      <p className="text-gray-500 mb-4 text-sm sm:text-base">
-                        No items in this category yet.
-                      </p>
+
+                {filteredMenuItems.length === 0 ? (
+                  <div className="fc-empty">
+                    <h3 className="fc-empty-title">Nothing in here yet</h3>
+                    <p className="fc-empty-body">
+                      Add a dish so guests have something to choose from.
+                    </p>
+                    <div className="fc-empty-actions">
                       <button
                         onClick={() => openMenuItemModal(selectedCategory.id)}
                         className="fc-button fc-button-primary"
                       >
-                        Add Your First Item
+                        Add your first dish
                       </button>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  </div>
+                ) : (
+                  <div className="fc-panel-body">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {filteredMenuItems.map((item) => (
-                        <div
-                          key={item.id}
-                          className="relative border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
-                        >
-                          {item.images && item.images.length > 0 && (
-                            <div className="grid grid-cols-2 gap-1 mb-3">
-                              {item.images
-                                .slice(0, 4)
-                                .map((imageUrl, index) => (
-                                  <img
-                                    key={index}
-                                    src={
-                                      imageUrl.startsWith("http") ||
-                                      imageUrl.startsWith("data:")
-                                        ? imageUrl
-                                        : `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`
-                                    }
-                                    alt={`${item.name} ${index + 1}`}
-                                    className={`w-full object-cover rounded-md ${
-                                      item.images.length === 1
-                                        ? "h-32 col-span-2"
-                                        : "h-20"
-                                    }`}
-                                  />
-                                ))}
-                              {item.images.length > 4 && (
-                                <div className="h-20 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
-                                  +{item.images.length - 4} more
-                                </div>
-                              )}
-                            </div>
-                          )}
-                          <h3 className="font-medium text-gray-900 mb-2">
-                            {item.name}
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                            {item.description}
-                          </p>
-
-                          {/* Customization Options */}
-                          {item.customizationOptions &&
-                            item.customizationOptions.length > 0 && (
-                              <div className="mb-3">
-                                <div className="text-xs font-medium text-gray-500 mb-1">
-                                  Customization Options:
-                                </div>
-                                <div className="flex flex-wrap gap-1">
-                                  {item.customizationOptions.map((option) => (
-                                    <span
-                                      key={option.id}
-                                      className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
-                                    >
-                                      {option.name}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                          <div className="flex justify-between items-center text-sm text-gray-500">
-                            <span>{item.preparationTime} min</span>
-                            <span>
-                              {item.rating}/5 ({item.ratingCount})
-                            </span>
-                          </div>
-
-                          {/* Three-dot menu */}
-                          <div className="absolute top-2 right-2">
+                        <article key={item.id} className="fc-card relative">
+                          <div className="absolute right-3 top-3">
                             <div className="relative dropdown-container">
                               <button
                                 type="button"
@@ -1320,7 +1155,7 @@ export default function MenuManagement() {
                                 aria-expanded={openDropdownId === item.id}
                               >
                                 <svg
-                                  className="w-5 h-5"
+                                  className="h-5 w-5"
                                   fill="currentColor"
                                   viewBox="0 0 20 20"
                                 >
@@ -1328,208 +1163,255 @@ export default function MenuManagement() {
                                 </svg>
                               </button>
 
-                              {/* Dropdown menu */}
                               {openDropdownId === item.id && (
                                 <div
-                                  className="fc-menu-panel absolute right-0 top-12 w-40 z-10"
+                                  className="fc-menu-panel absolute right-0 top-12 z-10 w-40"
                                   role="menu"
                                 >
-                                  <div className="py-1">
-                                    <button
-                                      onClick={() => {
-                                        openEditMenuItemModal(item);
-                                        setOpenDropdownId(null);
-                                      }}
-                                      className="fc-menu-item"
-                                      role="menuitem"
-                                    >
-                                      <svg
-                                        className="w-4 h-4 mr-2"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                        />
-                                      </svg>
-                                      Edit
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        handleDeleteMenuItem(item.id);
-                                        setOpenDropdownId(null);
-                                      }}
-                                      className="fc-menu-item fc-menu-item-danger"
-                                      role="menuitem"
-                                    >
-                                      <svg
-                                        className="w-4 h-4 mr-2"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                        />
-                                      </svg>
-                                      Delete
-                                    </button>
-                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      openEditMenuItemModal(item);
+                                      setOpenDropdownId(null);
+                                    }}
+                                    className="fc-menu-item"
+                                    role="menuitem"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      handleDeleteMenuItem(item.id);
+                                      setOpenDropdownId(null);
+                                    }}
+                                    className="fc-menu-item fc-menu-item-danger"
+                                    role="menuitem"
+                                  >
+                                    Delete
+                                  </button>
                                 </div>
                               )}
                             </div>
                           </div>
-                        </div>
+
+                          {item.images && item.images.length > 0 && (
+                            <div className="mb-4 grid grid-cols-2 gap-1 overflow-hidden rounded-[var(--fc-radius-control)]">
+                              {item.images.slice(0, 4).map((imageUrl, index) => (
+                                <img
+                                  key={index}
+                                  src={
+                                    imageUrl.startsWith("http") ||
+                                    imageUrl.startsWith("data:")
+                                      ? imageUrl
+                                      : `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`
+                                  }
+                                  alt=""
+                                  className={`w-full object-cover ${
+                                    item.images.length === 1
+                                      ? "col-span-2 h-32"
+                                      : "h-20"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          <h3 className="m-0 pr-10 text-base font-semibold tracking-[-0.02em] text-ink">
+                            {item.name}
+                          </h3>
+                          <p className="mt-1.5 mb-0 line-clamp-2 text-sm leading-relaxed text-text-muted">
+                            {item.description}
+                          </p>
+
+                          {item.customizationOptions &&
+                            item.customizationOptions.length > 0 && (
+                              <div className="mt-3">
+                                <span className="fc-stat-label">
+                                  Customisations
+                                </span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {item.customizationOptions.map((option) => (
+                                    <span key={option.id} className="fc-chip">
+                                      {option.name}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                          <p className="fc-meta mt-4">
+                            <span>{item.preparationTime} min</span>
+                            <span>
+                              &#9733; {item.rating} ({item.ratingCount})
+                            </span>
+                          </p>
+                        </article>
                       ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </section>
+            ) : (
+              <div className="fc-panel fc-empty">
+                <h2 className="fc-empty-title">Pick a category</h2>
+                <p className="fc-empty-body">
+                  Choose a category to see and edit the dishes inside it.
+                </p>
               </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      {/* Category Modal */}
-      {showCategoryModal && (
-        <div className="fc-dialog-backdrop bg-black/50" role="presentation">
-          <div
-            className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
-            role="dialog"
-            aria-modal="true"
-          >
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              {isEditingCategory ? "Edit Category" : "Add New Category"}
-            </h3>
-            <form
-              onSubmit={
-                isEditingCategory ? handleUpdateCategory : handleCreateCategory
-              }
-            >
-              <div className="mb-4">
-                <label
-                  htmlFor="categoryName"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Category Name *
-                </label>
-                <input
-                  type="text"
-                  id="categoryName"
-                  value={categoryForm.name}
-                  onChange={(e) =>
-                    setCategoryForm({ ...categoryForm, name: e.target.value })
-                  }
-                  className="fc-control px-3 py-2"
-                  placeholder="e.g., Appetizers, Main Courses, Desserts"
-                  autoFocus
-                  required
-                />
-              </div>
-              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                <button
-                  type="submit"
-                  disabled={categoryLoading}
-                  className="fc-button fc-button-primary flex-1"
-                >
-                  {categoryLoading
-                    ? isEditingCategory
-                      ? "Updating..."
-                      : "Creating..."
-                    : isEditingCategory
-                      ? "Update Category"
-                      : "Create Category"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCategoryModal(false);
-                    setCategoryForm({ id: "", name: "" });
-                    setIsEditingCategory(false);
-                    setError("");
-                  }}
-                  className="fc-button fc-button-secondary flex-1"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
       )}
 
-      {/* Menu Item Modal */}
-      {showMenuItemModal && (
-        <div className="fc-dialog-backdrop bg-black/50" role="presentation">
+      {/* Category modal */}
+      {showCategoryModal && (
+        <div className="fc-dialog-backdrop" role="presentation">
           <div
-            className="fc-dialog max-w-2xl rounded-lg bg-white p-4 sm:p-6"
+            className="fc-dialog max-w-md"
             role="dialog"
             aria-modal="true"
+            aria-labelledby="category-modal-title"
           >
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              {isEditingMenuItem ? "Edit Menu Item" : "Add New Menu Item"}
-            </h3>
+            <div className="fc-dialog-header">
+              <div>
+                <p className="fc-eyebrow">Category</p>
+                <h2 id="category-modal-title" className="fc-dialog-title">
+                  {isEditingCategory ? "Rename category" : "New category"}
+                </h2>
+              </div>
+            </div>
+
             <form
+              id="category-form"
               onSubmit={
-                isEditingMenuItem ? handleUpdateMenuItem : handleCreateMenuItem
+                isEditingCategory ? handleUpdateCategory : handleCreateCategory
               }
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Item Name *
+              <div className="fc-dialog-body">
+                <div className="fc-field">
+                  <label htmlFor="categoryName" className="fc-label">
+                    Category name
                   </label>
                   <input
                     type="text"
-                    id="name"
-                    name="name"
-                    value={menuItemForm.name}
-                    onChange={handleMenuItemInputChange}
-                    className="fc-control px-3 py-2"
-                    placeholder="e.g., Grilled Salmon"
+                    id="categoryName"
+                    value={categoryForm.name}
+                    onChange={(e) =>
+                      setCategoryForm({ ...categoryForm, name: e.target.value })
+                    }
+                    className="fc-control px-3 py-2.5 text-sm"
+                    placeholder="Appetisers, mains, desserts"
                     autoFocus
                     required
                   />
                 </div>
-                <div>
-                  <label
-                    htmlFor="categoryId"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Category *
-                  </label>
-                  <select
-                    id="categoryId"
-                    name="categoryId"
-                    value={menuItemForm.categoryId}
-                    onChange={handleMenuItemInputChange}
-                    className="fc-control px-3 py-2"
-                    required
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+              </div>
+            </form>
+
+            <div className="fc-dialog-footer fc-dialog-footer-split">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCategoryModal(false);
+                  setCategoryForm({ id: "", name: "" });
+                  setIsEditingCategory(false);
+                  setError("");
+                }}
+                className="fc-button fc-button-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="category-form"
+                disabled={categoryLoading}
+                className="fc-button fc-button-primary"
+              >
+                {categoryLoading
+                  ? "Saving..."
+                  : isEditingCategory
+                    ? "Save category"
+                    : "Create category"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Menu item modal */}
+      {showMenuItemModal && (
+        <div className="fc-dialog-backdrop" role="presentation">
+          <div
+            className="fc-dialog max-w-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="menu-item-modal-title"
+          >
+            <div className="fc-dialog-header">
+              <div>
+                <p className="fc-eyebrow">Dish</p>
+                <h2 id="menu-item-modal-title" className="fc-dialog-title">
+                  {isEditingMenuItem ? "Edit dish" : "New dish"}
+                </h2>
+              </div>
+            </div>
+
+            <form
+              id="menu-item-form"
+              onSubmit={
+                isEditingMenuItem ? handleUpdateMenuItem : handleCreateMenuItem
+              }
+            >
+              <div className="fc-dialog-body">
+                {error && (
+                  <p className="fc-feedback fc-feedback-danger mb-5 text-sm">
+                    {error}
+                  </p>
+                )}
+
+                <div className="grid gap-x-4 sm:grid-cols-2">
+                  <div className="fc-field">
+                    <label htmlFor="name" className="fc-label">
+                      Dish name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={menuItemForm.name}
+                      onChange={handleMenuItemInputChange}
+                      className="fc-control px-3 py-2.5 text-sm"
+                      placeholder="Grilled salmon"
+                      autoFocus
+                      required
+                    />
+                  </div>
+
+                  <div className="fc-field sm:mt-0">
+                    <label htmlFor="categoryId" className="fc-label">
+                      Category
+                    </label>
+                    <select
+                      id="categoryId"
+                      name="categoryId"
+                      value={menuItemForm.categoryId}
+                      onChange={handleMenuItemInputChange}
+                      className="fc-control px-3 py-2.5 text-sm"
+                      required
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="preparationTime"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Preparation Time (minutes) *
+
+                <div className="fc-field">
+                  <label htmlFor="preparationTime" className="fc-label">
+                    Preparation time
+                    <span className="fc-label-note">Minutes</span>
                   </label>
                   <input
                     type="number"
@@ -1539,22 +1421,32 @@ export default function MenuManagement() {
                     onChange={handleMenuItemInputChange}
                     min="5"
                     max="480"
-                    className="fc-control px-3 py-2"
+                    className="fc-control px-3 py-2.5 text-sm"
                     required
                   />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Images (optional)
+
+                <div className="fc-field">
+                  <label htmlFor="description" className="fc-label">
+                    Description
                   </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows={3}
+                    value={menuItemForm.description}
+                    onChange={handleMenuItemInputChange}
+                    className="fc-control px-3 py-2.5 text-sm"
+                    placeholder="Ingredients, and what makes it worth ordering"
+                    required
+                  />
+                </div>
 
-                  {/* Error display for image uploads */}
-                  {error && (
-                    <div className="fc-feedback fc-feedback-danger mb-4 text-sm">
-                      {error}
-                    </div>
-                  )}
-
+                <div className="fc-field">
+                  <span className="fc-label">
+                    Images
+                    <span className="fc-label-note">Optional</span>
+                  </span>
                   <MultipleImageUpload
                     currentImages={menuItemForm.images}
                     onImagesChange={handleImagesChange}
@@ -1564,125 +1456,103 @@ export default function MenuManagement() {
                     uploadMode="deferred"
                   />
                 </div>
-              </div>
-              <div className="mb-6">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Description *
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  rows={3}
-                  value={menuItemForm.description}
-                  onChange={handleMenuItemInputChange}
-                  className="fc-control px-3 py-2"
-                  placeholder="Describe your dish, ingredients, and what makes it special..."
-                  required
-                />
-              </div>
 
-              {/* Customization Options */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Customization Options (optional)
-                </label>
-                <div className="space-y-2">
-                  {menuItemForm.customizationOptions.map((option, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2"
-                    >
-                      <input
-                        type="text"
-                        value={option.name}
-                        onChange={(e) => {
-                          const updatedOptions = [
+                <div className="fc-field">
+                  <span className="fc-label">
+                    Customisation options
+                    <span className="fc-label-note">Optional</span>
+                  </span>
+                  <div className="grid gap-2">
+                    {menuItemForm.customizationOptions.map((option, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={option.name}
+                          onChange={(e) => {
+                            const updatedOptions = [
+                              ...menuItemForm.customizationOptions,
+                            ];
+                            updatedOptions[index].name = e.target.value;
+                            setMenuItemForm({
+                              ...menuItemForm,
+                              customizationOptions: updatedOptions,
+                            });
+                          }}
+                          className="fc-control px-3 py-2.5 text-sm"
+                          placeholder="Extra cheese, no onions, spice level"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedOptions =
+                              menuItemForm.customizationOptions.filter(
+                                (_, i) => i !== index,
+                              );
+                            setMenuItemForm({
+                              ...menuItemForm,
+                              customizationOptions: updatedOptions,
+                            });
+                          }}
+                          className="fc-button fc-button-danger-ghost shrink-0 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuItemForm({
+                          ...menuItemForm,
+                          customizationOptions: [
                             ...menuItemForm.customizationOptions,
-                          ];
-                          updatedOptions[index].name = e.target.value;
-                          setMenuItemForm({
-                            ...menuItemForm,
-                            customizationOptions: updatedOptions,
-                          });
-                        }}
-                        className="fc-control px-3 py-2 sm:flex-1"
-                        placeholder="e.g., Extra cheese, No onions, Spice level"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updatedOptions =
-                            menuItemForm.customizationOptions.filter(
-                              (_, i) => i !== index,
-                            );
-                          setMenuItemForm({
-                            ...menuItemForm,
-                            customizationOptions: updatedOptions,
-                          });
-                        }}
-                        className="fc-button fc-button-danger-ghost self-start text-sm sm:px-3"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuItemForm({
-                        ...menuItemForm,
-                        customizationOptions: [
-                          ...menuItemForm.customizationOptions,
-                          { name: "" },
-                        ],
-                      });
-                    }}
-                    className="fc-button fc-button-secondary text-sm"
-                  >
-                    + Add Customization Option
-                  </button>
+                            { name: "" },
+                          ],
+                        });
+                      }}
+                      className="fc-button fc-button-secondary justify-self-start text-sm"
+                    >
+                      Add an option
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                <button
-                  type="submit"
-                  disabled={menuItemLoading}
-                  className="fc-button fc-button-primary flex-1"
-                >
-                  {menuItemLoading
-                    ? isEditingMenuItem
-                      ? "Updating..."
-                      : "Creating..."
-                    : isEditingMenuItem
-                      ? "Update Menu Item"
-                      : "Create Menu Item"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowMenuItemModal(false);
-                    setMenuItemForm({
-                      id: "",
-                      name: "",
-                      description: "",
-                      preparationTime: 30,
-                      categoryId: "",
-                      images: [],
-                      customizationOptions: [],
-                    });
-                    setIsEditingMenuItem(false);
-                    setError("");
-                  }}
-                  className="fc-button fc-button-secondary flex-1"
-                >
-                  Cancel
-                </button>
-              </div>
             </form>
+
+            <div className="fc-dialog-footer fc-dialog-footer-split">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMenuItemModal(false);
+                  setMenuItemForm({
+                    id: "",
+                    name: "",
+                    description: "",
+                    preparationTime: 30,
+                    categoryId: "",
+                    images: [],
+                    customizationOptions: [],
+                  });
+                  setIsEditingMenuItem(false);
+                  setError("");
+                }}
+                className="fc-button fc-button-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="menu-item-form"
+                disabled={menuItemLoading}
+                className="fc-button fc-button-primary"
+              >
+                {menuItemLoading
+                  ? "Saving..."
+                  : isEditingMenuItem
+                    ? "Save dish"
+                    : "Create dish"}
+              </button>
+            </div>
           </div>
         </div>
       )}

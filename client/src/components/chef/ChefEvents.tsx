@@ -106,12 +106,10 @@ export default function ChefEvents({
 
   if (events.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">
-          This host hasn't created any events yet.
-        </p>
-        <p className="text-gray-400 text-sm mt-2">
-          Check back later for upcoming events!
+      <div className="fc-panel fc-empty">
+        <h2 className="fc-empty-title">No events yet</h2>
+        <p className="fc-empty-body">
+          This host hasn&rsquo;t opened a night for orders. Check back later.
         </p>
       </div>
     );
@@ -119,124 +117,96 @@ export default function ChefEvents({
 
   return (
     <>
-      <div className="space-y-6">
-        {openEventsOnly.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              No upcoming events available for ordering.
-            </p>
-            <p className="text-gray-400 text-sm mt-2">
-              Check back later for new events!
-            </p>
+      {openEventsOnly.length === 0 ? (
+        <div className="fc-panel fc-empty">
+          <h2 className="fc-empty-title">Nothing open right now</h2>
+          <p className="fc-empty-body">
+            Every event is closed or past its deadline. New ones will show up
+            here.
+          </p>
+        </div>
+      ) : (
+        <section>
+          <div className="mb-5">
+            <p className="fc-eyebrow">Upcoming</p>
+            <h2 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-ink">
+              Order for one of {chef.name}&rsquo;s nights
+            </h2>
           </div>
-        ) : (
-          <>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Upcoming Events
-              </h2>
-              <p className="text-gray-600">
-                Place your order for {chef.name}'s upcoming events!
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {openEventsOnly.map((event) => (
-                <div
-                  key={event.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden"
-                >
-                  <div className="p-4 sm:p-6">
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <h3 className="text-xl font-bold text-gray-900 flex-1">
-                        {event.title}
-                      </h3>
-                      <span
-                        className={`fc-badge ${getStatusColor(
-                          event.status,
-                        )}`}
-                      >
-                        {event.status}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center text-sm">
-                        <span className="font-medium text-gray-900 w-20">
-                          Event:
-                        </span>
-                        <span className="text-gray-600">
-                          {new Date(event.eventDate).toLocaleDateString(
-                            "en-US",
-                            {
-                              weekday: "long",
-                              month: "long",
-                              day: "numeric",
-                            },
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <span className="font-medium text-gray-900 w-20">
-                          Deadline:
-                        </span>
-                        <span className="text-gray-600">
-                          {new Date(event.deadline).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                              day: "numeric",
-                            },
-                          )}{" "}
-                          at{" "}
-                          {new Date(event.deadline).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "numeric",
-                              minute: "2-digit",
-                            },
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <span className="font-medium text-gray-900 w-20">
-                          Orders:
-                        </span>
-                        <span className="text-gray-600">
-                          {event._count.eventOrders}
-                          {event.maxOrders && ` / ${event.maxOrders}`}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-gray-200">
-                      {isEventOrderable(event) ? (
-                        <button
-                          onClick={() => {
-                            setSelectedEvent(event);
-                            setIsModalOpen(true);
-                          }}
-                          className="fc-button fc-button-primary w-full"
-                        >
-                          Place Order for This Event
-                        </button>
-                      ) : (
-                        <div className="text-center">
-                          <p className="text-sm text-gray-500">
-                            {getEventStatusText(event)}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {openEventsOnly.map((event) => (
+              <article key={event.id} className="fc-panel flex flex-col">
+                <div className="fc-panel-body flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="m-0 min-w-0 text-base font-semibold tracking-[-0.02em] text-ink">
+                      {event.title}
+                    </h3>
+                    <span
+                      className={`fc-badge shrink-0 ${getStatusColor(event.status)}`}
+                    >
+                      {event.status}
+                    </span>
                   </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
 
-      {/* Event Order Modal */}
+                  <dl className="mt-4 grid gap-3">
+                    <div>
+                      <dt className="fc-stat-label">Event date</dt>
+                      <dd className="fc-stat-value">
+                        {new Date(event.eventDate).toLocaleDateString("en-US", {
+                          weekday: "long",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="fc-stat-label">Orders close</dt>
+                      <dd className="fc-stat-value">
+                        {new Date(event.deadline).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        at{" "}
+                        {new Date(event.deadline).toLocaleTimeString("en-US", {
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="fc-stat-label">Orders in</dt>
+                      <dd className="fc-stat-value">
+                        {event._count.eventOrders}
+                        {event.maxOrders && ` / ${event.maxOrders}`}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="fc-panel-footer">
+                  {isEventOrderable(event) ? (
+                    <button
+                      onClick={() => {
+                        setSelectedEvent(event);
+                        setIsModalOpen(true);
+                      }}
+                      className="fc-button fc-button-primary w-full"
+                    >
+                      Order for this night
+                    </button>
+                  ) : (
+                    <p className="m-0 text-center text-sm text-text-subtle">
+                      {getEventStatusText(event)}
+                    </p>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       {selectedEvent && (
         <EventOrderModal
           isOpen={isModalOpen}

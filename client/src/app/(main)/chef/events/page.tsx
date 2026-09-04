@@ -243,10 +243,172 @@ export default function EventsManagement() {
     return event < today;
   };
 
+  const confirmedItemSummary = (event: Event) => {
+    const confirmedItems = (event.eventOrders || [])
+      .filter((order) => order.status === "CONFIRMED")
+      .flatMap((order) => order.eventOrderItems);
+
+    if (confirmedItems.length === 0) return null;
+
+    const grouped = confirmedItems.reduce(
+      (acc, item) => {
+        const key = `${item.menuItem.name}${
+          item.specialNotes ? `_${item.specialNotes}` : ""
+        }`;
+        if (!acc[key]) {
+          acc[key] = {
+            name: item.menuItem.name,
+            totalQuantity: 0,
+            notes: item.specialNotes,
+          };
+        }
+        acc[key].totalQuantity += item.quantity;
+        return acc;
+      },
+      {} as Record<
+        string,
+        { name: string; totalQuantity: number; notes?: string }
+      >,
+    );
+
+    return { count: confirmedItems.length, groups: Object.values(grouped) };
+  };
+
+  const renderEvent = (event: Event, options: { past: boolean }) => {
+    const pendingOrdersCount =
+      event.eventOrders?.filter((order) => order.status === "PENDING").length ||
+      0;
+    const summary = confirmedItemSummary(event);
+
+    return (
+      <li
+        key={event.id}
+        className={`fc-row flex-col ${
+          pendingOrdersCount > 0 ? "fc-row-flagged" : ""
+        }`}
+      >
+        <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="m-0 text-base font-semibold tracking-[-0.02em] text-ink">
+                {event.title}
+              </h3>
+              <span className={`fc-badge ${getStatusColor(event.status)}`}>
+                {event.status}
+              </span>
+              {pendingOrdersCount > 0 && (
+                <span className="fc-badge fc-badge-warning">
+                  {pendingOrdersCount} pending
+                </span>
+              )}
+            </div>
+
+            <p className="fc-meta mt-1.5">
+              <span className={options.past ? "text-text-subtle" : ""}>
+                {new Date(event.eventDate).toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+              <span>
+                {event._count.eventOrders}{" "}
+                {event._count.eventOrders === 1 ? "order" : "orders"}
+              </span>
+            </p>
+
+            {event.description && (
+              <p className="mt-2 mb-0 max-w-[70ch] text-sm leading-relaxed text-text-muted">
+                {event.description}
+              </p>
+            )}
+          </div>
+
+          <div className="relative dropdown-container flex sm:justify-end">
+            <button
+              type="button"
+              onClick={() =>
+                setOpenDropdownId(openDropdownId === event.id ? null : event.id)
+              }
+              className="fc-menu-trigger"
+              aria-label={`Open actions for ${event.title}`}
+              aria-haspopup="menu"
+              aria-expanded={openDropdownId === event.id}
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+              </svg>
+            </button>
+
+            {openDropdownId === event.id && (
+              <div
+                className="fc-menu-panel absolute right-0 top-12 z-10 w-44"
+                role="menu"
+              >
+                <Link
+                  href={`/chef/events/${event.id}`}
+                  onClick={() => setOpenDropdownId(null)}
+                  className="fc-menu-item"
+                  role="menuitem"
+                >
+                  View orders
+                </Link>
+                {event._count.eventOrders === 0 && (
+                  <button
+                    onClick={() => {
+                      handleDeleteEvent(event.id);
+                      setOpenDropdownId(null);
+                    }}
+                    className="fc-menu-item fc-menu-item-danger"
+                    role="menuitem"
+                  >
+                    Delete event
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {summary && (
+          <div className="mt-4 w-full">
+            <span className="fc-stat-label">
+              Confirmed &mdash; {summary.count} items
+            </span>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {summary.groups.map((item, index) => (
+                <div
+                  key={index}
+                  className="fc-card flex items-start justify-between gap-3 px-3 py-2.5"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-ink">
+                      {item.name}
+                    </span>
+                    {item.notes && (
+                      <span className="mt-0.5 block text-xs text-text-muted">
+                        {item.notes.replace(/^Customizations:\s*/, "")}
+                      </span>
+                    )}
+                  </span>
+                  <span className="fc-badge fc-badge-brand shrink-0">
+                    {item.totalQuantity}&times;
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </li>
+    );
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-lg">Loading...</div>
+      <div className="fc-loading" role="status">
+        <span className="fc-spinner" aria-hidden="true" />
+        Loading events
       </div>
     );
   }
@@ -255,767 +417,246 @@ export default function EventsManagement() {
     return null;
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingEvents = events
+    .filter((event) => {
+      const eventDate = new Date(event.eventDate);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate >= today;
+    })
+    .sort(
+      (a, b) =>
+        new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
+    );
+
+  const pastEvents = events
+    .filter((event) => {
+      const eventDate = new Date(event.eventDate);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate < today;
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime(),
+    );
+
+  const eventsWithPendingOrders = events
+    .map((event) => ({
+      ...event,
+      pendingOrdersCount:
+        event.eventOrders?.filter((order) => order.status === "PENDING")
+          .length || 0,
+    }))
+    .filter((event) => event.pendingOrdersCount > 0);
+
   return (
-    <div className="bg-gray-50 py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Pending Orders Alert - Detailed by Event */}
-        {(() => {
-          const eventsWithPendingOrders = events
-            .map((event) => ({
-              ...event,
-              pendingOrdersCount:
-                event.eventOrders?.filter((order) => order.status === "PENDING")
-                  .length || 0,
-            }))
-            .filter((event) => event.pendingOrdersCount > 0);
-
-          return eventsWithPendingOrders.length > 0 ? (
-            <div className="fc-feedback fc-feedback-warning mb-6 sm:p-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 mt-0.5">
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3 w-full">
-                  <h3 className="text-sm font-medium mb-3">
-                    Pending Orders Awaiting Confirmation
-                  </h3>
-                  <div className="space-y-2">
-                    {eventsWithPendingOrders.map((event) => (
-                      <div
-                        key={event.id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between bg-white rounded-md p-3 sm:p-4 border border-yellow-300 space-y-2 sm:space-y-0"
-                      >
-                        <div className="flex-1">
-                          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-                            <span className="font-medium text-gray-900">
-                              {event.title}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              ({new Date(event.eventDate).toLocaleDateString()})
-                            </span>
-                          </div>
-                          <div className="text-sm mt-1">
-                            <strong>{event.pendingOrdersCount}</strong> pending
-                            order
-                            {event.pendingOrdersCount === 1 ? "" : "s"} need
-                            {event.pendingOrdersCount === 1 ? "s" : ""}{" "}
-                            confirmation
-                          </div>
-                        </div>
-                        <Link
-                          href={`/chef/events/${event.id}`}
-                          className="fc-button fc-button-warning text-sm"
-                        >
-                          Review Orders
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : null;
-        })()}
-
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Event Management
-              </h1>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base">
-                Create events for friends to place orders
-              </p>
-            </div>
-            <Link
-              href="/chef/dashboard"
-              className="fc-button fc-button-neutral whitespace-nowrap"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
+    <div className="fc-shell fc-page">
+      <header className="fc-page-header">
+        <div className="min-w-0">
+          <p className="fc-eyebrow">Host events</p>
+          <h1 className="fc-page-title">
+            The nights you&rsquo;re <em>cooking</em>
+          </h1>
+          <p className="fc-page-lead">
+            Guests can only order while an event is open. Create one, share your
+            secret, then confirm what comes in.
+          </p>
         </div>
-
-        {/* Create Event Button */}
-        <div className="mb-6">
+        <div className="fc-page-actions">
+          <Link href="/chef/dashboard" className="fc-button fc-button-secondary">
+            &larr; Dashboard
+          </Link>
           <button
             onClick={() => setShowEventModal(true)}
-            className="fc-button fc-button-primary w-full sm:w-auto"
+            className="fc-button fc-button-primary"
           >
-            Create New Event
+            Create event
           </button>
         </div>
+      </header>
 
-        {/* Events List */}
-        {events.length === 0 ? (
-          <div className="bg-white shadow rounded-lg p-6 sm:p-12 text-center">
-            <p className="text-gray-500 text-sm sm:text-base">
-              No events created yet.
-            </p>
+      {eventsWithPendingOrders.length > 0 && (
+        <div className="fc-feedback fc-feedback-warning mb-6">
+          <h2 className="fc-stat-label">Waiting on you</h2>
+          <ul className="m-0 grid list-none gap-2 p-0">
+            {eventsWithPendingOrders.map((event) => (
+              <li
+                key={event.id}
+                className="fc-card flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-ink">
+                    {event.title}
+                  </span>
+                  <span className="mt-0.5 block text-sm text-text-muted">
+                    {event.pendingOrdersCount} order
+                    {event.pendingOrdersCount === 1 ? "" : "s"} to confirm
+                    &middot; {new Date(event.eventDate).toLocaleDateString()}
+                  </span>
+                </span>
+                <Link
+                  href={`/chef/events/${event.id}`}
+                  className="fc-button fc-button-warning self-start text-sm sm:self-auto"
+                >
+                  Review orders
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {events.length === 0 ? (
+        <div className="fc-panel fc-empty">
+          <h2 className="fc-empty-title">No events yet</h2>
+          <p className="fc-empty-body">
+            An event is one night of cooking. Open one and your guests can start
+            picking dishes.
+          </p>
+          <div className="fc-empty-actions">
             <button
               onClick={() => setShowEventModal(true)}
-              className="fc-button fc-button-primary mt-4"
+              className="fc-button fc-button-primary"
             >
-              Create Your First Event
+              Create your first event
             </button>
           </div>
-        ) : (
-          <>
-            {/* Upcoming Events Section */}
-            {(() => {
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
+        </div>
+      ) : (
+        <>
+          <section className="fc-panel">
+            <div className="fc-panel-header">
+              <h2 className="fc-panel-title">Upcoming</h2>
+              <p className="fc-stat-label m-0">
+                {upcomingEvents.length}{" "}
+                {upcomingEvents.length === 1 ? "event" : "events"}
+              </p>
+            </div>
 
-              const upcomingEvents = events
-                .filter((event) => {
-                  const eventDate = new Date(event.eventDate);
-                  eventDate.setHours(0, 0, 0, 0);
-                  return eventDate >= today;
-                })
-                .sort(
-                  (a, b) =>
-                    new Date(a.eventDate).getTime() -
-                    new Date(b.eventDate).getTime(),
-                );
+            {upcomingEvents.length === 0 ? (
+              <div className="fc-empty">
+                <h3 className="fc-empty-title">Nothing scheduled</h3>
+                <p className="fc-empty-body">
+                  Create an event to start collecting orders again.
+                </p>
+              </div>
+            ) : (
+              <ul className="fc-list m-0 list-none p-0">
+                {upcomingEvents.map((event) => renderEvent(event, { past: false }))}
+              </ul>
+            )}
+          </section>
 
-              return (
-                <div className="bg-white shadow rounded-lg mb-6">
-                  <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                      Upcoming Events
-                    </h2>
-                  </div>
+          <section className="fc-panel">
+            <div className="fc-panel-header">
+              <h2 className="fc-panel-title">Past</h2>
+              <p className="fc-stat-label m-0">
+                {pastEvents.length}{" "}
+                {pastEvents.length === 1 ? "event" : "events"}
+              </p>
+            </div>
 
-                  {upcomingEvents.length === 0 ? (
-                    <div className="p-4 sm:p-6 text-center">
-                      <p className="text-gray-500 text-sm sm:text-base">
-                        No upcoming events scheduled.
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                        Create your next culinary experience!
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="divide-y-2 divide-gray-300">
-                      {upcomingEvents.map((event) => {
-                        const pendingOrdersCount =
-                          event.eventOrders?.filter(
-                            (order) => order.status === "PENDING",
-                          ).length || 0;
+            {pastEvents.length === 0 ? (
+              <div className="fc-empty">
+                <h3 className="fc-empty-title">No history yet</h3>
+                <p className="fc-empty-body">
+                  Events move here the day after they happen.
+                </p>
+              </div>
+            ) : (
+              <ul className="fc-list m-0 list-none p-0">
+                {pastEvents.map((event) => renderEvent(event, { past: true }))}
+              </ul>
+            )}
+          </section>
+        </>
+      )}
 
-                        return (
-                          <div
-                            key={event.id}
-                            className={`p-4 sm:p-6 ${
-                              pendingOrdersCount > 0
-                                ? "bg-yellow-50 border-l-4 border-l-yellow-400"
-                                : ""
-                            }`}
-                          >
-                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-                                  <h3 className="text-lg font-medium text-gray-900 truncate">
-                                    {event.title}
-                                  </h3>
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <span
-                                      className={`fc-badge ${getStatusColor(
-                                        event.status,
-                                      )}`}
-                                    >
-                                      {event.status}
-                                    </span>
-                                    {pendingOrdersCount > 0 && (
-                                      <span className="fc-badge fc-badge-warning">
-                                        {pendingOrdersCount} Pending
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
+      {showEventModal && (
+        <div className="fc-dialog-backdrop" role="presentation">
+          <div
+            className="fc-dialog max-w-md"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-event-title"
+          >
+            <div className="fc-dialog-header">
+              <div>
+                <p className="fc-eyebrow">New event</p>
+                <h2 id="create-event-title" className="fc-dialog-title">
+                  Open a night for orders
+                </h2>
+              </div>
+            </div>
 
-                                {event.description && (
-                                  <div className="mt-2">
-                                    <p className="text-sm text-gray-600">
-                                      <span className="font-medium">
-                                        Description:
-                                      </span>{" "}
-                                      {event.description}
-                                    </p>
-                                  </div>
-                                )}
+            <form onSubmit={handleCreateEvent} id="create-event-form">
+              <div className="fc-dialog-body">
+                {error && (
+                  <p className="fc-feedback fc-feedback-danger mb-5 text-sm">
+                    {error}
+                  </p>
+                )}
 
-                                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                                  <div>
-                                    <span className="font-medium">
-                                      Event Date:
-                                    </span>
-                                    <br />
-                                    <span
-                                      className={
-                                        isEventPast(event.eventDate)
-                                          ? "text-red-600"
-                                          : ""
-                                      }
-                                    >
-                                      {new Date(
-                                        event.eventDate,
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="font-medium">Orders:</span>
-                                    <br />
-                                    <span>{event._count.eventOrders}</span>
-                                  </div>
-                                </div>
-
-                                {/* Order Details Section */}
-                                {event.eventOrders &&
-                                  event.eventOrders.length > 0 && (
-                                    <div className="mt-4 border-t border-gray-200 pt-4">
-                                      {(() => {
-                                        // Get all confirmed order items
-                                        const confirmedItems = event.eventOrders
-                                          .filter(
-                                            (order) =>
-                                              order.status === "CONFIRMED",
-                                          )
-                                          .flatMap(
-                                            (order) => order.eventOrderItems,
-                                          );
-
-                                        if (confirmedItems.length === 0)
-                                          return null;
-
-                                        // Group items by menu item name and notes
-                                        const groupedItems =
-                                          confirmedItems.reduce(
-                                            (acc, item) => {
-                                              const key = `${
-                                                item.menuItem.name
-                                              }${
-                                                item.specialNotes
-                                                  ? `_${item.specialNotes}`
-                                                  : ""
-                                              }`;
-                                              if (!acc[key]) {
-                                                acc[key] = {
-                                                  name: item.menuItem.name,
-                                                  totalQuantity: 0,
-                                                  notes: item.specialNotes,
-                                                };
-                                              }
-                                              acc[key].totalQuantity +=
-                                                item.quantity;
-                                              return acc;
-                                            },
-                                            {} as Record<
-                                              string,
-                                              {
-                                                name: string;
-                                                totalQuantity: number;
-                                                notes?: string;
-                                              }
-                                            >,
-                                          );
-
-                                        return (
-                                          <div>
-                                            <h4 className="text-sm font-medium text-gray-900 mb-3">
-                                              Confirmed Items (
-                                              {confirmedItems.length} items)
-                                            </h4>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                              {Object.values(groupedItems).map(
-                                                (item, index) => (
-                                                  <div
-                                                    key={index}
-                                                    className="fc-feedback fc-feedback-success px-3 py-2"
-                                                  >
-                                                    <div className="flex items-center justify-between">
-                                                      <div className="flex-1 min-w-0">
-                                                        <div className="font-medium text-sm text-gray-900 truncate">
-                                                          {item.name}
-                                                        </div>
-                                                        {item.notes && (
-                                                          <div className="text-xs text-gray-600 mt-1">
-                                                            Note:{" "}
-                                                            {item.notes.replace(
-                                                              /^Customizations:\s*/,
-                                                              "",
-                                                            )}
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                      <div className="ml-2 rounded-full bg-brand px-2 py-1 text-xs font-medium text-ink">
-                                                        {item.totalQuantity}x
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                ),
-                                              )}
-                                            </div>
-                                          </div>
-                                        );
-                                      })()}
-                                    </div>
-                                  )}
-                              </div>
-
-                              <div className="relative dropdown-container flex sm:justify-end">
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setOpenDropdownId(
-                                      openDropdownId === event.id
-                                        ? null
-                                        : event.id,
-                                    )
-                                  }
-                                  className="fc-menu-trigger"
-                                  aria-label={`Open actions for ${event.title}`}
-                                  aria-haspopup="menu"
-                                  aria-expanded={openDropdownId === event.id}
-                                >
-                                  <svg
-                                    className="w-5 h-5"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                  </svg>
-                                </button>
-
-                                {openDropdownId === event.id && (
-                                  <div
-                                    className="fc-menu-panel absolute right-0 mt-2 w-48 z-10"
-                                    role="menu"
-                                  >
-                                    <Link
-                                      href={`/chef/events/${event.id}`}
-                                      onClick={() => setOpenDropdownId(null)}
-                                      className="fc-menu-item"
-                                      role="menuitem"
-                                    >
-                                      <svg
-                                        className="w-4 h-4 mr-2"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                        />
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                        />
-                                      </svg>
-                                      View Orders
-                                    </Link>
-                                    {event._count.eventOrders === 0 && (
-                                      <button
-                                        onClick={() => {
-                                          handleDeleteEvent(event.id);
-                                          setOpenDropdownId(null);
-                                        }}
-                                        className="fc-menu-item fc-menu-item-danger"
-                                        role="menuitem"
-                                      >
-                                        <svg
-                                          className="w-4 h-4 mr-2"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          viewBox="0 0 24 24"
-                                        >
-                                          <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                          />
-                                        </svg>
-                                        Delete Event
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* Past Events Section */}
-            {(() => {
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-
-              const pastEvents = events
-                .filter((event) => {
-                  const eventDate = new Date(event.eventDate);
-                  eventDate.setHours(0, 0, 0, 0);
-                  return eventDate < today;
-                })
-                .sort(
-                  (a, b) =>
-                    new Date(b.eventDate).getTime() -
-                    new Date(a.eventDate).getTime(),
-                );
-
-              return (
-                <div className="bg-white shadow rounded-lg">
-                  <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                      Past Events
-                    </h2>
-                  </div>
-
-                  {pastEvents.length === 0 ? (
-                    <div className="p-4 sm:p-6 text-center">
-                      <p className="text-gray-500 text-sm sm:text-base">
-                        No past events yet.
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                        Your event history will appear here.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="divide-y-2 divide-gray-300">
-                      {pastEvents.map((event) => (
-                        <div key={event.id} className="p-4 sm:p-6">
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-                                <h3 className="text-lg font-medium text-gray-900 truncate">
-                                  {event.title}
-                                </h3>
-                                <span
-                                  className={`fc-badge ${getStatusColor(
-                                    event.status,
-                                  )} self-start sm:self-auto`}
-                                >
-                                  {event.status}
-                                </span>
-                              </div>
-
-                              {event.description && (
-                                <div className="mt-2">
-                                  <p className="text-sm text-gray-600">
-                                    <span className="font-medium">
-                                      Description:
-                                    </span>{" "}
-                                    {event.description}
-                                  </p>
-                                </div>
-                              )}
-
-                              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                                <div>
-                                  <span className="font-medium">
-                                    Event Date:
-                                  </span>
-                                  <br />
-                                  <span className="text-red-600">
-                                    {new Date(
-                                      event.eventDate,
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="font-medium">Orders:</span>
-                                  <br />
-                                  <span>{event._count.eventOrders}</span>
-                                </div>
-                              </div>
-
-                              {/* Order Details Section */}
-                              {event.eventOrders &&
-                                event.eventOrders.length > 0 && (
-                                  <div className="mt-4 border-t border-gray-200 pt-4">
-                                    {(() => {
-                                      // Get all confirmed order items
-                                      const confirmedItems = event.eventOrders
-                                        .filter(
-                                          (order) =>
-                                            order.status === "CONFIRMED",
-                                        )
-                                        .flatMap(
-                                          (order) => order.eventOrderItems,
-                                        );
-
-                                      if (confirmedItems.length === 0)
-                                        return null;
-
-                                      // Group items by menu item name and notes
-                                      const groupedItems =
-                                        confirmedItems.reduce(
-                                          (acc, item) => {
-                                            const key = `${item.menuItem.name}${
-                                              item.specialNotes
-                                                ? `_${item.specialNotes}`
-                                                : ""
-                                            }`;
-                                            if (!acc[key]) {
-                                              acc[key] = {
-                                                name: item.menuItem.name,
-                                                totalQuantity: 0,
-                                                notes: item.specialNotes,
-                                              };
-                                            }
-                                            acc[key].totalQuantity +=
-                                              item.quantity;
-                                            return acc;
-                                          },
-                                          {} as Record<
-                                            string,
-                                            {
-                                              name: string;
-                                              totalQuantity: number;
-                                              notes?: string;
-                                            }
-                                          >,
-                                        );
-
-                                      return (
-                                        <div>
-                                          <h4 className="text-sm font-medium text-gray-900 mb-3">
-                                            Confirmed Items (
-                                            {confirmedItems.length} items)
-                                          </h4>
-                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                            {Object.values(groupedItems).map(
-                                              (item, index) => (
-                                                <div
-                                                  key={index}
-                                                  className="fc-feedback fc-feedback-success px-3 py-2"
-                                                >
-                                                  <div className="flex items-center justify-between">
-                                                    <div className="flex-1 min-w-0">
-                                                      <div className="font-medium text-sm text-gray-900 truncate">
-                                                        {item.name}
-                                                      </div>
-                                                      {item.notes && (
-                                                        <div className="text-xs text-gray-600 mt-1">
-                                                          Note:{" "}
-                                                          {item.notes.replace(
-                                                            /^Customizations:\s*/,
-                                                            "",
-                                                          )}
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                    <div className="ml-2 rounded-full bg-brand px-2 py-1 text-xs font-medium text-ink">
-                                                      {item.totalQuantity}x
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              ),
-                                            )}
-                                          </div>
-                                        </div>
-                                      );
-                                    })()}
-                                  </div>
-                                )}
-                            </div>
-
-                            <div className="relative dropdown-container flex sm:justify-end">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setOpenDropdownId(
-                                    openDropdownId === event.id
-                                      ? null
-                                      : event.id,
-                                  )
-                                }
-                                className="fc-menu-trigger"
-                                aria-label={`Open actions for ${event.title}`}
-                                aria-haspopup="menu"
-                                aria-expanded={openDropdownId === event.id}
-                              >
-                                <svg
-                                  className="w-5 h-5"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                </svg>
-                              </button>
-
-                              {openDropdownId === event.id && (
-                                <div
-                                  className="fc-menu-panel absolute right-0 mt-2 w-48 z-10"
-                                  role="menu"
-                                >
-                                  <Link
-                                    href={`/chef/events/${event.id}`}
-                                    onClick={() => setOpenDropdownId(null)}
-                                    className="fc-menu-item"
-                                    role="menuitem"
-                                  >
-                                    <svg
-                                      className="w-4 h-4 mr-2"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                      />
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                      />
-                                    </svg>
-                                    View Orders
-                                  </Link>
-                                  {event._count.eventOrders === 0 && (
-                                    <button
-                                      onClick={() => {
-                                        handleDeleteEvent(event.id);
-                                        setOpenDropdownId(null);
-                                      }}
-                                      className="fc-menu-item fc-menu-item-danger"
-                                      role="menuitem"
-                                    >
-                                      <svg
-                                        className="w-4 h-4 mr-2"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                        />
-                                      </svg>
-                                      Delete Event
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-          </>
-        )}
-
-        {/* Create Event Modal */}
-        {showEventModal && (
-          <div className="fc-dialog-backdrop bg-black/50" role="presentation">
-            <div
-              className="fc-dialog max-w-md rounded-lg bg-white p-4 sm:p-6"
-              role="dialog"
-              aria-modal="true"
-            >
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Create New Event
-              </h3>
-
-              {error && (
-                <div className="fc-feedback fc-feedback-danger mb-4 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <form onSubmit={handleCreateEvent}>
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Event Date *
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="event-date">
+                    Event date
                   </label>
                   <input
+                    id="event-date"
                     type="date"
                     value={eventDate}
                     onChange={(e) => setEventDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className="fc-control px-3 py-2"
+                    className="fc-control px-3 py-2.5 text-sm"
                     required
                   />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Select the date for your event
-                  </p>
                 </div>
 
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description (Optional)
+                <div className="fc-field">
+                  <label className="fc-label" htmlFor="event-description">
+                    Description
+                    <span className="fc-label-note">Optional</span>
                   </label>
                   <textarea
+                    id="event-description"
                     value={eventDescription}
                     onChange={(e) => setEventDescription(e.target.value)}
                     rows={3}
-                    className="fc-control px-3 py-2"
-                    placeholder="Add a description for your event (only visible to you)"
+                    className="fc-control px-3 py-2.5 text-sm"
+                    placeholder="A note to yourself about this night"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
-                    This description is only visible to you and helps you keep
-                    track of event details
-                  </p>
+                  <p className="fc-hint">Only you can see this.</p>
                 </div>
+              </div>
+            </form>
 
-                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                  <button
-                    type="submit"
-                    disabled={eventLoading}
-                    className="fc-button fc-button-primary flex-1"
-                  >
-                    {eventLoading ? "Creating..." : "Create Event"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowEventModal(false);
-                      setEventDate("");
-                      setEventDescription("");
-                      setError("");
-                    }}
-                    className="fc-button fc-button-secondary flex-1"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+            <div className="fc-dialog-footer fc-dialog-footer-split">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEventModal(false);
+                  setEventDate("");
+                  setEventDescription("");
+                  setError("");
+                }}
+                className="fc-button fc-button-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="create-event-form"
+                disabled={eventLoading}
+                className="fc-button fc-button-primary"
+              >
+                {eventLoading ? "Creating..." : "Create event"}
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
